@@ -95,7 +95,7 @@ public class HomeActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar_home);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("Brihat Mridanga");
+            getSupportActionBar().setTitle("FOLK Database");
         }
         // For back navigation button use this
         // if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -185,12 +185,7 @@ public class HomeActivity extends AppCompatActivity {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         // adapter.addFrag(new AdminFragment(ContextCompat.getColor(this, R.color.bg_light_grey)), "CHATS");
         // adapter.addFrag(new AdminFragment(ContextCompat.getColor(this, R.color.bg_light_grey)), "NOTIFICATIONS");     // they must be visible
-        adapter.addFrag(new TodayFragment(), "TODAY");
-        adapter.addFrag(new DashboardFragment(), "DASHBOARD");
-        adapter.addFrag(new TargetedPlacesFragment(), "TARGETED PLACES");
-        adapter.addFrag(new BookVaultFragment(), "BOOK VAULT");
-        adapter.addFrag(new TeamsFragment(), "TEAMS"); // For teams
-        adapter.addFrag(new MemberFragment(), "MEMBERS");
+        adapter.addFrag(new ContactFragment(), "CONTACTS");
         adapter.addFrag(new AdminFragment(), "ADMINS");
 
         viewPager.setAdapter(adapter);
@@ -653,9 +648,9 @@ public class HomeActivity extends AppCompatActivity {
                 public void onItemClick(View view, int position) {
                     Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
                     // Start activity
-                    Intent adminIntent = new Intent(getContext(), ProfileView.class);
-                    adminIntent.putExtra("openAdmin", "ADMIN");
-                    startActivity(adminIntent);
+//                    Intent adminIntent = new Intent(getContext(), ProfileView.class);
+//                    adminIntent.putExtra("openAdmin", "ADMIN");
+//                    startActivity(adminIntent);
                 }
             });
             recyclerView.setAdapter(membersAdapter);
@@ -734,9 +729,9 @@ public class HomeActivity extends AppCompatActivity {
                 public void onItemClick(View view, int position) {
                     Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
                     // Start activity
-                    Intent contactIntent = new Intent(getContext(), ProfileView.class);
-                    contactIntent.putExtra("openContact", "CONTACT");
-                    startActivity(contactIntent);
+//                    Intent contactIntent = new Intent(getContext(), ProfileView.class);
+//                    contactIntent.putExtra("openContact", "CONTACT");
+//                    startActivity(contactIntent);
                 }
             });
             recyclerView.setAdapter(membersAdapter);

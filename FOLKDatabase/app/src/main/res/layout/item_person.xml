@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/con_lay_person_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorWhite">
+
+    <com.mikhaellopez.circularimageview.CircularImageView
+        android:id="@+id/img_profile_pic"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/face2"
+        android:visibility="visible"
+        app:civ_border_color="@color/colorGrey"
+        app:civ_border_width="0.5dp"
+        app:civ_shadow="false"
+        app:civ_shadow_color="#3f51b5"
+        app:civ_shadow_radius="10"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_name" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_profile_image"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone"
+        app:cardCornerRadius="5dp"
+        app:cardElevation="1dp"
+        app:layout_constraintBottom_toTopOf="@+id/divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/img_profile_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/header" />
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:ellipsize="end"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:maxLines="1"
+        android:padding="0dp"
+        android:text="Gauranga Das"
+        android:textColor="@color/colorBlack"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/tv_date"
+        app:layout_constraintStart_toEndOf="@+id/img_profile_pic"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_date"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15dp"
+        android:maxLines="1"
+        android:text="12/07/19"
+        android:textColor="@color/colorBlack"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_name" />
+
+    <TextView
+        android:id="@+id/tv_count"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="15dp"
+        android:background="@drawable/bg_sms_count"
+        android:gravity="center"
+        android:maxLines="1"
+        android:paddingStart="8dp"
+        android:paddingTop="3dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="3dp"
+        android:text="2"
+        android:textColor="@color/colorWhite"
+        android:textSize="13sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/img_arrow"
+        app:layout_constraintTop_toBottomOf="@+id/tv_name"
+        app:layout_constraintTop_toTopOf="@+id/tv_subtitle_1" />
+
+
+    <TextView
+        android:id="@+id/tv_subtitle_1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:ellipsize="end"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:maxLines="2"
+        android:text="Books Sold: 233"
+        android:textColor="@color/colorSubtitle"
+        app:layout_constraintEnd_toStartOf="@+id/tv_count"
+        app:layout_constraintStart_toStartOf="@+id/tv_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_name" />
+
+    <TextView
+        android:id="@+id/tv_subtitle_2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:ellipsize="end"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:maxLines="1"
+        android:text="Lakshmi Earned: 4342"
+        android:textColor="@color/colorSubtitle"
+        app:layout_constraintEnd_toStartOf="@+id/tv_count"
+        app:layout_constraintStart_toStartOf="@+id/tv_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_subtitle_1" />
+
+    <ImageView
+        android:id="@+id/img_arrow"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
+        android:tint="@color/colorGrey"
+        app:layout_constraintBottom_toBottomOf="@+id/img_profile_pic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/img_profile_pic" />
+
+    <ImageView
+        android:id="@+id/img_accept"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="5dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_check_black_24dp"
+        android:tint="@color/colorAccent"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageView
+        android:id="@+id/img_stopper"
+        android:layout_width="1dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="15dp"
+        android:scaleType="centerCrop"
+        android:tint="@color/colorGrey"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="15dp"
+        android:background="@color/colorGrey"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/tv_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_subtitle_2" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/frame_lay_person"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_light">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_person"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:nestedScrollingEnabled="true"
+        android:paddingBottom="15dp" />
+
+    <!--<include layout="@layout/fab" />-->
+</FrameLayout>
