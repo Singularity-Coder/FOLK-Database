@@ -1,0 +1,46 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/bg_light</item>
+    </style>
+
+    <style name="StyleEditText">
+        <item name="android:background">@drawable/bg_elevated_edit_text</item>
+        <item name="android:textColorHint">#999999</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
+    <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+        <item name="colorControlNormal">@color/colorWhite</item>
+        <item name="actionMenuTextColor">@color/colorWhite</item>
+    </style>
+
+    <style name="DetailToolbarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+        <item name="colorControlNormal">@color/colorAccent</item>
+        <item name="android:background">@color/colorTransparent</item>
+    </style>
+
+    <style name="ToolbarTransparentTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+        <item name="colorControlNormal">@color/colorWhite</item>
+        <item name="android:background">@color/colorTransparent</item>
+    </style>
+
+
+    <!--<style name="DialogSlideAnim" parent="@android:style/Theme.Dialog">-->
+    <!--<item name="android:windowAnimationStyle">@style/DialogAnimation</item>-->
+    <!--</style>-->
+    <!--<style name="DialogAnimation">-->
+    <!--<item name="android:windowEnterAnimation">@anim/slide_up_dialog</item>-->
+    <!--<item name="android:windowExitAnimation">@anim/slide_down_dialog</item>-->
+    <!--</style>-->
+
+</resources>

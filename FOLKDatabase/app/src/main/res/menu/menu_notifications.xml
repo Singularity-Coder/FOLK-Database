@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_notif_search"
+        android:icon="@drawable/ic_search_black_24dp"
+        android:orderInCategory="1"
+        android:title="Search Notifications"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="ifRoom|collapseActionView" />
+
+    <item
+        android:id="@+id/action_notif_filter"
+        android:icon="@drawable/ic_filter_list_black_24dp"
+        android:orderInCategory="2"
+        android:title="Filter Notifications"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_notif_add"
+        android:icon="@drawable/ic_add_black_24dp"
+        android:orderInCategory="3"
+        android:title="Add Notifications"
+        app:showAsAction="never" />
+</menu>
