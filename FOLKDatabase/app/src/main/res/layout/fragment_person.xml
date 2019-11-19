@@ -1,17 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/frame_lay_person"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/con_lay_person"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_light">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_person"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/con_lay_list_details"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:nestedScrollingEnabled="true"
-        android:paddingBottom="15dp" />
+        android:layout_height="30dp"
+        android:background="@color/colorWhite"
+        android:elevation="5dp"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <!--<include layout="@layout/fab" />-->
-</FrameLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 Contacts"
+            android:layout_marginStart="15dp"
+            android:textSize="16sp"
+            android:textColor="@color/design_default_color_primary"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/con_lay_list_details">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_person"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:nestedScrollingEnabled="true"
+            android:paddingBottom="15dp" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -93,18 +93,14 @@ public class HomeActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("FOLK Database");
         }
-        // For back navigation button use this
-        // if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void initViewPager() {
-        final int TODAY = 0;
-        final int DASHBOARD = 1;
-        final int TARGETED_PLACES = 2;
-        final int BOOK_VAULT = 3;
-        final int TEAMS = 4;
-        final int MEMBERS = 5;
-        final int ADMINS = 6;
+
+        final int CONTACTS = 0;
+        final int FOLK_GUIDES = 1;
+        final int TEAM_LEADS = 2;
+        final int ZONAL_HEADS = 3;
 
         viewPager = findViewById(R.id.viewpager_home);
         setupViewPager(viewPager);
@@ -112,34 +108,21 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 switch (position) {
-                    case TODAY:
-                        fab1.hide();
-                        break;
-                    case DASHBOARD:
-                        fab1.hide();
-                        break;
-                    case TARGETED_PLACES:
-                        fab1.hide();
-                        break;
-                    case BOOK_VAULT:
-                        fab1.hide();
-                        break;
-                    case MEMBERS:
-                        fab1.hide();
-                        break;
-                    case ADMINS:
-                        fab1.hide();
-                        break;
-                    case TEAMS:
-                        fab1.hide();
+                    case CONTACTS:
                         fab1.show();
-                        fab1.setImageDrawable(getResources().getDrawable(R.drawable.ic_add_black_24dp));
-                        fab1.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                Toast.makeText(getApplicationContext(), "Create a Team", Toast.LENGTH_SHORT).show();
-                            }
+                        fab1.setImageDrawable(getResources().getDrawable(R.drawable.ic_filter_list_black_24dp));
+                        fab1.setOnClickListener(view -> {
+                            Toast.makeText(getApplicationContext(), "Filter Contacts", Toast.LENGTH_SHORT).show();
                         });
+                        break;
+                    case FOLK_GUIDES:
+                        fab1.hide();
+                        break;
+                    case TEAM_LEADS:
+                        fab1.hide();
+                        break;
+                    case ZONAL_HEADS:
+                        fab1.hide();
                         break;
                 }
             }
@@ -177,13 +160,11 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        // All of them will have their own respective actions for uploading n downloading etc.
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        // adapter.addFrag(new AdminFragment(ContextCompat.getColor(this, R.color.bg_light_grey)), "CHATS");
-        // adapter.addFrag(new AdminFragment(ContextCompat.getColor(this, R.color.bg_light_grey)), "NOTIFICATIONS");     // they must be visible
         adapter.addFrag(new ContactFragment(), "CONTACTS");
-        adapter.addFrag(new AdminFragment(), "ADMINS");
-
+        adapter.addFrag(new FolkGuidesFragment(), "FOLK GUIDES");
+        adapter.addFrag(new TeamLeadsFragment(), "TEAM LEADS");
+        adapter.addFrag(new ZonalHeadsFragment(), "ZONAL HEADS");
         viewPager.setAdapter(adapter);
     }
 
@@ -219,7 +200,7 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_admin, menu);
+//        getMenuInflater().inflate(R.menu.menu_folk_guides, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -243,6 +224,9 @@ public class HomeActivity extends AppCompatActivity {
 
             // Contact Menu
             case R.id.action_contact_search:
+                return true;
+            case R.id.action_notifications:
+                dialogNotifications(this);
                 return true;
             case R.id.action__contact_filter:
                 contactFilterDialog(this);
@@ -322,22 +306,6 @@ public class HomeActivity extends AppCompatActivity {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(true);
         dialog.setContentView(R.layout.dialog_filter_contacts);
-
-        Rect displayRectangle = new Rect();
-        Window window = this.getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-        dialog.getWindow().setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
-
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        dialog.show();
-    }
-
-    public void adminFilterDialog(Activity activity) {
-        final Dialog dialog = new Dialog(activity);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(true);
-        dialog.setContentView(R.layout.dialog_filter_admins);
 
         Rect displayRectangle = new Rect();
         Window window = this.getWindow();
@@ -471,6 +439,10 @@ public class HomeActivity extends AppCompatActivity {
 
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+        // if today's date matches birthday - show notif badge
+        // Show all birthday's in the notifications
+
+
         ImageView imgCloseBtn = dialog.findViewById(R.id.img_dialog_close);
         imgCloseBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -518,150 +490,6 @@ public class HomeActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    public static class DashModel {
-        int intDashImage;
-        String strDashTitle;
-        String strDashCount;
-//        String strDashHeaderCount;
-
-        public DashModel() {
-        }
-
-        public DashModel(String strDashCount) {
-            this.strDashCount = strDashCount;
-        }
-
-        public DashModel(int intDashImage, String strDashTitle, String strDashCount) {
-            this.intDashImage = intDashImage;
-            this.strDashTitle = strDashTitle;
-            this.strDashCount = strDashCount;
-        }
-
-        public int getIntDashImage() {
-            return intDashImage;
-        }
-
-        public void setIntDashImage(int intDashImage) {
-            this.intDashImage = intDashImage;
-        }
-
-        public String getStrDashTitle() {
-            return strDashTitle;
-        }
-
-        public void setStrDashTitle(String strDashTitle) {
-            this.strDashTitle = strDashTitle;
-        }
-
-        public String getStrDashCount() {
-            return strDashCount;
-        }
-
-        public void setStrDashCount(String strDashCount) {
-            this.strDashCount = strDashCount;
-        }
-    }
-
-    public static class TodayModel {
-        int intTodayImage;
-        String strTodayTitle;
-        String strTodayCount;
-
-        public TodayModel(int intTodayImage, String strTodayTitle, String strTodayCount) {
-            this.intTodayImage = intTodayImage;
-            this.strTodayTitle = strTodayTitle;
-            this.strTodayCount = strTodayCount;
-        }
-
-        public int getIntTodayImage() {
-            return intTodayImage;
-        }
-
-        public void setIntTodayImage(int intTodayImage) {
-            this.intTodayImage = intTodayImage;
-        }
-
-        public String getStrTodayTitle() {
-            return strTodayTitle;
-        }
-
-        public void setStrTodayTitle(String strTodayTitle) {
-            this.strTodayTitle = strTodayTitle;
-        }
-
-        public String getStrTodayCount() {
-            return strTodayCount;
-        }
-
-        public void setStrTodayCount(String strTodayCount) {
-            this.strTodayCount = strTodayCount;
-        }
-    }
-
-    public static class AdminFragment extends Fragment {
-        int color;
-
-        public AdminFragment() {
-        }
-
-        @SuppressLint("ValidFragment")
-        public AdminFragment(int color) {
-            this.color = color;
-        }
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setHasOptionsMenu(true);
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.fragment_person, container, false);
-
-            final FrameLayout frameLayout = view.findViewById(R.id.frame_lay_person);
-            frameLayout.setBackgroundColor(color);
-
-            RecyclerView recyclerView = view.findViewById(R.id.recycler_person);
-
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getBaseContext());
-            recyclerView.setLayoutManager(linearLayoutManager);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setItemViewCacheSize(20);
-            recyclerView.setDrawingCacheEnabled(true);
-            recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-
-            adminList = new ArrayList<>();
-            adminList.add(new PersonModel(R.drawable.face2, "Gauranga Das", "Books Sold: 413", "Lakshmi Earned: 4,32,423"));
-            adminList.add(new PersonModel(R.drawable.face2, "Gauranga Das", "Books Sold: 413", "Lakshmi Earned: 4,32,423"));
-            adminList.add(new PersonModel(R.drawable.face2, "Gauranga Das", "Books Sold: 413", "Lakshmi Earned: 4,32,423"));
-
-
-            membersAdapter = new MembersAdapter(getContext(), adminList);
-            membersAdapter.setHasStableIds(true);
-            membersAdapter.setOnItemClickListener(new MembersAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
-                    Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
-                    // Start activity
-//                    Intent adminIntent = new Intent(getContext(), ProfileView.class);
-//                    adminIntent.putExtra("openAdmin", "ADMIN");
-//                    startActivity(adminIntent);
-                }
-            });
-            recyclerView.setAdapter(membersAdapter);
-
-
-            return view;
-        }
-
-        @Override
-        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-            inflater.inflate(R.menu.menu_admin, menu);
-            super.onCreateOptionsMenu(menu, inflater);
-        }
-    }
-
     public static class ContactFragment extends Fragment {
         int color;
 
@@ -682,9 +510,6 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_person, container, false);
-
-            final FrameLayout frameLayout = view.findViewById(R.id.frame_lay_person);
-            frameLayout.setBackgroundColor(color);
 
             RecyclerView recyclerView = view.findViewById(R.id.recycler_person);
 
@@ -766,5 +591,79 @@ public class HomeActivity extends AppCompatActivity {
             super.onActivityCreated(savedInstanceState);
         }
     }
+
+    public static class FolkGuidesFragment extends Fragment {
+        int color;
+
+        public FolkGuidesFragment() {
+        }
+
+        @SuppressLint("ValidFragment")
+        public FolkGuidesFragment(int color) {
+            this.color = color;
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setHasOptionsMenu(true);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.fragment_person, container, false);
+
+            RecyclerView recyclerView = view.findViewById(R.id.recycler_person);
+
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getBaseContext());
+            recyclerView.setLayoutManager(linearLayoutManager);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setItemViewCacheSize(20);
+            recyclerView.setDrawingCacheEnabled(true);
+            recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
+            adminList = new ArrayList<>();
+            adminList.add(new PersonModel(R.drawable.face2, "Gauranga Das", "Books Sold: 413", "Lakshmi Earned: 4,32,423"));
+            adminList.add(new PersonModel(R.drawable.face2, "Gauranga Das", "Books Sold: 413", "Lakshmi Earned: 4,32,423"));
+            adminList.add(new PersonModel(R.drawable.face2, "Gauranga Das", "Books Sold: 413", "Lakshmi Earned: 4,32,423"));
+
+
+            membersAdapter = new MembersAdapter(getContext(), adminList);
+            membersAdapter.setHasStableIds(true);
+            membersAdapter.setOnItemClickListener(new MembersAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View view, int position) {
+                    Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
+                    // Start activity
+//                    Intent adminIntent = new Intent(getContext(), ProfileView.class);
+//                    adminIntent.putExtra("openAdmin", "ADMIN");
+//                    startActivity(adminIntent);
+                }
+            });
+            recyclerView.setAdapter(membersAdapter);
+
+
+            return view;
+        }
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            inflater.inflate(R.menu.menu_folk_guides, menu);
+            super.onCreateOptionsMenu(menu, inflater);
+        }
+    }
+
+    public static class TeamLeadsFragment extends Fragment {
+
+        public TeamLeadsFragment() {
+        }
+    }
+
+    public static class ZonalHeadsFragment extends Fragment {
+
+        public ZonalHeadsFragment() {
+        }
+    }
+
 
 }

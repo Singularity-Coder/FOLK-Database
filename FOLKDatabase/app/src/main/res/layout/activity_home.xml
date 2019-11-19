@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             app:tabIndicator="@drawable/bg_tab_indicator"
             app:tabIndicatorHeight="4dp"
-            app:tabMode="fixed" />
+            app:tabMode="scrollable" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -40,7 +40,8 @@
         android:layout_gravity="end|bottom"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
-        android:visibility="gone" />
+        android:src="@drawable/ic_filter_list_black_24dp"
+        android:visibility="visible" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewpager_home"
