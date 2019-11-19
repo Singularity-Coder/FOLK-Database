@@ -43,6 +43,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.singularitycoder.folkdatabase.helper.Helper;
 import com.singularitycoder.folkdatabase.R;
+import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -550,9 +551,9 @@ public class HomeActivity extends AppCompatActivity {
                 public void onItemClick(View view, int position) {
                     Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
                     // Start activity
-//                    Intent contactIntent = new Intent(getContext(), ProfileView.class);
-//                    contactIntent.putExtra("openContact", "CONTACT");
-//                    startActivity(contactIntent);
+                    Intent contactIntent = new Intent(getContext(), ProfileActivity.class);
+                    contactIntent.putExtra("openContact", "CONTACT");
+                    startActivity(contactIntent);
                 }
             });
             recyclerView.setAdapter(membersAdapter);
@@ -635,9 +636,9 @@ public class HomeActivity extends AppCompatActivity {
                 public void onItemClick(View view, int position) {
                     Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
                     // Start activity
-//                    Intent adminIntent = new Intent(getContext(), ProfileView.class);
-//                    adminIntent.putExtra("openAdmin", "ADMIN");
-//                    startActivity(adminIntent);
+                    Intent adminIntent = new Intent(getContext(), ProfileActivity.class);
+                    adminIntent.putExtra("openAdmin", "ADMIN");
+                    startActivity(adminIntent);
                 }
             });
             recyclerView.setAdapter(membersAdapter);
