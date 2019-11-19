@@ -1,5 +1,7 @@
 package com.singularitycoder.folkdatabase.home;
 
+import android.net.Uri;
+
 public class PersonModel {
 
     int imgProfileImage;
@@ -14,7 +16,12 @@ public class PersonModel {
     String strDate;
     String strChatCount;
 
+    Uri ivProfileImage;
+    String imageName;
+    String imageExtension;
 
+    public PersonModel() {
+    }
 
     // Contact, Caller, Admin
     public PersonModel(int imgProfileImage, String strName, String strSubTitle1, String strSubTitle2) {
@@ -106,5 +113,29 @@ public class PersonModel {
 
     public void setStrChatCount(String strChatCount) {
         this.strChatCount = strChatCount;
+    }
+
+    public Uri getIvProfileImage() {
+        return ivProfileImage;
+    }
+
+    public void setIvProfileImage(Uri ivProfileImage) {
+        this.ivProfileImage = ivProfileImage;
+    }
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    public String getImageExtension() {
+        return imageExtension;
+    }
+
+    public void setImageExtension(String imageExtension) {
+        this.imageExtension = imageExtension;
     }
 }

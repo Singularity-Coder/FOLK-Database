@@ -1,4 +1,4 @@
-package com.singularitycoder.folkdatabase;
+package com.singularitycoder.folkdatabase.helper;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.DatePicker;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,9 +30,16 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
+import com.singularitycoder.folkdatabase.R;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Helper extends AppCompatActivity {
 
@@ -212,6 +220,50 @@ public class Helper extends AppCompatActivity {
         canvas.drawBitmap(bitmap, rect, rect, paint);
 
         return output;
+    }
+
+    public static boolean hasValidPassword(final String password) {
+        Pattern pattern;
+        Matcher matcher;
+        final String PASSWORD_PATTERN = "^(?=.*[a-z])(?=.*[A-Z]).{8,}$";
+
+        pattern = Pattern.compile(PASSWORD_PATTERN);
+        matcher = pattern.matcher(password);
+
+        return matcher.matches();
+    }
+
+    public static boolean hasValidEmail(final String email) {
+        Pattern pattern;
+        Matcher matcher;
+        final String EMAIL_PATTERN = "^[\\w-\\+]+(\\.[\\w]+)*@[\\w-]+(\\.[\\w]+)*(\\.[a-z]{2,})$";
+
+        pattern = Pattern.compile(EMAIL_PATTERN);
+        matcher = pattern.matcher(email);
+
+        return matcher.matches();
+    }
+
+    public static void glideLargeImage(Context context, String imgUrl, ImageView imageView, String empty1) {
+        RequestOptions requestOptions = new RequestOptions()
+                .placeholder(R.color.colorAccent)
+                .error(R.drawable.header)
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
+
+        Glide.with(context).load(imgUrl)
+                .apply(requestOptions)
+                .into(imageView);
+    }
+
+    public static void glideProfileImage(Context context, String imgUrl, ImageView imageView) {
+        RequestOptions requestOptions = new RequestOptions()
+                .placeholder(R.color.colorAccent)
+                .error(R.color.colorPrimaryDark)
+                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
+
+        Glide.with(context).load(imgUrl)
+                .apply(requestOptions)
+                .into(imageView);
     }
 
 }

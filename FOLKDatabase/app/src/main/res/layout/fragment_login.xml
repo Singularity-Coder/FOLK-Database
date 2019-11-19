@@ -35,11 +35,11 @@
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@+id/et_login_folkid"
+                app:layout_constraintEnd_toEndOf="@+id/et_login_phone"
                 app:layout_constraintStart_toStartOf="@+id/et_login_phone"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <EditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_login_phone"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -47,9 +47,16 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="15dp"
+                android:digits="1234567890 +"
                 android:drawablePadding="10dp"
+                android:fontFamily="@font/roboto_regular"
                 android:hint="Type your Number"
-                android:inputType="textPassword"
+                android:inputType="phone"
+                android:maxLength="15"
+                android:maxLines="1"
+                android:nestedScrollingEnabled="true"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -73,7 +80,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_login_phone"
                 app:layout_constraintTop_toBottomOf="@+id/et_login_phone" />
 
-            <EditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_login_password"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -81,9 +88,16 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="15dp"
+                android:digits="qwertyuiopasdfghjklzxcvbnm 1234567890 QWERTYUIOPASDFGHJKLZXCVBNM .,#@-_+!?;':*"
                 android:drawablePadding="10dp"
+                android:fontFamily="@font/roboto_regular"
                 android:hint="Type your Password"
                 android:inputType="textPassword"
+                android:maxLength="60"
+                android:maxLines="1"
+                android:nestedScrollingEnabled="true"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -105,7 +119,6 @@
                 app:layout_constraintEnd_toEndOf="@+id/et_login_phone"
                 app:layout_constraintStart_toStartOf="@+id/et_login_phone"
                 app:layout_constraintTop_toBottomOf="@+id/et_login_password" />
-
 
             <Button
                 android:id="@+id/btn_create_event_invite_people"

@@ -35,32 +35,33 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/con_lay_upload_profile_pic"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="60dp"
                     android:background="@color/colorLightBlue">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/con_lay_upload_pic_bg"
+                    <ImageView
+                        android:id="@+id/iv_set_profile_image"
                         android:layout_width="60dp"
-                        android:layout_height="60dp"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
                         android:background="@color/colorAccent"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                        <ImageView
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
-                            android:src="@drawable/ic_add_a_photo_black_24dp"
-                            android:tint="@color/colorLightBlue"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                    <ImageView
+                        android:id="@+id/iv_open_gallery"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:padding="15dp"
+                        android:src="@drawable/ic_add_a_photo_black_24dp"
+                        android:tint="@color/colorLightBlue"
+                        app:layout_constraintBottom_toBottomOf="@+id/iv_set_profile_image"
+                        app:layout_constraintEnd_toEndOf="@+id/iv_set_profile_image"
+                        app:layout_constraintStart_toStartOf="@+id/iv_set_profile_image"
+                        app:layout_constraintTop_toTopOf="@+id/iv_set_profile_image" />
 
                     <TextView
-                        android:id="@+id/tv_upload_profile_pic"
+                        android:id="@+id/tv_open_gallery"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="15dp"
@@ -69,7 +70,7 @@
                         android:textColor="@color/colorAccent"
                         android:textSize="16sp"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/con_lay_upload_pic_bg"
+                        app:layout_constraintStart_toEndOf="@+id/iv_set_profile_image"
                         app:layout_constraintTop_toTopOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -112,7 +113,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/tv_signup_zone" />
 
             <TextView
-                android:id="@+id/tv_signup_member_type"
+                android:id="@+id/tv_member_type"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -130,7 +131,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_zone_type" />
 
             <TextView
-                android:id="@+id/et_signup_member_type"
+                android:id="@+id/et_member_type"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -140,50 +141,12 @@
                 android:drawableEnd="@drawable/ic_keyboard_arrow_down_black_24dp"
                 android:drawableTint="@color/colorAccent"
                 android:gravity="center_vertical"
-                android:hint="Select Member Type"
+                android:hint="Member Type"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_signup_member_type" />
-
-            <TextView
-                android:id="@+id/tv_login_folkid"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginRight="10dp"
-                android:ellipsize="end"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:maxLines="1"
-                android:text="FOLK ID"
-                android:textColor="@color/colorBlack"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="@+id/et_signup_phone"
-                app:layout_constraintStart_toStartOf="@+id/et_signup_phone"
-                app:layout_constraintTop_toBottomOf="@+id/et_signup_member_type" />
-
-            <EditText
-                android:id="@+id/et_login_folkid"
-                style="@style/StyleEditText"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginStart="15dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="15dp"
-                android:drawablePadding="10dp"
-                android:hint="Type FOLK ID"
-                android:inputType="textCapCharacters"
-                android:textAllCaps="true"
-                android:textColor="@color/colorBlack"
-                android:textSize="16sp"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_login_folkid" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_member_type" />
 
             <TextView
                 android:id="@+id/tv_signup_admin_number"
@@ -199,12 +162,12 @@
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="@+id/et_signup_phone"
                 app:layout_constraintStart_toStartOf="@+id/et_signup_phone"
-                app:layout_constraintTop_toBottomOf="@+id/et_login_folkid" />
+                app:layout_constraintTop_toBottomOf="@+id/et_member_type" />
 
-            <EditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_admin_number"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -213,15 +176,63 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="15dp"
                 android:drawablePadding="10dp"
+                android:fontFamily="@font/roboto_regular"
                 android:hint="Type Admin Number"
-                android:inputType="textCapCharacters"
+                android:inputType="textEmailAddress"
+                android:maxLength="20"
+                android:maxLines="1"
+                android:nestedScrollingEnabled="true"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
                 android:textAllCaps="true"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_signup_admin_number" />
+
+            <TextView
+                android:id="@+id/tv_signup_folk_guide"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:ellipsize="end"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:maxLines="1"
+                android:text="FOLK Guide Abbreviation"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@+id/et_signup_email"
+                app:layout_constraintStart_toStartOf="@+id/et_signup_email"
+                app:layout_constraintTop_toBottomOf="@+id/et_signup_admin_number" />
+
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
+                android:id="@+id/et_signup_folk_guide"
+                style="@style/StyleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="15dp"
+                android:digits="QWERTYUIOPASDFGHJKLZXCVBNM"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/roboto_regular"
+                android:hint="Ex: CTCD"
+                android:inputType="textCapCharacters"
+                android:maxLength="6"
+                android:maxLines="1"
+                android:nestedScrollingEnabled="true"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_signup_folk_guide" />
 
             <TextView
                 android:id="@+id/tv_signup_first_name"
@@ -239,9 +250,9 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/et_signup_first_name"
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
-                app:layout_constraintTop_toBottomOf="@+id/et_signup_admin_number" />
+                app:layout_constraintTop_toBottomOf="@+id/et_signup_folk_guide" />
 
-            <EditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_first_name"
                 style="@style/StyleEditText"
                 android:layout_width="0dp"
@@ -249,9 +260,16 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="7dp"
+                android:digits="qwertyuiopasdfghjklzxcvbnm 1234567890 QWERTYUIOPASDFGHJKLZXCVBNM"
                 android:drawablePadding="10dp"
+                android:fontFamily="@font/roboto_regular"
                 android:hint="Type First Name"
-                android:inputType="textEmailAddress"
+                android:inputType="textCapWords"
+                android:maxLength="60"
+                android:maxLines="1"
+                android:nestedScrollingEnabled="true"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toStartOf="@+id/et_signup_last_name"
@@ -274,18 +292,25 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/et_signup_email"
                 app:layout_constraintStart_toStartOf="@+id/et_signup_last_name"
-                app:layout_constraintTop_toBottomOf="@+id/et_signup_admin_number" />
+                app:layout_constraintTop_toBottomOf="@+id/et_signup_folk_guide" />
 
-            <EditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_last_name"
                 style="@style/StyleEditText"
                 android:layout_width="0dp"
                 android:layout_height="50dp"
                 android:layout_marginStart="7dp"
                 android:layout_marginTop="5dp"
+                android:digits="qwertyuiopasdfghjklzxcvbnm 1234567890 QWERTYUIOPASDFGHJKLZXCVBNM"
                 android:drawablePadding="10dp"
+                android:fontFamily="@font/roboto_regular"
                 android:hint="Type Last Name"
-                android:inputType="textEmailAddress"
+                android:inputType="textCapWords"
+                android:maxLength="60"
+                android:maxLines="1"
+                android:nestedScrollingEnabled="true"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="@+id/et_signup_email"
@@ -310,7 +335,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_first_name" />
 
-            <EditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_email"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -318,9 +343,16 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="15dp"
+                android:digits="qwertyuiopasdfghjklzxcvbnm 1234567890 QWERTYUIOPASDFGHJKLZXCVBNM .@"
                 android:drawablePadding="10dp"
+                android:fontFamily="@font/roboto_regular"
                 android:hint="Type Email"
                 android:inputType="textEmailAddress"
+                android:maxLength="60"
+                android:maxLines="1"
+                android:nestedScrollingEnabled="true"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -345,7 +377,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_email" />
 
-            <EditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_phone"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -353,9 +385,16 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="15dp"
+                android:digits="1234567890 +"
                 android:drawablePadding="10dp"
+                android:fontFamily="@font/roboto_regular"
                 android:hint="Type Phone Number"
-                android:inputType="textEmailAddress"
+                android:inputType="phone"
+                android:maxLength="15"
+                android:maxLines="1"
+                android:nestedScrollingEnabled="true"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -380,7 +419,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_phone"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_phone" />
 
-            <EditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_login_password"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -388,9 +427,16 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="15dp"
+                android:digits="qwertyuiopasdfghjklzxcvbnm 1234567890 QWERTYUIOPASDFGHJKLZXCVBNM .,#@-_+!?;':*"
                 android:drawablePadding="10dp"
+                android:fontFamily="@font/roboto_regular"
                 android:hint="Type Password"
                 android:inputType="textPassword"
+                android:maxLength="60"
+                android:maxLines="1"
+                android:nestedScrollingEnabled="true"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"

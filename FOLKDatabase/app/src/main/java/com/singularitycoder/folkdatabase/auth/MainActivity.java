@@ -1,7 +1,9 @@
 package com.singularitycoder.folkdatabase.auth;
 
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,10 +12,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,12 +23,12 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -48,22 +50,39 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.singularitycoder.folkdatabase.helper.CustomEditText;
 import com.singularitycoder.folkdatabase.R;
+import com.singularitycoder.folkdatabase.helper.Helper;
 import com.singularitycoder.folkdatabase.home.HomeActivity;
+import com.singularitycoder.folkdatabase.home.PersonModel;
+import com.stfalcon.imageviewer.StfalconImageViewer;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+
+import droidninja.filepicker.FilePickerBuilder;
+import droidninja.filepicker.FilePickerConst;
+
+import static com.singularitycoder.folkdatabase.helper.ImageHelper.showSettingsDialog;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -130,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewpager_main);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFrag(new SignUpFragment(ContextCompat.getColor(this, R.color.colorWhite)), "SIGN UP");
-        adapter.addFrag(new LoginFragment(ContextCompat.getColor(this, R.color.colorWhite)), "LOGIN");
+        adapter.addFrag(new LoginFragment(), "LOGIN");
         viewPager.setAdapter(adapter);
     }
 
@@ -207,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (scrollRange + verticalOffset == 0) {
                     if (getSupportActionBar() != null)
-                        getSupportActionBar().setTitle("FOLK Caller");
+                        getSupportActionBar().setTitle("FOLK Database");
                     isShow = true;
                 } else if (isShow) {
                     if (getSupportActionBar() != null) getSupportActionBar().setTitle(" ");
@@ -295,34 +314,20 @@ public class MainActivity extends AppCompatActivity {
 
 
     public static class LoginFragment extends Fragment {
-        int color;
-        EditText etPhoneNumber;
-        EditText etPassword;
+        CustomEditText etPhoneNumber;
+        CustomEditText etPassword;
         Button btnLogin;
 
         // Declare an instance of Firestore
         FirebaseFirestore db;
 
-        Button btnUseFingerPrint;
-        TextView tvUsePasswordToLogin;
         TextView tvNotAMember;
-
-        TextView tvLoginMemberType;
-        TextView tvFolkIdLogin;
-        EditText etFolkIdLogin;
-        TextView tvAdminNumber;
-        EditText etAdminNumber;
 
         private String parentDbName = "User";
 
         private ProgressDialog loadingBar;
 
         public LoginFragment() {
-        }
-
-        @SuppressLint("ValidFragment")
-        public LoginFragment(int color) {
-            this.color = color;
         }
 
         @Override
@@ -333,16 +338,25 @@ public class MainActivity extends AppCompatActivity {
 
             db = FirebaseFirestore.getInstance();
 
-//            Button btnLogin = view.findViewById(R.id.btn_create_event_invite_people);
-//            btnLogin.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    startActivity(new Intent(getActivity(), HomeActivity.class));
-//                }
-//            });
+            etPhoneNumber = view.findViewById(R.id.et_login_phone);
+            etPassword = view.findViewById(R.id.et_login_password);
+            btnLogin = view.findViewById(R.id.btn_create_event_invite_people);
+            btnLogin.setOnClickListener(view1 -> {
+                if (hasValidInput(etPhoneNumber, etPassword)) {
+                    startActivity(new Intent(getActivity(), HomeActivity.class));
 
-            tvFolkIdLogin = view.findViewById(R.id.tv_login_folkid);
-            etFolkIdLogin = view.findViewById(R.id.et_login_folkid);
+                    loadingBar.setTitle("Login Account");
+                    loadingBar.setMessage("Please wait, while we are checking the credentials!");
+                    loadingBar.setCanceledOnTouchOutside(false);
+                    loadingBar.show();
+
+                    String phoneNumber = etPhoneNumber.getText().toString().trim();
+                    String password = etPassword.getText().toString();
+
+                    // Login user using Firestore DB
+//                loginUserFirestore(phoneNumber, password);
+                }
+            });
 
             tvNotAMember = view.findViewById(R.id.tv_login_create_account);
             tvNotAMember.setOnClickListener(new View.OnClickListener() {
@@ -352,40 +366,37 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            etPhoneNumber = view.findViewById(R.id.et_login_phone);
-            etPassword = view.findViewById(R.id.et_login_password);
-            btnLogin = view.findViewById(R.id.btn_create_event_invite_people);
-            btnLogin.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-//                    validateLoginUser();
-                    startActivity(new Intent(getActivity(), HomeActivity.class));
-                }
-            });
-
             return view;
         }
 
-        public void validateLoginUser() {
-            String phone = etPhoneNumber.getText().toString();
+        private boolean hasValidInput(CustomEditText etPhoneNumber, CustomEditText etPassword) {
+            String phoneNumber = etPhoneNumber.getText().toString().trim();
             String password = etPassword.getText().toString();
 
-            if (TextUtils.isEmpty(phone)) {
-                Toast.makeText(getActivity(), "Please write your phone number...", Toast.LENGTH_SHORT).show();
-            } else if (TextUtils.isEmpty(password)) {
-                Toast.makeText(getActivity(), "Please write your password...", Toast.LENGTH_SHORT).show();
-            } else {
-                loadingBar.setTitle("Login Account");
-                loadingBar.setMessage("Please wait, while we are checking the credentials!");
-                loadingBar.setCanceledOnTouchOutside(false);
-                loadingBar.show();
-
-                // Login user using Realtime DB
-                loginUser(phone, password);
-
-                // Login user using Firestore DB
-//                loginUserFirestore(phone, password);
+            if (phoneNumber.equals("")) {
+                etPhoneNumber.setError("Phone Number is Required!");
+                etPhoneNumber.requestFocus();
+                return false;
             }
+
+            if (phoneNumber.length() < 10) {
+                etPhoneNumber.setError("Provide a valid Mobile Number!");
+                etPhoneNumber.requestFocus();
+                return false;
+            }
+
+            if (password.equals("")) {
+                etPassword.setError("Password is Required!");
+                etPassword.requestFocus();
+                return false;
+            }
+
+            if (!Helper.hasValidPassword(password)) {
+                etPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
+                etPassword.requestFocus();
+                return false;
+            }
+            return true;
         }
 
         // Login user using Firestore DB
@@ -405,110 +416,40 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
         }
-
-        // Login user using RealTime DB
-        private void loginUser(final String phone, final String password) {
-
-            // If checkbox is checked. Before we allow access we need to store the variables phone n pass key. When u check the checkbox it will remember phone n pass key just like shared prefs in one sense. Whenever user logs in it will store in user phone memory. Just like shared prefs.
-//            if (checkBoxRemeberMe.isChecked()) {
-//                Paper.book().write(Prevalent.userPhoneKey, phone);
-//                Paper.book().write(Prevalent.userPasswordKey, password);
-//            }
-
-            // Get reference to DB
-            final DatabaseReference rootRef;
-            rootRef = FirebaseDatabase.getInstance().getReference();
-
-            // Check if user is available or not
-            rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    // User node contains children like phone etc which is the obj that contains all info abt a user. If that exists then we will allow user to login
-                    if (dataSnapshot.child(parentDbName).child(phone).exists()) {
-                        // Retrieve the pass and phone of the user and add it to the User model. We added the DB data to the User model. get the data using getters
-                        User userData = dataSnapshot.child(parentDbName).child(phone).getValue(User.class);
-
-                        // Check if phone n pass entered in the edittext match the user n pass u got from the DB using the data added to User model. If data matches then allow user access to his/her account
-                        if (userData.getPhone().equals(phone)) {
-                            if (userData.getPassword().equals(password)) {
-
-                                // If login successful then show toast n jump them to the Home activity
-                                loadingBar.dismiss();
-                                Toast.makeText(getActivity(), "Logged In Successfully!", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(getActivity(), HomeActivity.class));
-                            } else {
-                                loadingBar.dismiss();
-                                Toast.makeText(getActivity(), "Wrong Password!", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    } else {
-                        Toast.makeText(getActivity(), "Account with this " + phone + " number does not exist! Create a new Account!", Toast.LENGTH_SHORT).show();
-                        loadingBar.dismiss();
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-        }
-
-        public void dialogSignUpMemberType() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("I am a");
-            String[] selectArray = {"Folk Member", "Admin"};
-            builder.setItems(selectArray, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case 0:
-                            tvLoginMemberType.setText("Folk Member");
-
-                            tvFolkIdLogin.setVisibility(View.VISIBLE);
-                            etFolkIdLogin.setVisibility(View.VISIBLE);
-
-                            tvAdminNumber.setVisibility(View.GONE);
-                            etAdminNumber.setVisibility(View.GONE);
-                            break;
-                        case 1:
-                            tvLoginMemberType.setText("Admin");
-
-                            tvAdminNumber.setVisibility(View.VISIBLE);
-                            etAdminNumber.setVisibility(View.VISIBLE);
-
-                            tvFolkIdLogin.setVisibility(View.GONE);
-                            etFolkIdLogin.setVisibility(View.GONE);
-                            break;
-                    }
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        }
     }
 
     public static class SignUpFragment extends Fragment {
         int color;
         TextView tvTermsPrivacy;
         TextView tvMemberType;
-        TextView tvFolkIdLogin;
-        EditText etFolkIdLogin;
         TextView tvAdminNumber;
-        EditText etAdminNumber;
+        CustomEditText etAdminNumber;
+        CustomEditText etFolkGuideAbbr;
         TextView etSignUpZone;
-        EditText etFirstName;
-        EditText etLastName;
-        EditText etEmail;
-        EditText etPhone;
-        EditText etPassword;
+        CustomEditText etFirstName;
+        CustomEditText etLastName;
+        CustomEditText etEmail;
+        CustomEditText etPhone;
+        CustomEditText etPassword;
         Button createAccount;
+        TextView tvSignUpMemberType;
+
+        ImageView ivOpenGallery;
+        ImageView ivSetProfileImage;
+        TextView tvOpenGallery;
+
+        private String lastFourDigits;
+        private String newImagePath = null;
+        private final ArrayList<PersonModel> imageUriArray = new ArrayList<>();
+        private final ArrayList<String> imageExtensionStringArray = new ArrayList<>();
+        private final ArrayList<String> imageNameStringArray = new ArrayList<>();
+        private final ArrayList<String> imageFilePathsStringArray = new ArrayList<>();
+
+        private ProgressDialog dialog;
 
         private ProgressDialog loadingBar;
 
         private FirebaseAuth fireAuth;
-
-        // Declare an instance of Firestore
         FirebaseFirestore db;
 
         public SignUpFragment() {
@@ -524,112 +465,211 @@ public class MainActivity extends AppCompatActivity {
             View view = inflater.inflate(R.layout.fragment_signup, container, false);
 
             fireAuth = FirebaseAuth.getInstance();
-
             db = FirebaseFirestore.getInstance();
-
             loadingBar = new ProgressDialog(getActivity());
 
             tvTermsPrivacy = view.findViewById(R.id.tv_signup_terms);
-            tvTermsPrivacy.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.iskconbangalore.org/privacy-policy/")));
-                }
-            });
-
             etSignUpZone = view.findViewById(R.id.et_signup_zone_type);
-            etSignUpZone.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dialogSignUpZone();
-                }
-            });
-
-            tvMemberType = view.findViewById(R.id.et_signup_member_type);
-            tvMemberType.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dialogSignUpMemberType();
-                }
-            });
-
-            tvFolkIdLogin = view.findViewById(R.id.tv_login_folkid);
-            etFolkIdLogin = view.findViewById(R.id.et_login_folkid);
             tvAdminNumber = view.findViewById(R.id.tv_signup_admin_number);
             etAdminNumber = view.findViewById(R.id.et_signup_admin_number);
-
             etFirstName = view.findViewById(R.id.et_signup_first_name);
             etLastName = view.findViewById(R.id.et_signup_last_name);
             etEmail = view.findViewById(R.id.et_signup_email);
             etPhone = view.findViewById(R.id.et_signup_phone);
             etPassword = view.findViewById(R.id.et_login_password);
-
+            etFolkGuideAbbr = view.findViewById(R.id.et_signup_folk_guide);
             createAccount = view.findViewById(R.id.btn_create_account);
-            createAccount.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    validateSignUpUser();
+            ivOpenGallery = view.findViewById(R.id.iv_open_gallery);
+            ivSetProfileImage = view.findViewById(R.id.iv_set_profile_image);
+            tvOpenGallery = view.findViewById(R.id.tv_open_gallery);
+            tvSignUpMemberType = view.findViewById(R.id.et_member_type);
+
+            ivOpenGallery.setOnClickListener(view14 -> {
+                Dexter.withActivity(getActivity())
+                        .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        .withListener(new MultiplePermissionsListener() {
+                            @Override
+                            public void onPermissionsChecked(MultiplePermissionsReport report) {
+                                if (report.areAllPermissionsGranted()) {
+                                    showImagePickerOptions();
+                                }
+                                if (report.isAnyPermissionPermanentlyDenied()) {
+                                    showSettingsDialog(getActivity());
+                                }
+                            }
+
+                            @Override
+                            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                                token.continuePermissionRequest();
+                            }
+                        }).check();
+
+            });
+
+            tvOpenGallery.setOnClickListener(view15 -> showImagePickerOptions());
+
+            tvSignUpMemberType.setOnClickListener(view16 -> dialogSignUpMemberType());
+
+            tvTermsPrivacy.setOnClickListener(view1 -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.iskconbangalore.org/privacy-policy/"))));
+
+            etSignUpZone.setOnClickListener(view12 -> dialogSignUpZone());
+
+            createAccount.setOnClickListener(view13 -> {
+                if (hasValidInput(
+                        etSignUpZone,
+                        tvSignUpMemberType,
+                        etAdminNumber,
+                        etFolkGuideAbbr,
+                        etFirstName,
+                        etLastName,
+                        etEmail,
+                        etPhone,
+                        etPassword)) {
+
+                    loadingBar.setTitle("Create Account");
+                    loadingBar.setMessage("Please wait, while we are checking the credentials!");
+                    loadingBar.setCanceledOnTouchOutside(false);
+                    loadingBar.show();
+
+                    String zone = etSignUpZone.getText().toString();
+                    String memberType = tvSignUpMemberType.getText().toString();
+                    String adminNumber = etAdminNumber.getText().toString();
+                    String folkGuideAbbr = etFolkGuideAbbr.getText().toString().trim();
+                    String firstName = etFirstName.getText().toString();
+                    String lastName = etLastName.getText().toString();
+                    String email = etEmail.getText().toString().trim();
+                    String phone = etPhone.getText().toString().trim();
+                    String password = etPassword.getText().toString();
+
+                    // Create user using Firestore DB after validating input
+                    createUserFirestore(
+                            zone,
+                            memberType,
+                            adminNumber,
+                            folkGuideAbbr,
+                            firstName,
+                            lastName,
+                            email,
+                            phone,
+                            password);
                 }
             });
 
             return view;
         }
 
-        public void validateSignUpUser() {
-            // Validate input
+        private boolean hasValidInput(
+                TextView etSignUpZone,
+                TextView tvSignUpMemberType,
+                CustomEditText etAdminNumber,
+                CustomEditText etFolkGuideAbbr,
+                CustomEditText etFirstName,
+                CustomEditText etLastName,
+                CustomEditText etEmail,
+                CustomEditText etPhone,
+                CustomEditText etPassword) {
+
             String zone = etSignUpZone.getText().toString();
-            String memberType = tvMemberType.getText().toString();
-            String folkId = etFolkIdLogin.getText().toString();
+            String memberType = tvSignUpMemberType.getText().toString();
             String adminNumber = etAdminNumber.getText().toString();
+            String folkGuideAbbr = etFolkGuideAbbr.getText().toString().trim();
             String firstName = etFirstName.getText().toString();
             String lastName = etLastName.getText().toString();
-            String email = etEmail.getText().toString();
-            String phone = etPhone.getText().toString();
+            String email = etEmail.getText().toString().trim();
+            String phone = etPhone.getText().toString().trim();
             String password = etPassword.getText().toString();
 
-            if (TextUtils.isEmpty(memberType)) {
-                Toast.makeText(getActivity(), "Please write your member type...", Toast.LENGTH_SHORT).show();
-            } else if (TextUtils.isEmpty(firstName)) {
-                Toast.makeText(getActivity(), "Please write your first name...", Toast.LENGTH_SHORT).show();
-            } else if (TextUtils.isEmpty(lastName)) {
-                Toast.makeText(getActivity(), "Please write your last name...", Toast.LENGTH_SHORT).show();
-            } else if (TextUtils.isEmpty(phone)) {
-                Toast.makeText(getActivity(), "Please write your phone number...", Toast.LENGTH_SHORT).show();
-            } else if (TextUtils.isEmpty(zone)) {
-                Toast.makeText(getActivity(), "Please write your zone...", Toast.LENGTH_SHORT).show();
-            } else if (TextUtils.isEmpty(folkId)) {
-                Toast.makeText(getActivity(), "Please write your folk Id...", Toast.LENGTH_SHORT).show();
-            } else if (TextUtils.isEmpty(adminNumber)) {
-                Toast.makeText(getActivity(), "Please write your Admin Number...", Toast.LENGTH_SHORT).show();
-            } else if (TextUtils.isEmpty(email)) {
-                Toast.makeText(getActivity(), "Please write your email...", Toast.LENGTH_SHORT).show();
-            } else if (TextUtils.isEmpty(password)) {
-                Toast.makeText(getActivity(), "Please write your password...", Toast.LENGTH_SHORT).show();
-            } else {
-                loadingBar.setTitle("Create Account");
-                loadingBar.setMessage("Please wait, while we are checking the credentials!");
-                loadingBar.setCanceledOnTouchOutside(false);
-                loadingBar.show();
-
-                // Create user using RealTime DB in DB after validaing input
-//                createUser(zone, memberType, folkId, adminNumber, firstName, lastName, phone, email, password);
-
-                // Create user using Firestore DB after validating input
-                createUserFirestore(zone, memberType, folkId, adminNumber, firstName, lastName, email, phone, password);
-
+            if (zone.equals("")) {
+                etSignUpZone.setError("Required! Select a Zone.");
+                etSignUpZone.requestFocus();
+                return false;
             }
+
+            if (memberType.equals("")) {
+                tvSignUpMemberType.setError("Required! Select a Member Type.");
+                tvSignUpMemberType.requestFocus();
+                return false;
+            }
+
+            if (adminNumber.equals("")) {
+                etAdminNumber.setError("Admin Number is Required!");
+                etAdminNumber.requestFocus();
+                return false;
+            }
+
+            if (folkGuideAbbr.equals("")) {
+                etFolkGuideAbbr.setError("FOLK Guide is Required!");
+                etFolkGuideAbbr.requestFocus();
+                return false;
+            }
+
+            if (firstName.equals("")) {
+                etFirstName.setError("First Name is Required!");
+                etFirstName.requestFocus();
+                return false;
+            }
+
+            if (lastName.equals("")) {
+                etLastName.setError("Last Name is Required!");
+                etLastName.requestFocus();
+                return false;
+            }
+
+            if (email.equals("")) {
+                etEmail.setError("Email is Required!");
+                etEmail.requestFocus();
+                return false;
+            }
+
+            if (!Helper.hasValidEmail(email)) {
+                etEmail.setError("Invalid Email!");
+                etEmail.requestFocus();
+                return false;
+            }
+
+            if (phone.equals("")) {
+                etPhone.setError("Phone Number is Required!");
+                etPhone.requestFocus();
+                return false;
+            }
+
+            if (phone.length() < 10) {
+                etPhone.setError("Provide a valid Mobile Number!");
+                etPhone.requestFocus();
+                return false;
+            }
+
+            if (password.equals("")) {
+                etPassword.setError("Password is Required!");
+                etPassword.requestFocus();
+                return false;
+            }
+
+            if (!Helper.hasValidPassword(password)) {
+                etPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
+                etPassword.requestFocus();
+                return false;
+            }
+            return true;
         }
 
-        private void createUserFirestore(String zone, String memberType, String folkId, String adminNumber, String firstName, String lastName, String email, String phone, String password) {
-            // Create Collection reference
-            CollectionReference members = db.collection("members");
+        private void createUserFirestore(
+                String zone,
+                String memberType,
+                String adminNumber,
+                String folkGuideAbbr,
+                String firstName,
+                String lastName,
+                String email,
+                String phone,
+                String password) {
 
             // User obj
             User user = new User(
                     zone,
                     memberType,
-                    folkId,
                     adminNumber,
+                    folkGuideAbbr,
                     firstName,
                     lastName,
                     phone,
@@ -639,7 +679,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Save User obj to Firestore - Add a new document with a generated ID
             // Collection name is "User". U can create a new collection this way
-            db.collection("users")
+            db.collection("FolkPeople")
                     .add(user)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
@@ -660,93 +700,33 @@ public class MainActivity extends AppCompatActivity {
                     });
         }
 
-
-        // RealTime DB stuff
-        private void createUser(String zone, final String memberType, String folkId, String adminNumber, final String firstName, final String lastName, final String phone, final String email, final String password) {
-            // Get reference to the root
-            final DatabaseReference rootRef;
-            rootRef = FirebaseDatabase.getInstance().getReference();
-            rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    // If user doesnt exist then create new
-                    if (!(dataSnapshot.child("User").child(phone).exists())) {
-                        // Using Hash Map u put the data into the DB
-                        HashMap<String, Object> userDataMap = new HashMap<>();
-                        userDataMap.put("zone", zone);
-                        userDataMap.put("memberType", memberType);
-                        userDataMap.put("folkId", folkId);
-                        userDataMap.put("adminNumber", adminNumber);
-                        userDataMap.put("firstName", firstName);
-                        userDataMap.put("lastName", lastName);
-                        userDataMap.put("phone", phone);
-                        userDataMap.put("email", email);
-                        userDataMap.put("password", password);
-
-                        // Update children
-                        rootRef.child("User").child(phone).updateChildren(userDataMap)
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        // If task or uploading the data is successful do this
-                                        if (task.isSuccessful()) {
-                                            loadingBar.dismiss();
-                                            Toast.makeText(getActivity(), "Congrates, ur acc has been created!", Toast.LENGTH_SHORT).show();
-//                                            startActivity(new Intent(getActivity(), LoginActivity.class));
-                                        } else {
-                                            loadingBar.dismiss();
-                                            Toast.makeText(getActivity(), "Network error. Please try again!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-                    } else {
-                        // If User exists jump them to main activity to create new account
-                        loadingBar.dismiss();
-                        Toast.makeText(getActivity(), "This " + phone + " already exists! Please try again with another phone number!", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(getActivity(), MainActivity.class));
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                }
-            });
-        }
-
         public void dialogSignUpMemberType() {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("I am a");
-            String[] selectArray = {"Folk Member", "Admin"};
+            String[] selectArray = {"Team Lead", "FOLK Guide"};
             builder.setItems(selectArray, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     switch (which) {
                         case 0:
-                            tvMemberType.setText("Folk Member");
-
-                            tvFolkIdLogin.setVisibility(View.VISIBLE);
-                            etFolkIdLogin.setVisibility(View.VISIBLE);
-
-                            tvAdminNumber.setVisibility(View.GONE);
-                            etAdminNumber.setVisibility(View.GONE);
-                            etAdminNumber.setText("Empty");
+                            tvSignUpMemberType.setText("Team Lead");
                             break;
                         case 1:
-                            tvMemberType.setText("Admin");
-
-                            tvAdminNumber.setVisibility(View.VISIBLE);
-                            etAdminNumber.setVisibility(View.VISIBLE);
-
-                            tvFolkIdLogin.setVisibility(View.GONE);
-                            etFolkIdLogin.setVisibility(View.GONE);
-                            etFolkIdLogin.setText("Empty");
+                            tvSignUpMemberType.setText("FOLK Guide");
                             break;
                     }
                 }
             });
             AlertDialog dialog = builder.create();
             dialog.show();
+        }
+
+        private void showImagePickerOptions() {
+            FilePickerBuilder.getInstance()
+                    .setSelectedFiles(imageFilePathsStringArray)
+                    .setActivityTheme(R.style.LibAppTheme)
+                    .setMaxCount(1)
+                    .pickPhoto(this);
         }
 
         public void dialogSignUpZone() {
@@ -774,6 +754,175 @@ public class MainActivity extends AppCompatActivity {
             });
             AlertDialog dialog = builder.create();
             dialog.show();
+        }
+
+        private void uploadImages(ArrayList<PersonModel> imgUriArray, ArrayList<String> imgExtArray, ArrayList<String> imgNameArray) {
+            // if adding in storage is successful then add the entry of the url in Firestore
+            final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Please Wait");
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+            for (int i = 0; i < imgUriArray.size(); i++) {
+                final int finalI = i;
+
+                // First put file in Storage
+                FirebaseStorage.getInstance().getReference()
+                        .child("chatImages/")
+                        .child(imgUriArray.get(i).getImageName())
+                        .putFile(imgUriArray.get(i).getIvProfileImage())
+                        .addOnCompleteListener(task -> {
+
+                            // Then get the download URL with the filename from Storage
+                            if (task.isSuccessful()) {
+                                FirebaseStorage.getInstance().getReference()
+                                        .child("chatImages/")
+                                        .child(imgUriArray.get(finalI).getImageName())
+                                        .getDownloadUrl()
+                                        .addOnCompleteListener(task1 -> {
+
+                                            progressDialog.setMessage("Uploading");
+                                            if (task1.isSuccessful()) {
+
+                                                // Here u must add the Uri to Firestore
+                                                Log.d(TAG, "task data: " + task1.getResult().toString());
+//                                                sendImageMessage(progressDialog, "U got an Image message", task1.getResult().toString(), imgNameArray.get(finalI), imgExtArray.get(finalI));
+                                                progressDialog.dismiss();
+
+                                            } else {
+                                                FirebaseStorage.getInstance().getReference()
+                                                        .child("chatImages/")
+                                                        .child(imageUriArray.get(finalI).getImageName())
+                                                        .delete();
+                                                Toast.makeText(getActivity(), "Couldn't upload Image", Toast.LENGTH_SHORT).show();
+                                            }
+
+                                        });
+                            } else {
+                                Toast.makeText(getActivity(), "Some Error. Couldn't Uplaod", Toast.LENGTH_SHORT).show();
+                            }
+
+                        });
+            }
+        }
+
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+
+            // On Back press
+            if (resultCode == RESULT_CANCELED) {
+                return;
+            }
+
+            // Gallery Result
+            if (data != null && requestCode == FilePickerConst.REQUEST_CODE_PHOTO && resultCode == Activity.RESULT_OK) {
+
+                imageFilePathsStringArray.addAll(Objects.requireNonNull(data.getStringArrayListExtra(FilePickerConst.KEY_SELECTED_MEDIA)));
+                newImagePath = imageFilePathsStringArray.get(0);
+
+                dialog = new ProgressDialog(getActivity());
+                dialog.show();
+
+                File file = null;
+                byte[] bytesArray = new byte[0];
+                final ByteArrayOutputStream[] stream = {null};
+                lastFourDigits = "";     //substring containing last 4 characters
+                int fileSize = 0;
+                String imageName = null;
+
+                // Check if img total length is > 4 including extension n dot
+                if (newImagePath.length() > 4) {
+                    lastFourDigits = newImagePath.substring(newImagePath.length() - 3);
+                }
+                System.out.println("Image name: " + newImagePath);
+                System.out.println("Last 4 digits: " + lastFourDigits);
+                System.out.println("img path nnn: " + newImagePath);
+
+                // Get Image Name
+                int slice = newImagePath.lastIndexOf('/');
+                if (slice != -1) {
+                    imageName = newImagePath.substring(slice + 1);
+                    Log.d(TAG, "Image Name: " + imageName);
+                }
+
+                Log.d(TAG, "new img path 1: " + newImagePath);
+
+                // Get byte array from file path
+                if (newImagePath != null) {
+                    file = new File(newImagePath);
+                    Log.d(TAG, "file info: " + file);
+                    Log.d(TAG, "file length: " + (int) file.length());
+
+                    bytesArray = new byte[(int) file.length()];
+
+
+//                    RandomAccessFile f = null;
+//                    try {
+//                        f = new RandomAccessFile(newImagePath, "r");
+//                    } catch (FileNotFoundException e) {
+//                        e.printStackTrace();
+//                    }
+//                    byte[] bytes = new byte[0];
+//                    try {
+//                        bytes = new byte[(int) f.length()];
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    try {
+//                        f.read(bytes);
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    try {
+//                        f.close();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+
+                    System.out.println("bytesArray 1: " + Arrays.toString(bytesArray));
+                    System.out.println("file size: " + (int) file.length() / (1024 * 1024) + " mb");
+                    fileSize = (int) file.length() / (1024 * 1024);
+                } else {
+                    Toast.makeText(getActivity(), "File Path is Empty", Toast.LENGTH_SHORT).show();
+                }
+
+                if (fileSize <= 5.0) {
+
+                    // Get Uri from file
+                    Uri imgUri = Uri.fromFile(new File(newImagePath));
+
+                    PersonModel personModel = new PersonModel();
+                    personModel.setIvProfileImage(imgUri);
+                    personModel.setImageName(imageName);
+                    personModel.setImageExtension(lastFourDigits);
+
+                    imageUriArray.add(personModel);
+                    imageExtensionStringArray.add(lastFourDigits);
+                    imageNameStringArray.add(imageName);
+
+                    Log.d(TAG, "onActivityResult: uri imz: " + imgUri);
+
+                    // All green then upload to Firestore
+//                    uploadImages(imageUriArray, imageExtensionStringArray, imageNameStringArray);
+
+                    ivSetProfileImage.setImageURI(imgUri);
+                    ivSetProfileImage.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+
+                        }
+                    });
+                    ivOpenGallery.setVisibility(View.GONE);
+                    tvOpenGallery.setText("Change Profile Picture");
+                    imageFilePathsStringArray.clear();
+
+                    dialog.dismiss();
+                } else {
+                    Toast.makeText(getActivity(), "Max file size is 5 MB only!", Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     }
 }
