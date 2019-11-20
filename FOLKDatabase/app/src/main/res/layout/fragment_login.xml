@@ -22,7 +22,7 @@
             android:scrollbars="vertical">
 
             <TextView
-                android:id="@+id/tv_login_phone"
+                android:id="@+id/tv_login_email"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -31,36 +31,37 @@
                 android:ellipsize="end"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:maxLines="1"
-                android:text="Phone Number"
+                android:text="Email"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@+id/et_login_phone"
-                app:layout_constraintStart_toStartOf="@+id/et_login_phone"
+                app:layout_constraintEnd_toEndOf="@+id/et_login_email"
+                app:layout_constraintStart_toStartOf="@+id/et_login_email"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <com.singularitycoder.folkdatabase.helper.CustomEditText
-                android:id="@+id/et_login_phone"
+                android:id="@+id/et_login_email"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="15dp"
-                android:digits="1234567890 +"
+                android:digits="qwertyuiopasdfghjklzxcvbnm 1234567890 QWERTYUIOPASDFGHJKLZXCVBNM .@"
                 android:drawablePadding="10dp"
                 android:fontFamily="@font/roboto_regular"
-                android:hint="Type your Number"
-                android:inputType="phone"
-                android:maxLength="15"
+                android:hint="Type your Email"
+                android:inputType="textEmailAddress"
+                android:maxLength="60"
                 android:maxLines="1"
                 android:nestedScrollingEnabled="true"
                 android:scrollHorizontally="true"
                 android:singleLine="true"
+                android:textColor="@color/colorBlack"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_login_phone" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_login_email" />
 
             <TextView
                 android:id="@+id/tv_login_password"
@@ -76,9 +77,9 @@
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@+id/et_login_phone"
-                app:layout_constraintStart_toStartOf="@+id/et_login_phone"
-                app:layout_constraintTop_toBottomOf="@+id/et_login_phone" />
+                app:layout_constraintEnd_toEndOf="@+id/et_login_email"
+                app:layout_constraintStart_toStartOf="@+id/et_login_email"
+                app:layout_constraintTop_toBottomOf="@+id/et_login_email" />
 
             <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_login_password"
@@ -116,8 +117,8 @@
                 android:text="Forgot Password"
                 android:textColor="@color/colorAccent"
                 android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="@+id/et_login_phone"
-                app:layout_constraintStart_toStartOf="@+id/et_login_phone"
+                app:layout_constraintEnd_toEndOf="@+id/et_login_email"
+                app:layout_constraintStart_toStartOf="@+id/et_login_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_login_password" />
 
             <Button
@@ -130,8 +131,8 @@
                 android:textColor="@color/colorLightBlue"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@+id/et_login_phone"
-                app:layout_constraintStart_toStartOf="@+id/et_login_phone"
+                app:layout_constraintEnd_toEndOf="@+id/et_login_email"
+                app:layout_constraintStart_toStartOf="@+id/et_login_email"
                 app:layout_constraintTop_toBottomOf="@+id/tv_login_forgot_password" />
 
             <TextView
@@ -149,8 +150,8 @@
                 android:textColor="@color/colorAccent"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/et_login_phone"
-                app:layout_constraintStart_toStartOf="@+id/et_login_phone"
+                app:layout_constraintEnd_toEndOf="@+id/et_login_email"
+                app:layout_constraintStart_toStartOf="@+id/et_login_email"
                 app:layout_constraintTop_toBottomOf="@+id/btn_create_event_invite_people" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

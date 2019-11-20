@@ -297,7 +297,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     public static class ActivityFragment extends Fragment {
 
-        RecyclerView recyclerActivites;
+        RecyclerView recyclerView;
         ProfileActivitiesAdapter mProfileActivitiesAdapter;
         ArrayList<ProfileModel> activityList;
 
@@ -314,7 +314,7 @@ public class ProfileActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_profile_activity, container, false);
 
-            RecyclerView recyclerView = view.findViewById(R.id.recycler_profile_activity);
+            recyclerView = view.findViewById(R.id.recycler_profile_activity);
 
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getBaseContext());
             recyclerView.setLayoutManager(linearLayoutManager);
