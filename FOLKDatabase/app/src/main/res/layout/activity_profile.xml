@@ -242,7 +242,7 @@
                 app:tabIndicatorColor="@color/colorAccent"
                 app:tabIndicatorHeight="4dp"
                 app:tabSelectedTextColor="@android:color/white"
-                app:tabTextColor="@color/colorAccent" />
+                app:tabTextColor="@color/white_70" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 

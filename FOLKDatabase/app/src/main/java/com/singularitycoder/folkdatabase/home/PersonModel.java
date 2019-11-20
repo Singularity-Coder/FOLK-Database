@@ -2,23 +2,25 @@ package com.singularitycoder.folkdatabase.home;
 
 import android.net.Uri;
 
+import com.google.firebase.firestore.Exclude;
+
 public class PersonModel {
 
-    int imgProfileImage;
-    String firstName;
-    String lastName;
-    String booksSold;
-    String lakshmiEarned;
-    int imgGroupProfileImage;
-    String strName;
-    String strSubTitle1;
-    String strSubTitle2;
-    String strDate;
-    String strChatCount;
+    @Exclude
+    private String id;
 
-    Uri ivProfileImage;
-    String imageName;
-    String imageExtension;
+    private int imgProfileImage;
+    private String firstName;
+    private String lastName;
+    private String strName;
+    private String strSubTitle1;
+    private String strSubTitle2;
+    private String strDate;
+    private String strChatCount;
+
+    private Uri ivProfileImage;
+    private String imageName;
+    private String imageExtension;
 
     public PersonModel() {
     }
@@ -29,16 +31,6 @@ public class PersonModel {
         this.strName = strName;
         this.strSubTitle1 = strSubTitle1;
         this.strSubTitle2 = strSubTitle2;
-    }
-
-    // Group Chat
-    public PersonModel(int imgGroupProfileImage, String strName, String strSubTitle1, String strSubTitle2, String strDate, String strChatCount) {
-        this.imgGroupProfileImage = imgGroupProfileImage;
-        this.strName = strName;
-        this.strSubTitle1 = strSubTitle1;
-        this.strSubTitle2 = strSubTitle2;
-        this.strDate = strDate;
-        this.strChatCount = strChatCount;
     }
 
     // Chat
@@ -137,5 +129,29 @@ public class PersonModel {
 
     public void setImageExtension(String imageExtension) {
         this.imageExtension = imageExtension;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 }

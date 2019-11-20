@@ -22,7 +22,7 @@
         android:icon="@drawable/ic_filter_list_black_24dp"
         android:orderInCategory="3"
         android:title="Filter Contacts"
-        app:showAsAction="always" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_my_profile"

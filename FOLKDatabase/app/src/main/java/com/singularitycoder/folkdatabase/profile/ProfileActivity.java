@@ -1,5 +1,7 @@
 package com.singularitycoder.folkdatabase.profile;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -8,16 +10,23 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.palette.graphics.Palette;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -184,24 +193,29 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             }
         });
+
         appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
                 if (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0) {
-                    //  Collapsed
+                    // COLLAPSED STATE
 //                    Toast.makeText(getApplicationContext(), "Collapsed", Toast.LENGTH_LONG).show();
 //                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.colorPrimary));
 //                    tabLayout.setTabTextColors(ContextCompat.getColorStateList(getApplicationContext(), R.color.colorBlack));
                     toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                     tabLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                     toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
+                    tabLayout.setTabTextColors(getResources().getColor(R.color.white_70), getResources().getColor(R.color.colorWhite));
+                    getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.drawable.ic_back_white));
                 } else {
-                    //Expanded
+                    // EXPANDED STATE
 //                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.colorWhite));
 //                    tabLayout.setTabTextColors(ContextCompat.getColorStateList(getApplicationContext(), R.color.colorWhite));
                     toolbar.setBackgroundColor(Color.TRANSPARENT);
                     tabLayout.setBackgroundColor(Color.TRANSPARENT);
-//                    toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
+                    tabLayout.setTabTextColors(getResources().getColor(R.color.colorAccent), getResources().getColor(R.color.colorAccent));
+                    getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.drawable.ic_back));
+                    // toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
                 }
             }
         });
@@ -266,11 +280,99 @@ public class ProfileActivity extends AppCompatActivity {
 
         public AboutFragment() {
         }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+//            setHasOptionsMenu(true);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.fragment_profile_about, container, false);
+
+            return view;
+        }
     }
 
     public static class ActivityFragment extends Fragment {
 
+        RecyclerView recyclerActivites;
+        ProfileActivitiesAdapter mProfileActivitiesAdapter;
+        ArrayList<ProfileModel> activityList;
+
         public ActivityFragment() {
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+//            setHasOptionsMenu(true);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.fragment_profile_activity, container, false);
+
+            RecyclerView recyclerView = view.findViewById(R.id.recycler_profile_activity);
+
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getBaseContext());
+            recyclerView.setLayoutManager(linearLayoutManager);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setItemViewCacheSize(20);
+            recyclerView.setDrawingCacheEnabled(true);
+            recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
+            activityList = new ArrayList<>();
+            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+
+            mProfileActivitiesAdapter = new ProfileActivitiesAdapter(activityList, getActivity());
+            mProfileActivitiesAdapter.setHasStableIds(true);
+            recyclerView.setAdapter(mProfileActivitiesAdapter);
+
+            return view;
+        }
+
+//        @Override
+//        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//            inflater.inflate(R.menu.menu_contacts, menu);
+//            super.onCreateOptionsMenu(menu, inflater);
+//        }
+
+        @Override
+        public void onAttach(@NonNull Context context) {
+            super.onAttach(context);
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+        }
+
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+        }
+
+        @Override
+        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
         }
     }
 

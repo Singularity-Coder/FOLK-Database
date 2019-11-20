@@ -31,7 +31,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".profile.ProfileActivity"></activity>
+        <activity android:name=".home.ApproveOthersActivity"></activity>
+        <activity android:name=".home.ApprovalStatusActivity" />
+        <activity android:name=".profile.ProfileActivity" />
         <activity android:name=".home.HomeActivity" />
         <activity android:name=".SplashActivity">
             <intent-filter>

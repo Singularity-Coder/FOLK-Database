@@ -1,6 +1,5 @@
 package com.singularitycoder.folkdatabase.home;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -14,6 +13,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,8 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,16 +37,25 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.singularitycoder.folkdatabase.helper.Helper;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.singularitycoder.folkdatabase.helper.Helper.hasInternet;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -57,9 +66,7 @@ public class HomeActivity extends AppCompatActivity {
     FloatingActionButton fab1;
 
     static ArrayList<PersonModel> adminList;
-    static ArrayList<PersonModel> contactList;
     static ArrayList<PersonModel> memberList;
-    static MembersAdapter membersAdapter;
 
 
     @Override
@@ -492,14 +499,19 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public static class ContactFragment extends Fragment {
-        int color;
+
+        private static final String TAG = "ContactFragment";
+        private ArrayList<PersonModel> contactList;
+        RecyclerView recyclerView;
+        private ContactsAdapter contactsAdapter;
+        private ProgressBar progressBar;
+        private PersonModel personItemModel;
+
+        private SwipeRefreshLayout swipeRefreshLayout;
+        private TextView noInternetText;
+
 
         public ContactFragment() {
-        }
-
-        @SuppressLint("ValidFragment")
-        public ContactFragment(int color) {
-            this.color = color;
         }
 
         @Override
@@ -512,8 +524,25 @@ public class HomeActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_person, container, false);
 
-            RecyclerView recyclerView = view.findViewById(R.id.recycler_person);
+            recyclerView = view.findViewById(R.id.recycler_person);
+            progressBar = view.findViewById(R.id.progress_circular);
+            noInternetText = view.findViewById(R.id.tv_no_internet);
 
+            swipeRefreshLayout = view.findViewById(R.id.refresh_layout);
+            swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                progressBar.setVisibility(View.VISIBLE);
+                getData(getActivity());
+            });
+
+            getData(getActivity());
+            setUpRecyclerView();
+
+
+            return view;
+        }
+
+        private void setUpRecyclerView() {
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getBaseContext());
             recyclerView.setLayoutManager(linearLayoutManager);
             recyclerView.setHasFixedSize(true);
@@ -544,9 +573,9 @@ public class HomeActivity extends AppCompatActivity {
             contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
             contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
 
-            membersAdapter = new MembersAdapter(getContext(), contactList);
-            membersAdapter.setHasStableIds(true);
-            membersAdapter.setOnItemClickListener(new MembersAdapter.OnItemClickListener() {
+            contactsAdapter = new ContactsAdapter(getContext(), contactList);
+            contactsAdapter.setHasStableIds(true);
+            contactsAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
                     Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
@@ -556,9 +585,53 @@ public class HomeActivity extends AppCompatActivity {
                     startActivity(contactIntent);
                 }
             });
-            recyclerView.setAdapter(membersAdapter);
+            recyclerView.setAdapter(contactsAdapter);
+        }
 
-            return view;
+        public void getData(final Context context) {
+            if (hasInternet(context)) {
+                Log.d(TAG, "hit 1");
+                setUpRecyclerView();
+                readContactsData();
+                noInternetText.setVisibility(View.GONE);
+                swipeRefreshLayout.setRefreshing(false);
+                contactsAdapter.notifyDataSetChanged();
+            } else {
+                noInternetText.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setRefreshing(false);
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+
+        // READ
+        private void readContactsData() {
+            FirebaseFirestore.getInstance().collection("FolkMembers").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            progressBar.setVisibility(View.GONE);
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                                for (DocumentSnapshot docSnap : docList) {
+                                    personItemModel = docSnap.toObject(PersonModel.class);
+                                    if (personItemModel != null) {
+                                        Log.d(TAG, "personItem: " + personItemModel);
+                                        personItemModel.setId(docSnap.getId());
+                                    }
+                                    Log.d(TAG, "firedoc id: " + docSnap.getId());
+                                    contactList.add(personItemModel);
+                                }
+                                contactsAdapter.notifyDataSetChanged();
+                                Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         }
 
         @Override
@@ -594,14 +667,9 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public static class FolkGuidesFragment extends Fragment {
-        int color;
+        private ContactsAdapter contactsAdapter;
 
         public FolkGuidesFragment() {
-        }
-
-        @SuppressLint("ValidFragment")
-        public FolkGuidesFragment(int color) {
-            this.color = color;
         }
 
         @Override
@@ -629,9 +697,9 @@ public class HomeActivity extends AppCompatActivity {
             adminList.add(new PersonModel(R.drawable.face2, "Gauranga Das", "Books Sold: 413", "Lakshmi Earned: 4,32,423"));
 
 
-            membersAdapter = new MembersAdapter(getContext(), adminList);
-            membersAdapter.setHasStableIds(true);
-            membersAdapter.setOnItemClickListener(new MembersAdapter.OnItemClickListener() {
+            contactsAdapter = new ContactsAdapter(getContext(), adminList);
+            contactsAdapter.setHasStableIds(true);
+            contactsAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
                     Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
@@ -641,7 +709,7 @@ public class HomeActivity extends AppCompatActivity {
                     startActivity(adminIntent);
                 }
             });
-            recyclerView.setAdapter(membersAdapter);
+            recyclerView.setAdapter(contactsAdapter);
 
 
             return view;

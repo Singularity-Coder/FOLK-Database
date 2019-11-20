@@ -14,16 +14,16 @@ import com.singularitycoder.folkdatabase.R;
 
 import java.util.ArrayList;
 
-public class MembersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context mContext;
     private ArrayList<PersonModel> mAdminList;
     private OnItemClickListener clickListener;
 
-    public MembersAdapter() {
+    public ContactsAdapter() {
     }
 
-    public MembersAdapter(Context context, ArrayList<PersonModel> adminList) {
+    public ContactsAdapter(Context context, ArrayList<PersonModel> adminList) {
         mContext = context;
         mAdminList = adminList;
     }

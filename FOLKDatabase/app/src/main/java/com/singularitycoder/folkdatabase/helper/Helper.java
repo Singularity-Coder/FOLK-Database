@@ -1,5 +1,6 @@
 package com.singularitycoder.folkdatabase.helper;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -15,6 +16,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,13 +37,19 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.singularitycoder.folkdatabase.R;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Helper extends AppCompatActivity {
+
+    private static final String TAG = "Helper";
 
     // Different Toasts n Snackbars
     // Image Viewing Libraries
@@ -51,6 +59,43 @@ public class Helper extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    public static boolean hasInternet(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        assert cm != null;
+        return cm.getActiveNetworkInfo() != null;
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private String currentDateTime() {
+        String dateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+
+        // split date and time for event created date
+        String[] arrOfStr = dateTime.split(" ", 2);
+        ArrayList<String> dateAndTime = new ArrayList<>(Arrays.asList(arrOfStr));
+
+        // convert date to dd/mm/yyyy
+        Date dateObj = null;
+        try {
+            dateObj = new SimpleDateFormat("yyyy-MM-dd").parse(dateAndTime.get(0));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        String outputDate = new SimpleDateFormat("dd MMM yyyy").format(dateObj);
+        Log.d(TAG, "date: " + outputDate);
+
+        // convert time to 12 hr format
+        Date timeObj = null;
+        try {
+            timeObj = new SimpleDateFormat("H:mm:ss").parse(dateAndTime.get(1));
+        } catch (final ParseException e) {
+            e.printStackTrace();
+        }
+        String outputTime = new SimpleDateFormat("hh:mm a").format(timeObj);
+        Log.d(TAG, "time: " + outputTime);
+
+        return outputDate + " at " + outputTime;
     }
 
     public void showDatePicker(final TextView datefield, Context context) {

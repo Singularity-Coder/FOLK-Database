@@ -16,6 +16,7 @@ import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,10 +49,12 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -94,10 +97,6 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private ImageView headerImage;
 
-    // Create a firebase auth object
-    private FirebaseAuth mAuth;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,16 +109,6 @@ public class MainActivity extends AppCompatActivity {
         setUpAppbarLayout();
         setUpCollapsingToolbar();
 
-        // Initialize Firebase Auth.
-        mAuth = FirebaseAuth.getInstance();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-//        updateUI(currentUser);
     }
 
     private void setStatuBarColor() {
@@ -438,6 +427,8 @@ public class MainActivity extends AppCompatActivity {
         ImageView ivSetProfileImage;
         TextView tvOpenGallery;
 
+        String adminKey;
+
         private String lastFourDigits;
         private String newImagePath = null;
         private final ArrayList<PersonModel> imageUriArray = new ArrayList<>();
@@ -449,7 +440,7 @@ public class MainActivity extends AppCompatActivity {
 
         private ProgressDialog loadingBar;
 
-        private FirebaseAuth fireAuth;
+        private FirebaseAuth firestoreAuth;
         FirebaseFirestore db;
 
         public SignUpFragment() {
@@ -464,9 +455,16 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_signup, container, false);
 
-            fireAuth = FirebaseAuth.getInstance();
+            firestoreAuth = FirebaseAuth.getInstance();
+            if (firestoreAuth.getCurrentUser() != null) {
+                startActivity(new Intent(getActivity(), HomeActivity.class));
+                Objects.requireNonNull(getActivity()).finish();
+            }
             db = FirebaseFirestore.getInstance();
             loadingBar = new ProgressDialog(getActivity());
+
+            adminKey();
+            Log.d(TAG, "adminKey: " + adminKey());
 
             tvTermsPrivacy = view.findViewById(R.id.tv_signup_terms);
             etSignUpZone = view.findViewById(R.id.et_signup_zone_type);
@@ -541,21 +539,38 @@ public class MainActivity extends AppCompatActivity {
                     String phone = etPhone.getText().toString().trim();
                     String password = etPassword.getText().toString();
 
-                    // Create user using Firestore DB after validating input
-                    createUserFirestore(
-                            zone,
-                            memberType,
-                            adminNumber,
-                            folkGuideAbbr,
-                            firstName,
-                            lastName,
-                            email,
-                            phone,
-                            password);
+                    // 1. First firebase auth
+                    createAccount(zone, memberType, adminNumber, folkGuideAbbr, firstName, lastName, email, phone, password);
                 }
             });
 
             return view;
+        }
+
+        private String adminKey() {
+            loadingBar.show();
+            FirebaseFirestore
+                    .getInstance()
+                    .collection("AdminKey")
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            loadingBar.dismiss();
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                adminKey = queryDocumentSnapshots.getDocuments().get(0).get("key").toString();
+                                Toast.makeText(getActivity(), "Got Key", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            loadingBar.dismiss();
+                            Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            return adminKey;
         }
 
         private boolean hasValidInput(
@@ -593,6 +608,12 @@ public class MainActivity extends AppCompatActivity {
 
             if (adminNumber.equals("")) {
                 etAdminNumber.setError("Admin Number is Required!");
+                etAdminNumber.requestFocus();
+                return false;
+            }
+
+            if (!adminNumber.equals(adminKey())) {
+                etAdminNumber.setError("Wrong Admin Number");
                 etAdminNumber.requestFocus();
                 return false;
             }
@@ -653,6 +674,102 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+
+        public void createAccount(String zone, String memberType, String adminNumber, String folkGuideAbbr, String firstName, String lastName, String email, String phone, String password) {
+            loadingBar.show();
+            //create user
+            firestoreAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(Objects.requireNonNull(getActivity()), new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            Toast.makeText(getActivity(), "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
+                            loadingBar.dismiss();
+                            if (task.isSuccessful()) {
+                                // 2 If success then store image in storeage, on success of storage create firestore credentials
+                                uploadProfileImage(imageUriArray, imageExtensionStringArray, imageNameStringArray, zone, memberType, adminNumber, folkGuideAbbr, firstName, lastName, email, phone, password);
+
+                            } else {
+                                Toast.makeText(getActivity(), "Authentication failed." + task.getException(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
+
+
+        private void uploadProfileImage(
+                ArrayList<PersonModel> imgUriArray,
+                ArrayList<String> imgExtArray,
+                ArrayList<String> imgNameArray,
+                String zone,
+                String memberType,
+                String adminNumber,
+                String folkGuideAbbr,
+                String firstName,
+                String lastName,
+                String email,
+                String phone,
+                String password) {
+            // if adding in storage is successful then add the entry of the url in Firestore
+            final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Please Wait");
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+            for (int i = 0; i < imgUriArray.size(); i++) {
+                final int finalI = i;
+
+                // First put file in Storage
+                FirebaseStorage.getInstance().getReference()
+                        .child("chatImages/")
+                        .child(imgUriArray.get(i).getImageName())
+                        .putFile(imgUriArray.get(i).getIvProfileImage())
+                        .addOnCompleteListener(task -> {
+
+                            // Then get the download URL with the filename from Storage
+                            if (task.isSuccessful()) {
+                                FirebaseStorage.getInstance().getReference()
+                                        .child("chatImages/")
+                                        .child(imgUriArray.get(finalI).getImageName())
+                                        .getDownloadUrl()
+                                        .addOnCompleteListener(task1 -> {
+
+                                            progressDialog.setMessage("Uploading");
+                                            if (task1.isSuccessful()) {
+
+                                                // 3. Create user using Firestore DB image storage
+                                                createUserFirestore(
+                                                        zone,
+                                                        memberType,
+                                                        adminNumber,
+                                                        folkGuideAbbr,
+                                                        firstName,
+                                                        lastName,
+                                                        email,
+                                                        phone,
+                                                        password);
+
+                                                Log.d(TAG, "task data: " + task1.getResult().toString());
+                                                progressDialog.dismiss();
+
+                                            } else {
+                                                FirebaseStorage.getInstance().getReference()
+                                                        .child("chatImages/")
+                                                        .child(imageUriArray.get(finalI).getImageName())
+                                                        .delete();
+                                                Toast.makeText(getActivity(), "Couldn't upload Image", Toast.LENGTH_SHORT).show();
+                                            }
+
+                                        });
+                            } else {
+                                Toast.makeText(getActivity(), "Some Error. Couldn't Uplaod", Toast.LENGTH_SHORT).show();
+                            }
+
+                        });
+            }
+        }
+
+
         private void createUserFirestore(
                 String zone,
                 String memberType,
@@ -687,6 +804,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
                             Toast.makeText(getActivity(), "User Created", Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(getActivity(), HomeActivity.class));
+                            Objects.requireNonNull(getActivity()).finish();
                             loadingBar.dismiss();
                         }
                     })
@@ -703,7 +821,7 @@ public class MainActivity extends AppCompatActivity {
         public void dialogSignUpMemberType() {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("I am a");
-            String[] selectArray = {"Team Lead", "FOLK Guide"};
+            String[] selectArray = {"Team Lead", "FOLK Guide", "Zonal Head"};
             builder.setItems(selectArray, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -713,6 +831,9 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         case 1:
                             tvSignUpMemberType.setText("FOLK Guide");
+                            break;
+                        case 2:
+                            tvSignUpMemberType.setText("Zonal Head");
                             break;
                     }
                 }
@@ -754,57 +875,6 @@ public class MainActivity extends AppCompatActivity {
             });
             AlertDialog dialog = builder.create();
             dialog.show();
-        }
-
-        private void uploadImages(ArrayList<PersonModel> imgUriArray, ArrayList<String> imgExtArray, ArrayList<String> imgNameArray) {
-            // if adding in storage is successful then add the entry of the url in Firestore
-            final ProgressDialog progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setMessage("Please Wait");
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-
-            for (int i = 0; i < imgUriArray.size(); i++) {
-                final int finalI = i;
-
-                // First put file in Storage
-                FirebaseStorage.getInstance().getReference()
-                        .child("chatImages/")
-                        .child(imgUriArray.get(i).getImageName())
-                        .putFile(imgUriArray.get(i).getIvProfileImage())
-                        .addOnCompleteListener(task -> {
-
-                            // Then get the download URL with the filename from Storage
-                            if (task.isSuccessful()) {
-                                FirebaseStorage.getInstance().getReference()
-                                        .child("chatImages/")
-                                        .child(imgUriArray.get(finalI).getImageName())
-                                        .getDownloadUrl()
-                                        .addOnCompleteListener(task1 -> {
-
-                                            progressDialog.setMessage("Uploading");
-                                            if (task1.isSuccessful()) {
-
-                                                // Here u must add the Uri to Firestore
-                                                Log.d(TAG, "task data: " + task1.getResult().toString());
-//                                                sendImageMessage(progressDialog, "U got an Image message", task1.getResult().toString(), imgNameArray.get(finalI), imgExtArray.get(finalI));
-                                                progressDialog.dismiss();
-
-                                            } else {
-                                                FirebaseStorage.getInstance().getReference()
-                                                        .child("chatImages/")
-                                                        .child(imageUriArray.get(finalI).getImageName())
-                                                        .delete();
-                                                Toast.makeText(getActivity(), "Couldn't upload Image", Toast.LENGTH_SHORT).show();
-                                            }
-
-                                        });
-                            } else {
-                                Toast.makeText(getActivity(), "Some Error. Couldn't Uplaod", Toast.LENGTH_SHORT).show();
-                            }
-
-                        });
-            }
         }
 
         @Override
