@@ -52,8 +52,14 @@ import com.singularitycoder.folkdatabase.helper.Helper;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import static com.singularitycoder.folkdatabase.helper.Helper.hasInternet;
 
@@ -460,25 +466,8 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         ArrayList<PersonModel> notificationList = new ArrayList<>();
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-        notificationList.add(new PersonModel("Michael Marvin", R.drawable.face2, "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
+        notificationList.add(new PersonModel("Michael Marvin", "", "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
+
 
         LinearLayoutManager commentLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
 
@@ -509,6 +498,7 @@ public class HomeActivity extends AppCompatActivity {
 
         private SwipeRefreshLayout swipeRefreshLayout;
         private TextView noInternetText;
+        private TextView tvListCount;
 
 
         public ContactFragment() {
@@ -527,6 +517,7 @@ public class HomeActivity extends AppCompatActivity {
             recyclerView = view.findViewById(R.id.recycler_person);
             progressBar = view.findViewById(R.id.progress_circular);
             noInternetText = view.findViewById(R.id.tv_no_internet);
+            tvListCount = view.findViewById(R.id.tv_list_count);
 
             swipeRefreshLayout = view.findViewById(R.id.refresh_layout);
             swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
@@ -551,27 +542,6 @@ public class HomeActivity extends AppCompatActivity {
             recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
             contactList = new ArrayList<>();
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
-            contactList.add(new PersonModel(R.drawable.face1, "Catherine Millers", "Program: Yoga for Happiness", "Registered Date: July 15, 4019 - 10:15 AM"));
 
             contactsAdapter = new ContactsAdapter(getContext(), contactList);
             contactsAdapter.setHasStableIds(true);
@@ -612,26 +582,69 @@ public class HomeActivity extends AppCompatActivity {
                             progressBar.setVisibility(View.GONE);
                             if (!queryDocumentSnapshots.isEmpty()) {
                                 List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                                Log.d(TAG, "docList: " + docList);
+
+//                                Map<String, Object> forms = queryDocumentSnapshots.get("dynForms");
+//                                for (Map.Entry<String, Object> form: forms.entrySet()) {
+//                                    String key = (String) form.getKey();
+//                                    Map<String, Object> values = (Map<String, Object>)form.getValues();
+//                                    String name = (String) values.get("formName");
+//                                }
+
                                 for (DocumentSnapshot docSnap : docList) {
                                     personItemModel = docSnap.toObject(PersonModel.class);
                                     if (personItemModel != null) {
                                         Log.d(TAG, "personItem: " + personItemModel);
                                         personItemModel.setId(docSnap.getId());
+                                        personItemModel.setFirstName(docSnap.getString("name"));
+                                        personItemModel.setStrFolkGuide(docSnap.getString("folk_guide"));
+                                        personItemModel.setStrOccupation(docSnap.getString("occupation"));
+//                                        personItemModel.setImgProfileImage(docSnap.getData().get("photo_url"));
+                                        Log.d(TAG, "profile image: " + docSnap.getData());
+                                        Log.d(TAG, "profile image 2: " + docSnap.getData().get("docs"));
+                                        Object profileImages = docSnap.getData().get("docs");
+                                        Map<String, Map<String, String>> mapImage = (Map<String, Map<String, String>>) docSnap.getData().get("docs");
+                                        Log.d(TAG, "prof image map: " + mapImage);
+                                        if (mapImage != null) {
+
+                                        }
+
+//                                            for (Map<String, String> imgs : mapImage.values()) {
+//                                                Log.d(TAG, "value is : " + imgs);
+//                                            }
+
+
+//                                        for (Map.Entry<String, Object> entry : Objects.requireNonNull(mapImage).entrySet()) {
+//
+//                                                Log.d(TAG, "key: " + entry.getKey() + " value: " + entry.getValue());
+//                                        }
+
+
+//                                        Iterator<Map.Entry<String, String>> imgs = profImages.entrySet().iterator();
+//
+//                                        while (imgs.hasNext()) {
+//                                            Map.Entry<String, String> entry = imgs.next();
+//                                            Log.d(TAG, "key: " + entry.getKey() + " value: " + entry.getValue());
+//                                        }
+
+
+//                                        if (profImages.keySet() != null) {
+//                                            for (String imageKey : profImages.keySet()) {
+//                                                Log.d(TAG, "key is: " + imageKey);
+//                                            }
+//                                        }
+
                                     }
                                     Log.d(TAG, "firedoc id: " + docSnap.getId());
                                     contactList.add(personItemModel);
+                                    tvListCount.setText(contactList.size() + " Contacts");
                                 }
                                 contactsAdapter.notifyDataSetChanged();
                                 Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
                             }
                         }
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    .addOnFailureListener(e -> Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show());
         }
 
         @Override
@@ -692,10 +705,6 @@ public class HomeActivity extends AppCompatActivity {
             recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
             adminList = new ArrayList<>();
-            adminList.add(new PersonModel(R.drawable.face2, "Gauranga Das", "Books Sold: 413", "Lakshmi Earned: 4,32,423"));
-            adminList.add(new PersonModel(R.drawable.face2, "Gauranga Das", "Books Sold: 413", "Lakshmi Earned: 4,32,423"));
-            adminList.add(new PersonModel(R.drawable.face2, "Gauranga Das", "Books Sold: 413", "Lakshmi Earned: 4,32,423"));
-
 
             contactsAdapter = new ContactsAdapter(getContext(), adminList);
             contactsAdapter.setHasStableIds(true);

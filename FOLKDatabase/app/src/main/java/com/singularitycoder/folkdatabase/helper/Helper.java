@@ -16,6 +16,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,8 +34,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.singularitycoder.folkdatabase.R;
 
 import java.text.ParseException;
@@ -46,6 +51,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 public class Helper extends AppCompatActivity {
 
@@ -310,5 +317,63 @@ public class Helper extends AppCompatActivity {
                 .apply(requestOptions)
                 .into(imageView);
     }
+
+    public static void glideSmallImageWithErrHandle(Context context, String imgUrl, ImageView imageView) {
+        Glide.with(context)
+                .load(imgUrl)
+                .apply(
+                        new RequestOptions()
+                                .error(R.drawable.header)
+                                .placeholder(R.color.colorAccent)
+                                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                                .centerCrop()
+                )
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        //on load failed
+                        Toast.makeText(context, "Bad Image! Loading default!", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        //on load success
+                        return false;
+                    }
+                })
+                .transition(withCrossFade())
+                .into(imageView);
+    }
+
+    // Glide Big with error handling
+    public static void glideImageWithErrHandle(Context context, String imgUrl, ImageView imageView, String empty1) {
+        Glide.with(context)
+                .load(imgUrl)
+                .apply(
+                        new RequestOptions()
+                                .error(R.drawable.header)
+                                .placeholder(R.color.colorAccent)
+                                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                                .centerCrop()
+                )
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        //on load failed
+                        Toast.makeText(context, "Bad Image! Loading default!", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        //on load success
+                        return false;
+                    }
+                })
+                .transition(withCrossFade())
+                .into(imageView);
+    }
+
 
 }

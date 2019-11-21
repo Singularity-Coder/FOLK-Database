@@ -37,7 +37,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, int position) {
         PersonModel personModel = notifList.get(position);
 
-        ((NotificationViewHolder) holder).imgProfileImage.setImageResource(personModel.getImgProfileImage());
+//        ((NotificationViewHolder) holder).imgProfileImage.setImageResource(personModel.getImgProfileImage());
         ((NotificationViewHolder) holder).imgProfileImage.requestLayout();
         ((NotificationViewHolder) holder).imgProfileImage.getLayoutParams().width = 100;
         ((NotificationViewHolder) holder).imgProfileImage.getLayoutParams().height = 100;

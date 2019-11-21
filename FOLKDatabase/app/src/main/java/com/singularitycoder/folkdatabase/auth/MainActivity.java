@@ -4,6 +4,7 @@ package com.singularitycoder.folkdatabase.auth;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,8 +12,9 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
-import android.media.Image;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +26,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,6 +42,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.palette.graphics.Palette;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -51,10 +56,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -68,15 +71,11 @@ import com.singularitycoder.folkdatabase.helper.CustomEditText;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.helper.Helper;
 import com.singularitycoder.folkdatabase.home.HomeActivity;
+import com.singularitycoder.folkdatabase.home.NotificationAdapter;
 import com.singularitycoder.folkdatabase.home.PersonModel;
-import com.stfalcon.imageviewer.StfalconImageViewer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -93,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
     private CoordinatorLayout mCoordinatorLayout;
     private ViewPager viewPager;
-    private TabLayout tabLayout;
+    private static TabLayout authTabLayout;
     private Toolbar toolbar;
     private ImageView headerImage;
 
@@ -145,11 +144,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void setUpTabLayout() {
         // Set TabLayout
-        tabLayout = findViewById(R.id.tablayout_main);
-        tabLayout.setupWithViewPager(viewPager);
+        authTabLayout = findViewById(R.id.tablayout_main);
+        authTabLayout.setupWithViewPager(viewPager);
 
         // Do something on selecting each tab of tab layout
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        authTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
 
@@ -232,14 +231,14 @@ public class MainActivity extends AppCompatActivity {
 //                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.colorPrimary));
 //                    tabLayout.setTabTextColors(ContextCompat.getColorStateList(getApplicationContext(), R.color.colorBlack));
                     toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                    tabLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                    authTabLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                     toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
                 } else {
                     //Expanded
 //                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.colorWhite));
 //                    tabLayout.setTabTextColors(ContextCompat.getColorStateList(getApplicationContext(), R.color.colorWhite));
                     toolbar.setBackgroundColor(Color.TRANSPARENT);
-                    tabLayout.setBackgroundColor(Color.TRANSPARENT);
+                    authTabLayout.setBackgroundColor(Color.TRANSPARENT);
 //                    toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
                 }
             }
@@ -306,6 +305,7 @@ public class MainActivity extends AppCompatActivity {
         CustomEditText etEmail;
         CustomEditText etPassword;
         Button btnLogin;
+        TextView tvForgotPassword;
 
         // Declare an instance of Firestore
         FirebaseFirestore db;
@@ -316,6 +316,8 @@ public class MainActivity extends AppCompatActivity {
 
         private ProgressDialog loadingBar;
 
+        private FirebaseAuth firebaseAuth;
+
         public LoginFragment() {
         }
 
@@ -323,13 +325,24 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-            loadingBar = new ProgressDialog(getActivity());
-
+            firebaseAuth = FirebaseAuth.getInstance();
             db = FirebaseFirestore.getInstance();
+
+            loadingBar = new ProgressDialog(getActivity());
 
             etEmail = view.findViewById(R.id.et_login_email);
             etPassword = view.findViewById(R.id.et_login_password);
+            tvForgotPassword = view.findViewById(R.id.tv_login_forgot_password);
             btnLogin = view.findViewById(R.id.btn_create_event_invite_people);
+            tvNotAMember = view.findViewById(R.id.tv_login_create_account);
+
+            tvForgotPassword.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialogForgotPassword(getActivity());
+                }
+            });
+
             btnLogin.setOnClickListener(view1 -> {
                 if (hasValidInput(etEmail, etPassword)) {
                     startActivity(new Intent(getActivity(), HomeActivity.class));
@@ -343,20 +356,20 @@ public class MainActivity extends AppCompatActivity {
                     String password = etPassword.getText().toString();
 
                     // Login user using Firestore DB
-//                loginUserFirestore(email, password);
+                    loginUser(email, password);
                 }
             });
 
-            tvNotAMember = view.findViewById(R.id.tv_login_create_account);
             tvNotAMember.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-//                    new MainActivity().tabLayout.getTabAt(0);
+                    authTabLayout.getTabAt(0).select();
                 }
             });
 
             return view;
         }
+
 
         private boolean hasValidInput(CustomEditText etEmail, CustomEditText etPassword) {
             String email = etEmail.getText().toString().trim();
@@ -388,23 +401,77 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
-        // Login user using Firestore DB
-        private void loginUserFirestore(String email, String password) {
-            db.collection("FolkPeople")
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    Log.d(TAG, document.getId() + " => " + document.getData());
-                                }
-                            } else {
-                                Log.w(TAG, "Error getting documents.", task.getException());
-                            }
+        // Login using Firebase Auth
+        private void loginUser(String email, String password) {
+            loadingBar.show();
+            loadingBar.setMessage("Please wait, while we are checking the credentials!");
+            loadingBar.setCanceledOnTouchOutside(false);
+            firebaseAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(getActivity(), task -> {
+                        loadingBar.dismiss();
+                        if (task.isSuccessful()) {
+                            Intent intent = new Intent(getActivity(), HomeActivity.class);
+                            startActivity(intent);
+                            Objects.requireNonNull(getActivity()).finish();
+                        } else {
+                            // there was an error
+                            Toast.makeText(getActivity(), "Failed to login. Please try again", Toast.LENGTH_LONG).show();
                         }
                     });
         }
+
+
+        private void dialogForgotPassword(Activity activity) {
+            final Dialog dialog = new Dialog(activity);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setCancelable(false);
+            dialog.setContentView(R.layout.dialog_forgot_password);
+
+            Rect displayRectangle = new Rect();
+            Window window = activity.getWindow();
+            window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
+            Objects.requireNonNull(dialog.getWindow()).setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
+
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+            ImageView imgClose = dialog.findViewById(R.id.img_close);
+            CustomEditText etResetEmail = dialog.findViewById(R.id.et_reset_email);
+            Button btnReset = dialog.findViewById(R.id.btn_reset_password);
+
+            imgClose.setOnClickListener(view -> dialog.dismiss());
+
+            btnReset.setOnClickListener(view -> {
+                Log.d(TAG, "dialogForgotPassword: email: " + etResetEmail.getText().toString().trim());
+                if (etResetEmail.getText().toString().trim().equals("")) {
+                    etResetEmail.setError("Email cannot be empty!");
+                    etResetEmail.requestFocus();
+                } else if (!Helper.hasValidEmail(etResetEmail.getText().toString().trim())) {
+                    etResetEmail.setError("Invalid Email!");
+                    etResetEmail.requestFocus();
+                } else {
+                    resetPassword(etResetEmail.getText().toString().trim());
+                    dialog.dismiss();
+                }
+            });
+
+            dialog.show();
+        }
+
+        private void resetPassword(String email) {
+            loadingBar.show();
+            loadingBar.setMessage("Please wait...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            firebaseAuth.sendPasswordResetEmail(email)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(getActivity(), "We have sent you instructions to reset your password!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getActivity(), "Failed to send reset email!", Toast.LENGTH_SHORT).show();
+                        }
+                        loadingBar.dismiss();
+                    });
+        }
+
     }
 
     public static class SignUpFragment extends Fragment {
@@ -440,7 +507,7 @@ public class MainActivity extends AppCompatActivity {
 
         private ProgressDialog loadingBar;
 
-        private FirebaseAuth firestoreAuth;
+        private FirebaseAuth firebaseAuth;
         FirebaseFirestore db;
 
         public SignUpFragment() {
@@ -455,11 +522,11 @@ public class MainActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_signup, container, false);
 
-            firestoreAuth = FirebaseAuth.getInstance();
-//            if (firestoreAuth.getCurrentUser() != null) {
-//                startActivity(new Intent(getActivity(), HomeActivity.class));
-//                Objects.requireNonNull(getActivity()).finish();
-//            }
+            firebaseAuth = FirebaseAuth.getInstance();
+            if (firebaseAuth.getCurrentUser() != null) {
+                startActivity(new Intent(getActivity(), HomeActivity.class));
+                Objects.requireNonNull(getActivity()).finish();
+            }
             db = FirebaseFirestore.getInstance();
             loadingBar = new ProgressDialog(getActivity());
 
@@ -694,7 +761,7 @@ public class MainActivity extends AppCompatActivity {
         public void createAccount(String zone, String memberType, String adminNumber, String folkGuideAbbr, String firstName, String lastName, String email, String phone, String password) {
             loadingBar.show();
             //create user
-            firestoreAuth.createUserWithEmailAndPassword(email, password)
+            firebaseAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(Objects.requireNonNull(getActivity()), new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
@@ -703,8 +770,14 @@ public class MainActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 // 2 If success then store image in storeage, on success of storage create firestore credentials
                                 uploadProfileImage(imageUriArray, imageExtensionStringArray, imageNameStringArray, zone, memberType, adminNumber, folkGuideAbbr, firstName, lastName, email, phone, password);
-
                             } else {
+                                if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                                    Toast.makeText(getActivity(), "Email already exists! Login or use different Email!", Toast.LENGTH_SHORT).show();
+                                    etEmail.setError("Email already exists! Login or use different Email!");
+                                } else {
+                                    Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+
                                 Toast.makeText(getActivity(), "Authentication failed." + task.getException(), Toast.LENGTH_SHORT).show();
                             }
                         }

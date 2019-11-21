@@ -39,8 +39,6 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         PersonModel personModel = mAdminList.get(position);
 
-//        ((AdminViewHolder) holder).imgProfileImage.setImageResource(personModel.getImgProfileImage());
-        ((AdminViewHolder) holder).imgProfileImage.setImageResource(R.drawable.face3);
         ((AdminViewHolder) holder).imgProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -49,11 +47,9 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             }
         });
 
-        ((AdminViewHolder) holder).tvName.setText(personModel.getStrName());
-        ((AdminViewHolder) holder).tvSubTitle1.setText(personModel.getStrSubTitle1());
-        ((AdminViewHolder) holder).tvSubTitle2.setText(personModel.getStrSubTitle2());
-        ((AdminViewHolder) holder).tvDate.setText(personModel.getStrDate());
-        ((AdminViewHolder) holder).tvChatCount.setText(personModel.getStrChatCount());
+        ((AdminViewHolder) holder).tvName.setText(personModel.getFirstName());
+        ((AdminViewHolder) holder).tvSubTitle1.setText("FOLK Guide: " + personModel.getStrFolkGuide());
+        ((AdminViewHolder) holder).tvSubTitle2.setText("Occupation: " + personModel.getStrOccupation());
     }
 
 
@@ -70,7 +66,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     class AdminViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         CircularImageView imgProfileImage;
-        TextView tvName, tvSubTitle1, tvSubTitle2, tvDate, tvChatCount;
+        TextView tvName, tvSubTitle1, tvSubTitle2;
 
         public AdminViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -79,8 +75,6 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             tvName = itemView.findViewById(R.id.tv_name);
             tvSubTitle1 = itemView.findViewById(R.id.tv_subtitle_1);
             tvSubTitle2 = itemView.findViewById(R.id.tv_subtitle_2);
-            tvDate = itemView.findViewById(R.id.tv_date);
-            tvChatCount = itemView.findViewById(R.id.tv_count);
 
             itemView.setOnClickListener(this);
         }
