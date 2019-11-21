@@ -63,6 +63,12 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return position;
     }
 
+    public void flterList(ArrayList<PersonModel> list) {
+        this.mAdminList = list;
+        notifyDataSetChanged();
+    }
+
+
     class AdminViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         CircularImageView imgProfileImage;
