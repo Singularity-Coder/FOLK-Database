@@ -23,8 +23,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -299,7 +297,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         RecyclerView recyclerView;
         ProfileActivitiesAdapter mProfileActivitiesAdapter;
-        ArrayList<ProfileModel> activityList;
+        ArrayList<ProfileContactItem> activityList;
 
         public ActivityFragment() {
         }
@@ -324,18 +322,18 @@ public class ProfileActivity extends AppCompatActivity {
             recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
             activityList = new ArrayList<>();
-            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-            activityList.add(new ProfileModel(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileContactItem(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileContactItem(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileContactItem(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileContactItem(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileContactItem(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileContactItem(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileContactItem(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileContactItem(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileContactItem(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileContactItem(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileContactItem(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
+            activityList.add(new ProfileContactItem(R.drawable.face1, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
 
             mProfileActivitiesAdapter = new ProfileActivitiesAdapter(activityList, getActivity());
             mProfileActivitiesAdapter.setHasStableIds(true);

@@ -6,7 +6,7 @@ import com.google.firebase.firestore.Exclude;
 
 import java.util.Map;
 
-public class PersonModel {
+public class ContactItem {
 
     @Exclude
     private String id;
@@ -26,11 +26,11 @@ public class PersonModel {
     private String imageName;
     private String imageExtension;
 
-    public PersonModel() {
+    public ContactItem() {
     }
 
     // Contact, Caller, Admin
-    public PersonModel(String imgProfileImage, String strName, String strSubTitle1, String strSubTitle2, String empty1, String empty2, String empty3) {
+    public ContactItem(String imgProfileImage, String strName, String strSubTitle1, String strSubTitle2, String empty1, String empty2, String empty3) {
         this.strProfileImage = imgProfileImage;
         this.strName = strName;
         this.strSubTitle1 = strSubTitle1;
@@ -38,7 +38,7 @@ public class PersonModel {
     }
 
     // Notifications
-    public PersonModel(String strName, String imgProfileImage, String strSubTitle2, String strDate) {
+    public ContactItem(String strName, String imgProfileImage, String strSubTitle2, String strDate) {
         this.strName = strName;
         this.strProfileImage = imgProfileImage;
         this.strSubTitle2 = strSubTitle2;
@@ -46,7 +46,7 @@ public class PersonModel {
     }
 
     // Notifications
-    public PersonModel(String strName, String imgProfileImage, String strSubTitle2, String strDate, String strChatCount) {
+    public ContactItem(String strName, String imgProfileImage, String strSubTitle2, String strDate, String strChatCount) {
         this.strName = strName;
         this.strProfileImage = imgProfileImage;
         this.strSubTitle2 = strSubTitle2;

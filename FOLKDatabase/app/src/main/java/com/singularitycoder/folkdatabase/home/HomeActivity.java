@@ -1,12 +1,9 @@
 package com.singularitycoder.folkdatabase.home;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -17,6 +14,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -59,27 +58,20 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.auth.MainActivity;
 import com.singularitycoder.folkdatabase.helper.CustomEditText;
 import com.singularitycoder.folkdatabase.helper.Helper;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.singularitycoder.folkdatabase.helper.Helper.getActivity;
 import static com.singularitycoder.folkdatabase.helper.Helper.hasInternet;
+import static java.lang.String.valueOf;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -88,9 +80,6 @@ public class HomeActivity extends AppCompatActivity {
     TabLayout tabLayout;
     Context mContext;
     FloatingActionButton fab1;
-
-    static ArrayList<PersonModel> adminList;
-    static ArrayList<PersonModel> memberList;
 
 
     @Override
@@ -141,9 +130,11 @@ public class HomeActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 switch (position) {
                     case CONTACTS:
-                        fab1.show();
-                        fab1.setImageDrawable(getResources().getDrawable(R.drawable.ic_filter_list_black_24dp));
-                        fab1.setOnClickListener(view -> {
+                        FloatingActionButton fabMain = findViewById(R.id.floating_button);
+                        fabMain.show();
+                        fabMain.setImageDrawable(getResources().getDrawable(R.drawable.ic_filter_list_black_24dp));
+                        fabMain.setOnClickListener(view -> {
+                            new ContactFragment().contactFilterDialog(HomeActivity.this);
                             Toast.makeText(getApplicationContext(), "Filter Contacts", Toast.LENGTH_SHORT).show();
                         });
                         break;
@@ -329,24 +320,36 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
+    ////////////////////////////////////////////////////// FRAGMENT 1
     public static class ContactFragment extends Fragment {
 
         private static final String TAG = "ContactFragment";
-        private ArrayList<PersonModel> contactList;
-        RecyclerView recyclerView;
+        private ArrayList<ContactItem> contactList;
+        private RecyclerView recyclerView;
         private ContactsAdapter contactsAdapter;
         private ProgressBar progressBar;
         private ProgressDialog loadingBar;
-        private PersonModel personItemModel;
-
+        private ContactItem personItemModel;
         private SwipeRefreshLayout swipeRefreshLayout;
         private TextView noInternetText;
         private TextView tvListCount;
+        private String strOldPassword;
 
         private FirebaseAuth firebaseAuth;
         private FirebaseUser firebaseUser;
 
-        private String strOldPassword;
+
+        // this listener is called when there is change in firebase fireUser session
+        FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
+            FirebaseUser user = firebaseAuth.getCurrentUser();
+            if (user == null) {
+                // fireUser fireAuth state is changed - fireUser is null launch login activity
+                startActivity(new Intent(getActivity(), MainActivity.class));
+                Objects.requireNonNull(getActivity()).finish();
+            } else {
+                Toast.makeText(getActivity(), "AuthUserItem: " + user.getEmail(), Toast.LENGTH_SHORT).show();
+            }
+        };
 
         public ContactFragment() {
         }
@@ -360,6 +363,17 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_person, container, false);
+
+            firebaseAuth = FirebaseAuth.getInstance();
+            firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+            authListener = firebaseAuth -> {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
+                    // fireUser fireAuth state is changed - fireUser is null launch login activity
+                    startActivity(new Intent(getActivity(), MainActivity.class));
+                    Objects.requireNonNull(getActivity()).finish();
+                }
+            };
 
             recyclerView = view.findViewById(R.id.recycler_person);
             progressBar = view.findViewById(R.id.progress_circular);
@@ -377,7 +391,6 @@ public class HomeActivity extends AppCompatActivity {
 
             getData(getActivity());
             setUpRecyclerView();
-
 
             return view;
         }
@@ -441,12 +454,16 @@ public class HomeActivity extends AppCompatActivity {
 //                                }
 
                                 for (DocumentSnapshot docSnap : docList) {
-                                    personItemModel = docSnap.toObject(PersonModel.class);
+                                    personItemModel = docSnap.toObject(ContactItem.class);
                                     if (personItemModel != null) {
                                         Log.d(TAG, "personItem: " + personItemModel);
                                         personItemModel.setId(docSnap.getId());
                                         personItemModel.setFirstName(docSnap.getString("name"));
-                                        personItemModel.setStrFolkGuide(docSnap.getString("folk_guide"));
+                                        if (("").equals(docSnap.getString("folk_guide")) || (null) == (docSnap.getString("folk_guide"))) {
+                                            personItemModel.setStrFolkGuide("No Folk Guide");
+                                        } else {
+                                            personItemModel.setStrFolkGuide(docSnap.getString("folk_guide"));
+                                        }
                                         personItemModel.setStrOccupation(docSnap.getString("occupation"));
 //                                        personItemModel.setImgProfileImage(docSnap.getData().get("photo_url"));
                                         Log.d(TAG, "profile image: " + docSnap.getData());
@@ -513,7 +530,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 @Override
                 public boolean onQueryTextChange(String newText) {
-                    searchEvents(newText);
+                    searchContacts(newText);
                     return false;
                 }
             });
@@ -534,6 +551,7 @@ public class HomeActivity extends AppCompatActivity {
                     contactFilterDialog(getActivity());
                     return true;
                 case R.id.action_my_profile:
+                    startActivity(new Intent(getActivity(), ProfileActivity.class));
                     return true;
                 case R.id.action_about:
                     aboutDialog(getActivity());
@@ -591,10 +609,10 @@ public class HomeActivity extends AppCompatActivity {
         }
 
 
-        private void searchEvents(String text) {
-            ArrayList<PersonModel> filterdUsers = new ArrayList<>();
+        private void searchContacts(String text) {
+            ArrayList<ContactItem> filterdUsers = new ArrayList<>();
             //looping through existing elements
-            for (PersonModel user : contactList) {
+            for (ContactItem user : contactList) {
                 if (user.getFirstName().toLowerCase().trim().contains(text.toLowerCase())) {
                     filterdUsers.add(user);
                 }
@@ -683,7 +701,76 @@ public class HomeActivity extends AppCompatActivity {
 
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+            TextView tvResetContacts = dialog.findViewById(R.id.tv_dialog_reset);
+            TextView tvFolkGuides = dialog.findViewById(R.id.tv_dialog_folk_guides);
+            Button btnApply = dialog.findViewById(R.id.btn_dialog_apply);
+
+            tvResetContacts.setOnClickListener(view -> {
+                tvFolkGuides.setText("");
+                contactsAdapter.flterList(contactList);
+                contactsAdapter.notifyDataSetChanged();
+                dialog.dismiss();
+            });
+
+            tvFolkGuides.setOnClickListener(view -> {
+                folkGuideList(tvFolkGuides);
+                Log.d(TAG, "Folk guides value: " + valueOf(tvFolkGuides.getText()));
+            });
+            tvFolkGuides.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    Log.d(TAG, "afterTextChanged: editable val: " + editable);
+                    findFolkGuideContacts(valueOf(editable));
+                }
+            });
+
+
+            btnApply.setOnClickListener(view -> dialog.dismiss());
+
             dialog.show();
+        }
+
+        private void folkGuideList(TextView tvFolkGuide) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
+            builder.setTitle("Choose a FOLK Guide");
+            String[] selectArray = {"SRRD", "VGND"};
+            builder.setItems(selectArray, (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        tvFolkGuide.setText("SRRD");
+                        Log.d(TAG, "Folk guides value 1: " + valueOf(tvFolkGuide.getText()));
+                        break;
+                    case 1:
+                        tvFolkGuide.setText("VGND");
+                        Log.d(TAG, "Folk guides value 2: " + valueOf(tvFolkGuide.getText()));
+                        break;
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
+        private void findFolkGuideContacts(String text) {
+            ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
+
+            for (ContactItem contact : contactList) {
+                if (text.toLowerCase().trim().contains(contact.getStrFolkGuide().toString().toLowerCase().trim())) {
+                    filteredContactsList.add(contact);
+                    Log.d(TAG, "list: " + filteredContactsList);
+                }
+                contactsAdapter.flterList(filteredContactsList);
+                contactsAdapter.notifyDataSetChanged();
+            }
         }
 
 
@@ -703,7 +790,6 @@ public class HomeActivity extends AppCompatActivity {
             // if today's date matches birthday - show notif badge
             // Show all birthday's in the notifications
 
-
             ImageView imgCloseBtn = dialog.findViewById(R.id.img_dialog_close);
             imgCloseBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -712,9 +798,8 @@ public class HomeActivity extends AppCompatActivity {
                 }
             });
 
-            ArrayList<PersonModel> notificationList = new ArrayList<>();
-            notificationList.add(new PersonModel("Michael Marvin", "", "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
-
+            ArrayList<ContactItem> notificationList = new ArrayList<>();
+            notificationList.add(new ContactItem("Michael Marvin", "", "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
 
             LinearLayoutManager commentLayoutManager = new LinearLayoutManager(activity, RecyclerView.VERTICAL, false);
 
@@ -729,7 +814,6 @@ public class HomeActivity extends AppCompatActivity {
             notificationAdapter.setHasStableIds(true);
 
             notificationsRecycler.setAdapter(notificationAdapter);
-
 
             dialog.show();
         }
@@ -844,20 +928,6 @@ public class HomeActivity extends AppCompatActivity {
             return strOldPassword;
         }
 
-
-        // this listener is called when there is change in firebase fireUser session
-        FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
-            FirebaseUser user = firebaseAuth.getCurrentUser();
-            if (user == null) {
-                // fireUser fireAuth state is changed - fireUser is null launch login activity
-                startActivity(new Intent(getActivity(), MainActivity.class));
-                Objects.requireNonNull(getActivity()).finish();
-            } else {
-                Toast.makeText(getActivity(), "User: " + user.getEmail(), Toast.LENGTH_SHORT).show();
-            }
-        };
-
-
         private void changePassword(String newPassword) {
             loadingBar.setMessage("Please wait...");
             loadingBar.setCanceledOnTouchOutside(false);
@@ -908,15 +978,12 @@ public class HomeActivity extends AppCompatActivity {
         private void logOut() {
             firebaseAuth.signOut();
             // this listener will be called when there is change in firebase fireUser session
-            FirebaseAuth.AuthStateListener authListener = new FirebaseAuth.AuthStateListener() {
-                @Override
-                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                    FirebaseUser user = firebaseAuth.getCurrentUser();
-                    if (user == null) {
-                        // fireUser fireAuth state is changed - fireUser is null launch login activity
-                        startActivity(new Intent(getActivity(), MainActivity.class));
-                        Objects.requireNonNull(getActivity()).finish();
-                    }
+            FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
+                    // fireUser fireAuth state is changed - fireUser is null launch login activity
+                    startActivity(new Intent(getActivity(), MainActivity.class));
+                    Objects.requireNonNull(getActivity()).finish();
                 }
             };
         }
@@ -926,7 +993,7 @@ public class HomeActivity extends AppCompatActivity {
         public void onStart() {
             super.onStart();
             if (authListener != null) {
-//                firebaseAuth.addAuthStateListener(authListener);
+                firebaseAuth.addAuthStateListener(authListener);
             }
         }
 
@@ -935,7 +1002,7 @@ public class HomeActivity extends AppCompatActivity {
         public void onStop() {
             super.onStop();
             if (authListener != null) {
-//                firebaseAuth.removeAuthStateListener(authListener);
+                firebaseAuth.removeAuthStateListener(authListener);
             }
         }
 
@@ -962,8 +1029,20 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+
+    ////////////////////////////////////////////////////// FRAGMENT 2
     public static class FolkGuidesFragment extends Fragment {
-        private ContactsAdapter contactsAdapter;
+
+        private static final String TAG = "FolkGuidesFragment";
+        private ArrayList<FolkGuideItem> folkGuidesList;
+        private RecyclerView recyclerView;
+        private FolkGuidesAdapter folkGuidesAdapter;
+        private FolkGuideItem folkGuideItem;
+        private ProgressBar progressBar;
+        private ProgressDialog loadingBar;
+        private SwipeRefreshLayout swipeRefreshLayout;
+        private TextView noInternetText;
+        private TextView tvListCount;
 
         public FolkGuidesFragment() {
         }
@@ -978,8 +1057,27 @@ public class HomeActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_person, container, false);
 
-            RecyclerView recyclerView = view.findViewById(R.id.recycler_person);
+            recyclerView = view.findViewById(R.id.recycler_person);
+            progressBar = view.findViewById(R.id.progress_circular);
+            noInternetText = view.findViewById(R.id.tv_no_internet);
+            tvListCount = view.findViewById(R.id.tv_list_count);
 
+            loadingBar = new ProgressDialog(getActivity());
+
+            swipeRefreshLayout = view.findViewById(R.id.refresh_layout);
+            swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                progressBar.setVisibility(View.VISIBLE);
+                getData(getActivity());
+            });
+
+            getData(getActivity());
+            setUpRecyclerView();
+
+            return view;
+        }
+
+        private void setUpRecyclerView() {
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getBaseContext());
             recyclerView.setLayoutManager(linearLayoutManager);
             recyclerView.setHasFixedSize(true);
@@ -987,11 +1085,11 @@ public class HomeActivity extends AppCompatActivity {
             recyclerView.setDrawingCacheEnabled(true);
             recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
-            adminList = new ArrayList<>();
+            folkGuidesList = new ArrayList<>();
 
-            contactsAdapter = new ContactsAdapter(getContext(), adminList);
-            contactsAdapter.setHasStableIds(true);
-            contactsAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
+            folkGuidesAdapter = new FolkGuidesAdapter(getContext(), folkGuidesList);
+            folkGuidesAdapter.setHasStableIds(true);
+            folkGuidesAdapter.setOnItemClickListener(new FolkGuidesAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
                     Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
@@ -1001,25 +1099,115 @@ public class HomeActivity extends AppCompatActivity {
                     startActivity(adminIntent);
                 }
             });
-            recyclerView.setAdapter(contactsAdapter);
-
-
-            return view;
+            recyclerView.setAdapter(folkGuidesAdapter);
         }
+
+        private void getData(final Context context) {
+            if (hasInternet(context)) {
+                Log.d(TAG, "hit 1");
+                setUpRecyclerView();
+                readContactsData();
+                noInternetText.setVisibility(View.GONE);
+                swipeRefreshLayout.setRefreshing(false);
+                folkGuidesAdapter.notifyDataSetChanged();
+            } else {
+                noInternetText.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setRefreshing(false);
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+
+        // READ
+        private void readContactsData() {
+            FirebaseFirestore.getInstance().collection("FOLKGuides").get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                            progressBar.setVisibility(View.GONE);
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                                Log.d(TAG, "docList: " + docList);
+
+                                for (DocumentSnapshot docSnap : docList) {
+                                    folkGuideItem = docSnap.toObject(FolkGuideItem.class);
+                                    if (folkGuideItem != null) {
+                                        Log.d(TAG, "personItem: " + folkGuideItem);
+                                        folkGuideItem.setId(docSnap.getId());
+                                        folkGuideItem.setStrFirstName(docSnap.getString("Name"));
+                                        folkGuideItem.setStrKcExperience(docSnap.getString("Experience in KC(years)"));
+                                        folkGuideItem.setStrDepartment(docSnap.getString("Department"));
+                                    }
+                                    Log.d(TAG, "firedoc id: " + docSnap.getId());
+                                    folkGuidesList.add(folkGuideItem);
+                                    tvListCount.setText(folkGuidesList.size() + " FOLK Guides");
+                                }
+                                folkGuidesAdapter.notifyDataSetChanged();
+                                Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show());
+        }
+
 
         @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             inflater.inflate(R.menu.menu_folk_guides, menu);
+
+            MenuItem searchItem = menu.findItem(R.id.action_folk_guide_search);
+            SearchView searchView = (SearchView) searchItem.getActionView();
+            searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            searchView.setQueryHint("Search Folk Guides");
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    searchFolkGuides(newText);
+                    return false;
+                }
+            });
+
             super.onCreateOptionsMenu(menu, inflater);
         }
+
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_folk_guide_search:
+                    return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+
+
+        private void searchFolkGuides(String text) {
+            ArrayList<FolkGuideItem> filterdUsers = new ArrayList<>();
+            for (FolkGuideItem folkGuide : folkGuidesList) {
+                if (folkGuide.getStrFirstName().toLowerCase().trim().contains(text.toLowerCase())) {
+                    filterdUsers.add(folkGuide);
+                }
+            }
+            folkGuidesAdapter.flterList(filterdUsers);
+        }
+
+
     }
 
+
+    ////////////////////////////////////////////////////// FRAGMENT 3
     public static class TeamLeadsFragment extends Fragment {
 
         public TeamLeadsFragment() {
         }
     }
 
+
+    ////////////////////////////////////////////////////// FRAGMENT 4
     public static class ZonalHeadsFragment extends Fragment {
 
         public ZonalHeadsFragment() {

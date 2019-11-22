@@ -1,13 +1,13 @@
 package com.singularitycoder.folkdatabase.auth;
 
-public class User {
+public class AuthUserItem {
     // Make sure u use the same names as u provided in the Firebase. Same obj names
     private String zone, memberType, adminNumber, folkGuideAbbr, firstName, lastName, phone, email, password, profileImageUrl, signUpStatus;
 
-    public User() {
+    public AuthUserItem() {
     }
 
-    public User(String zone, String memberType, String adminNumber, String folkGuideAbbr, String firstName, String lastName, String phone, String email, String password, String profileImageUrl, String signUpStatus) {
+    public AuthUserItem(String zone, String memberType, String adminNumber, String folkGuideAbbr, String firstName, String lastName, String phone, String email, String password, String profileImageUrl, String signUpStatus) {
         this.zone = zone;
         this.memberType = memberType;
         this.adminNumber = adminNumber;

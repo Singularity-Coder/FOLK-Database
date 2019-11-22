@@ -310,7 +310,7 @@ public class Helper extends AppCompatActivity {
     public static void glideProfileImage(Context context, String imgUrl, ImageView imageView) {
         RequestOptions requestOptions = new RequestOptions()
                 .placeholder(R.color.colorAccent)
-                .error(R.color.colorPrimaryDark)
+                .error(R.drawable.profile_dummy)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
 
         Glide.with(context).load(imgUrl)

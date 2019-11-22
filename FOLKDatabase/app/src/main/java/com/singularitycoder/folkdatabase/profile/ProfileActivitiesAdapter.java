@@ -16,10 +16,10 @@ import java.util.ArrayList;
 
 public class ProfileActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    ArrayList<ProfileModel> mArrayList;
+    ArrayList<ProfileContactItem> mArrayList;
     Context mContext;
 
-    public ProfileActivitiesAdapter(ArrayList<ProfileModel> arrayList, Context context) {
+    public ProfileActivitiesAdapter(ArrayList<ProfileContactItem> arrayList, Context context) {
         mArrayList = arrayList;
         mContext = context;
     }
@@ -33,12 +33,12 @@ public class ProfileActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ProfileModel profileModel = mArrayList.get(position);
+        ProfileContactItem profileContactItem = mArrayList.get(position);
 
-        ((ProfileActivitiesViewHolder) holder).profilePic.setImageResource(profileModel.getProfileImage());
-        ((ProfileActivitiesViewHolder) holder).name.setText(profileModel.getName());
-        ((ProfileActivitiesViewHolder) holder).dateTime.setText(profileModel.getDateTime());
-        ((ProfileActivitiesViewHolder) holder).activityName.setText(profileModel.getActivityName());
+        ((ProfileActivitiesViewHolder) holder).profilePic.setImageResource(profileContactItem.getProfileImage());
+        ((ProfileActivitiesViewHolder) holder).name.setText(profileContactItem.getName());
+        ((ProfileActivitiesViewHolder) holder).dateTime.setText(profileContactItem.getDateTime());
+        ((ProfileActivitiesViewHolder) holder).activityName.setText(profileContactItem.getActivityName());
     }
 
     @Override

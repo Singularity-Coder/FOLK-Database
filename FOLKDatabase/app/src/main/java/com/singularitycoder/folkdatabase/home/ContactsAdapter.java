@@ -9,53 +9,66 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.singularitycoder.folkdatabase.R;
+import com.singularitycoder.folkdatabase.helper.Helper;
 
 import java.util.ArrayList;
 
 public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context mContext;
-    private ArrayList<PersonModel> mAdminList;
+    private ArrayList<ContactItem> contactsList;
     private OnItemClickListener clickListener;
 
     public ContactsAdapter() {
     }
 
-    public ContactsAdapter(Context context, ArrayList<PersonModel> adminList) {
+    public ContactsAdapter(Context context, ArrayList<ContactItem> adminList) {
         mContext = context;
-        mAdminList = adminList;
+        contactsList = adminList;
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_person, parent, false);
-        return new AdminViewHolder(v);
+        return new ContactsViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        PersonModel personModel = mAdminList.get(position);
+        ContactItem contactItem = contactsList.get(position);
 
-        ((AdminViewHolder) holder).imgProfileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        if (holder != null) {
+            ContactsViewHolder contactsViewHolder = (ContactsViewHolder) holder;
+//            if (contactsViewHolder.imgProfileImage.equals("") || contactsViewHolder.imgProfileImage.equals(null)) {
+//                String startingLetter = contactItem.getFirstName().substring(0, 1).toUpperCase();
+//                TextDrawable drawable = TextDrawable.builder().buildRound(startingLetter, R.color.colorAccent);
+////                TextDrawable drawable = TextDrawable.builder().beginConfig().width(60).height(60).endConfig().buildRound(startingLetter, R.color.colorAccent);
+//                contactsViewHolder.imgProfileImage.setImageDrawable(drawable);
+//            } else {
+//                Helper.glideProfileImage(mContext, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
+//            }
+
+            Helper.glideProfileImage(mContext, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
+            contactsViewHolder.imgProfileImage.setOnClickListener(view -> {
                 HomeActivity homeActivity = new HomeActivity();
                 homeActivity.showQuickInfoDialog(mContext);
-            }
-        });
+            });
 
-        ((AdminViewHolder) holder).tvName.setText(personModel.getFirstName());
-        ((AdminViewHolder) holder).tvSubTitle1.setText("FOLK Guide: " + personModel.getStrFolkGuide());
-        ((AdminViewHolder) holder).tvSubTitle2.setText("Occupation: " + personModel.getStrOccupation());
+            contactsViewHolder.tvName.setText(contactItem.getFirstName());
+            contactsViewHolder.tvSubTitle1.setText("FOLK Guide: " + contactItem.getStrFolkGuide());
+            contactsViewHolder.tvSubTitle2.setText("Occupation: " + contactItem.getStrOccupation());
+        }
+
     }
 
 
     @Override
     public int getItemCount() {
-        return mAdminList.size();
+        return contactsList.size();
     }
 
     @Override
@@ -63,18 +76,17 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return position;
     }
 
-    public void flterList(ArrayList<PersonModel> list) {
-        this.mAdminList = list;
+    public void flterList(ArrayList<ContactItem> list) {
+        this.contactsList = list;
         notifyDataSetChanged();
     }
 
-
-    class AdminViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ContactsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         CircularImageView imgProfileImage;
         TextView tvName, tvSubTitle1, tvSubTitle2;
 
-        public AdminViewHolder(@NonNull View itemView) {
+        public ContactsViewHolder(@NonNull View itemView) {
             super(itemView);
 
             imgProfileImage = itemView.findViewById(R.id.img_profile_pic);

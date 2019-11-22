@@ -18,10 +18,10 @@ import java.util.ArrayList;
 
 public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    ArrayList<PersonModel> notifList;
+    ArrayList<ContactItem> notifList;
     Context context;
 
-    public NotificationAdapter(ArrayList<PersonModel> notifList, Context context) {
+    public NotificationAdapter(ArrayList<ContactItem> notifList, Context context) {
         this.notifList = notifList;
         this.context = context;
     }
@@ -35,25 +35,25 @@ public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     @Override
     public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, int position) {
-        PersonModel personModel = notifList.get(position);
+        ContactItem contactItem = notifList.get(position);
 
-//        ((NotificationViewHolder) holder).imgProfileImage.setImageResource(personModel.getImgProfileImage());
+//        ((NotificationViewHolder) holder).imgProfileImage.setImageResource(contactItem.getImgProfileImage());
         ((NotificationViewHolder) holder).imgProfileImage.requestLayout();
         ((NotificationViewHolder) holder).imgProfileImage.getLayoutParams().width = 100;
         ((NotificationViewHolder) holder).imgProfileImage.getLayoutParams().height = 100;
 
-        ((NotificationViewHolder) holder).tvName.setText(personModel.getStrName());
+        ((NotificationViewHolder) holder).tvName.setText(contactItem.getStrName());
         ((NotificationViewHolder) holder).tvName.setTextSize(16);
 
         ((NotificationViewHolder) holder).tvSubTitle1.setVisibility(View.GONE);
-        ((NotificationViewHolder) holder).tvSubTitle1.setText(personModel.getStrSubTitle1());
+        ((NotificationViewHolder) holder).tvSubTitle1.setText(contactItem.getStrSubTitle1());
 
         ((NotificationViewHolder) holder).tvSubTitle2.setVisibility(View.VISIBLE);
-        ((NotificationViewHolder) holder).tvSubTitle2.setText(personModel.getStrSubTitle2());
+        ((NotificationViewHolder) holder).tvSubTitle2.setText(contactItem.getStrSubTitle2());
         ((NotificationViewHolder) holder).tvSubTitle2.setMaxLines(10);
 
         ((NotificationViewHolder) holder).tvDate.setVisibility(View.VISIBLE);
-        ((NotificationViewHolder) holder).tvDate.setText(personModel.getStrDate());
+        ((NotificationViewHolder) holder).tvDate.setText(contactItem.getStrDate());
 //        ((NotificationViewHolder) holder).tvDate.setTextColor(context.getResources().getColor(R.color.colorPrimaryDark));
 
         ((NotificationViewHolder) holder).arrow.setVisibility(View.GONE);

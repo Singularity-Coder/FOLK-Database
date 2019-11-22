@@ -18,7 +18,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +25,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,8 +40,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.palette.graphics.Palette;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -59,7 +55,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.karumi.dexter.Dexter;
@@ -70,9 +65,8 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.helper.CustomEditText;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.helper.Helper;
+import com.singularitycoder.folkdatabase.home.ContactItem;
 import com.singularitycoder.folkdatabase.home.HomeActivity;
-import com.singularitycoder.folkdatabase.home.NotificationAdapter;
-import com.singularitycoder.folkdatabase.home.PersonModel;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -312,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
 
         TextView tvNotAMember;
 
-        private String parentDbName = "User";
+        private String parentDbName = "AuthUserItem";
 
         private ProgressDialog loadingBar;
 
@@ -498,7 +492,7 @@ public class MainActivity extends AppCompatActivity {
 
         private String lastFourDigits;
         private String newImagePath = null;
-        private final ArrayList<PersonModel> imageUriArray = new ArrayList<>();
+        private final ArrayList<ContactItem> imageUriArray = new ArrayList<>();
         private final ArrayList<String> imageExtensionStringArray = new ArrayList<>();
         private final ArrayList<String> imageNameStringArray = new ArrayList<>();
         private final ArrayList<String> imageFilePathsStringArray = new ArrayList<>();
@@ -695,7 +689,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
 
-            if (!adminNumber.equals(adminKey())) {
+            if (!adminNumber.equals("inf1n1teM3rcy")) {
                 etAdminNumber.setError("Wrong Admin Number");
                 etAdminNumber.requestFocus();
                 return false;
@@ -786,7 +780,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         private void uploadProfileImage(
-                ArrayList<PersonModel> imgUriArray,
+                ArrayList<ContactItem> imgUriArray,
                 ArrayList<String> imgExtArray,
                 ArrayList<String> imgNameArray,
                 String zone,
@@ -873,8 +867,8 @@ public class MainActivity extends AppCompatActivity {
                 String profileImage,
                 String signUpStatus) {
 
-            // User obj
-            User user = new User(
+            // AuthUserItem obj
+            AuthUserItem authUserItem = new AuthUserItem(
                     zone,
                     memberType,
                     adminNumber,
@@ -888,15 +882,15 @@ public class MainActivity extends AppCompatActivity {
                     signUpStatus
             );
 
-            // Save User obj to Firestore - Add a new document with a generated ID
-            // Collection name is "User". U can create a new collection this way
+            // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
+            // Collection name is "AuthUserItem". U can create a new collection this way
             db.collection("FolkPeople")
-                    .add(user)
+                    .add(authUserItem)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
                         public void onSuccess(DocumentReference documentReference) {
                             Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                            Toast.makeText(getActivity(), "User Created", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(getActivity(), HomeActivity.class));
                             Objects.requireNonNull(getActivity()).finish();
                             loadingBar.dismiss();
@@ -906,7 +900,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             Log.w(TAG, "Error adding document", e);
-                            Toast.makeText(getActivity(), "Failed to create User", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
                             loadingBar.dismiss();
                         }
                     });
@@ -1058,12 +1052,12 @@ public class MainActivity extends AppCompatActivity {
                     Uri imgUri = Uri.fromFile(new File(newImagePath));
                     Log.d(TAG, "onActivityResult: uri imz: " + imgUri);
 
-                    PersonModel personModel = new PersonModel();
-                    personModel.setIvProfileImage(imgUri);
-                    personModel.setImageName(imageName);
-                    personModel.setImageExtension(lastFourDigits);
+                    ContactItem contactItem = new ContactItem();
+                    contactItem.setIvProfileImage(imgUri);
+                    contactItem.setImageName(imageName);
+                    contactItem.setImageExtension(lastFourDigits);
 
-                    imageUriArray.add(personModel);
+                    imageUriArray.add(contactItem);
                     imageExtensionStringArray.add(lastFourDigits);
                     imageNameStringArray.add(imageName);
 

@@ -1,6 +1,6 @@
 package com.singularitycoder.folkdatabase.profile;
 
-public class ProfileModel {
+public class ProfileContactItem {
 
     private int profileImage;
     private String name;
@@ -8,15 +8,15 @@ public class ProfileModel {
     private String comment;
     private String activityName;
 
-    public ProfileModel() {
+    public ProfileContactItem() {
     }
 
-    public ProfileModel(String comment) {
+    public ProfileContactItem(String comment) {
         this.comment = comment;
     }
 
     // Comments
-    public ProfileModel(int profileImage, String name, String dateTime, String comment) {
+    public ProfileContactItem(int profileImage, String name, String dateTime, String comment) {
         this.profileImage = profileImage;
         this.name = name;
         this.dateTime = dateTime;
@@ -24,7 +24,7 @@ public class ProfileModel {
     }
 
     // Called By
-    public ProfileModel(int profileImage, String name, String dateTime, String activityName, String empty) {
+    public ProfileContactItem(int profileImage, String name, String dateTime, String activityName, String empty) {
         this.profileImage = profileImage;
         this.name = name;
         this.dateTime = dateTime;
