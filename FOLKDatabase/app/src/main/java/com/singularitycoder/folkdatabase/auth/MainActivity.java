@@ -620,7 +620,7 @@ public class MainActivity extends AppCompatActivity {
                     String password = etPassword.getText().toString();
 
                     // 1. First firebase auth
-                    createAccount(zone, memberType, adminNumber, folkGuideAbbr, firstName, lastName, email, phone, password);
+                    createAccount(zone, memberType, adminNumber, folkGuideAbbr, firstName, lastName, email, phone, password, Helper.currentDateTime());
                 }
             });
 
@@ -752,7 +752,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        public void createAccount(String zone, String memberType, String adminNumber, String folkGuideAbbr, String firstName, String lastName, String email, String phone, String password) {
+        public void createAccount(String zone, String memberType, String adminNumber, String folkGuideAbbr, String firstName, String lastName, String email, String phone, String password, String creationTimeStamp) {
             loadingBar.show();
             //create user
             firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -763,7 +763,7 @@ public class MainActivity extends AppCompatActivity {
                             loadingBar.dismiss();
                             if (task.isSuccessful()) {
                                 // 2 If success then store image in storeage, on success of storage create firestore credentials
-                                uploadProfileImage(imageUriArray, imageExtensionStringArray, imageNameStringArray, zone, memberType, adminNumber, folkGuideAbbr, firstName, lastName, email, phone, password);
+                                uploadProfileImage(imageUriArray, imageExtensionStringArray, imageNameStringArray, zone, memberType, adminNumber, folkGuideAbbr, firstName, lastName, email, phone, password, creationTimeStamp);
                             } else {
                                 if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                                     Toast.makeText(getActivity(), "Email already exists! Login or use different Email!", Toast.LENGTH_SHORT).show();
@@ -791,7 +791,8 @@ public class MainActivity extends AppCompatActivity {
                 String lastName,
                 String email,
                 String phone,
-                String password) {
+                String password,
+                String creationTimeStamp) {
             // if adding in storage is successful then add the entry of the url in Firestore
             final ProgressDialog progressDialog = new ProgressDialog(getActivity());
             progressDialog.setMessage("Please Wait");
@@ -832,7 +833,8 @@ public class MainActivity extends AppCompatActivity {
                                                         phone,
                                                         password,
                                                         Objects.requireNonNull(task1.getResult()).toString(),
-                                                        "false");
+                                                        "false",
+                                                        creationTimeStamp);
 
                                                 Log.d(TAG, "task data: " + task1.getResult().toString());
                                                 progressDialog.dismiss();
@@ -865,7 +867,8 @@ public class MainActivity extends AppCompatActivity {
                 String phone,
                 String password,
                 String profileImage,
-                String signUpStatus) {
+                String signUpStatus,
+                String creationTimeStamp) {
 
             // AuthUserItem obj
             AuthUserItem authUserItem = new AuthUserItem(
@@ -879,7 +882,8 @@ public class MainActivity extends AppCompatActivity {
                     email,
                     password,
                     profileImage,
-                    signUpStatus
+                    signUpStatus,
+                    creationTimeStamp
             );
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID

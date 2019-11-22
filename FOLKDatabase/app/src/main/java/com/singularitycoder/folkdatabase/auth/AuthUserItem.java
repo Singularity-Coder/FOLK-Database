@@ -2,12 +2,12 @@ package com.singularitycoder.folkdatabase.auth;
 
 public class AuthUserItem {
     // Make sure u use the same names as u provided in the Firebase. Same obj names
-    private String zone, memberType, adminNumber, folkGuideAbbr, firstName, lastName, phone, email, password, profileImageUrl, signUpStatus;
+    private String zone, memberType, adminNumber, folkGuideAbbr, firstName, lastName, phone, email, password, profileImageUrl, signUpStatus, creationTimeStamp;
 
     public AuthUserItem() {
     }
 
-    public AuthUserItem(String zone, String memberType, String adminNumber, String folkGuideAbbr, String firstName, String lastName, String phone, String email, String password, String profileImageUrl, String signUpStatus) {
+    public AuthUserItem(String zone, String memberType, String adminNumber, String folkGuideAbbr, String firstName, String lastName, String phone, String email, String password, String profileImageUrl, String signUpStatus, String creationTimeStamp) {
         this.zone = zone;
         this.memberType = memberType;
         this.adminNumber = adminNumber;
@@ -19,6 +19,7 @@ public class AuthUserItem {
         this.password = password;
         this.profileImageUrl = profileImageUrl;
         this.signUpStatus = signUpStatus;
+        this.creationTimeStamp = creationTimeStamp;
     }
 
     public String getZone() {
@@ -63,5 +64,9 @@ public class AuthUserItem {
 
     public String getSignUpStatus() {
         return signUpStatus;
+    }
+
+    public String getCreationTimeStamp() {
+        return creationTimeStamp;
     }
 }

@@ -469,15 +469,15 @@ public class HomeActivity extends AppCompatActivity {
                                         Log.d(TAG, "profile image: " + docSnap.getData());
                                         Log.d(TAG, "profile image 2: " + docSnap.getData().get("docs"));
                                         Object profileImages = docSnap.getData().get("docs");
-                                        Map<String, Map<String, String>> mapImage = (Map<String, Map<String, String>>) docSnap.getData().get("docs");
+                                        Map<String, String> mapImage = (Map<String, String>) docSnap.getData().get("docs");
                                         Log.d(TAG, "prof image map: " + mapImage);
                                         if (mapImage != null) {
 
                                         }
 
-//                                            for (Map<String, String> imgs : mapImage.values()) {
-//                                                Log.d(TAG, "value is : " + imgs);
-//                                            }
+//                                        for (String img : mapImage.values()) {
+//                                            Log.d(TAG, "value is : " + img);
+//                                        }
 
 
 //                                        for (Map.Entry<String, Object> entry : Objects.requireNonNull(mapImage).entrySet()) {
@@ -551,7 +551,9 @@ public class HomeActivity extends AppCompatActivity {
                     contactFilterDialog(getActivity());
                     return true;
                 case R.id.action_my_profile:
-                    startActivity(new Intent(getActivity(), ProfileActivity.class));
+                    Intent intent = new Intent(getActivity(), ProfileActivity.class);
+                    intent.putExtra("profileKey", "SELF");
+                    startActivity(intent);
                     return true;
                 case R.id.action_about:
                     aboutDialog(getActivity());
@@ -618,6 +620,8 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
             contactsAdapter.flterList(filterdUsers);
+            contactsAdapter.notifyDataSetChanged();
+            tvListCount.setText(filterdUsers.size() + " Contacts");
         }
 
 
@@ -709,6 +713,7 @@ public class HomeActivity extends AppCompatActivity {
                 tvFolkGuides.setText("");
                 contactsAdapter.flterList(contactList);
                 contactsAdapter.notifyDataSetChanged();
+                tvListCount.setText(contactList.size() + " Contacts");
                 dialog.dismiss();
             });
 
@@ -770,6 +775,7 @@ public class HomeActivity extends AppCompatActivity {
                 }
                 contactsAdapter.flterList(filteredContactsList);
                 contactsAdapter.notifyDataSetChanged();
+                tvListCount.setText(filteredContactsList.size() + " Contacts");
             }
         }
 

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -68,9 +69,26 @@ public class ProfileActivity extends AppCompatActivity {
         setUpToolbar();
         setUpAppbarLayout();
         setUpCollapsingToolbar();
+        getIntentData();
 
         // Initialize Firebase Auth.
         mAuth = FirebaseAuth.getInstance();
+    }
+
+    private void getIntentData() {
+        Intent intent = getIntent();
+        String profileKey = intent.getStringExtra("profileKey");
+        if (("SELF").equals(profileKey)) {
+
+        }
+
+        if (("FOLKGUIDE").equals(profileKey)) {
+
+        }
+
+        if (("CONTACT").equals(profileKey)) {
+
+        }
     }
 
     @Override
@@ -274,6 +292,8 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+
+    ///////////////////////////////////////////////////////////// FRAGMENT 1
     public static class AboutFragment extends Fragment {
 
         public AboutFragment() {
@@ -291,8 +311,11 @@ public class ProfileActivity extends AppCompatActivity {
 
             return view;
         }
+
     }
 
+
+    ///////////////////////////////////////////////////////////// FRAGMENT 2
     public static class ActivityFragment extends Fragment {
 
         RecyclerView recyclerView;

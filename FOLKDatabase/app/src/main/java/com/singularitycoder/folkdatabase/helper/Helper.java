@@ -75,7 +75,7 @@ public class Helper extends AppCompatActivity {
     }
 
     @SuppressLint("SimpleDateFormat")
-    private String currentDateTime() {
+    public static String currentDateTime() {
         String dateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
         // split date and time for event created date
