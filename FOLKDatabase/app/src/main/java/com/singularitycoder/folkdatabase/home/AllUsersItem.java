@@ -13,6 +13,10 @@ public class AllUsersItem {
     private String strKcExperience;
     private String strMemberType;
 
+    private String strPhone;
+    private String strWhatsApp;
+    private String strEmail;
+
     public AllUsersItem() {
     }
 
@@ -70,5 +74,29 @@ public class AllUsersItem {
 
     public void setStrMemberType(String strMemberType) {
         this.strMemberType = strMemberType;
+    }
+
+    public String getStrPhone() {
+        return strPhone;
+    }
+
+    public void setStrPhone(String strPhone) {
+        this.strPhone = strPhone;
+    }
+
+    public String getStrWhatsApp() {
+        return strWhatsApp;
+    }
+
+    public void setStrWhatsApp(String strWhatsApp) {
+        this.strWhatsApp = strWhatsApp;
+    }
+
+    public String getStrEmail() {
+        return strEmail;
+    }
+
+    public void setStrEmail(String strEmail) {
+        this.strEmail = strEmail;
     }
 }

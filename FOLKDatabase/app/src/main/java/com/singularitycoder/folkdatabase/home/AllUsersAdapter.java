@@ -43,15 +43,13 @@ public class AllUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (holder != null) {
             AllUsersViewHolder allUsersViewHolder = (AllUsersViewHolder) holder;
             Helper.glideProfileImage(context, allUsersItem.getStrProfileImage(), allUsersViewHolder.imgProfileImage);
-            allUsersViewHolder.imgProfileImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    HomeActivity homeActivity = new HomeActivity();
-                    homeActivity.showQuickInfoDialog(context);
-                }
+            String fullName = allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName();
+            allUsersViewHolder.imgProfileImage.setOnClickListener(view -> {
+                HomeActivity homeActivity = new HomeActivity();
+                homeActivity.showQuickInfoDialog(context, fullName, allUsersItem.getStrProfileImage(), allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail());
             });
 
-            allUsersViewHolder.tvName.setText(allUsersItem.getStrFirstName());
+            allUsersViewHolder.tvName.setText(allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName());
             allUsersViewHolder.tvSubTitle1.setText("Experience in KC: " + allUsersItem.getStrKcExperience() + " Years");
             allUsersViewHolder.tvSubTitle2.setText("Member Type: " + allUsersItem.getStrMemberType());
         }

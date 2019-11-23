@@ -17,7 +17,7 @@ import java.util.ArrayList;
 
 public class FolkGuidesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private Context mContext;
+    private Context context;
     private ArrayList<FolkGuideItem> folkGuidesList;
     private OnItemClickListener clickListener;
 
@@ -25,8 +25,8 @@ public class FolkGuidesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     public FolkGuidesAdapter(Context context, ArrayList<FolkGuideItem> adminList) {
-        mContext = context;
-        folkGuidesList = adminList;
+        this.context = context;
+        this.folkGuidesList = adminList;
     }
 
     @NonNull
@@ -42,13 +42,10 @@ public class FolkGuidesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         if (holder != null) {
             FolkGuidesViewHolder folkGuidesViewHolder = (FolkGuidesViewHolder) holder;
-            Helper.glideProfileImage(mContext, folkGuideItem.getStrProfileImage(), folkGuidesViewHolder.imgProfileImage);
-            folkGuidesViewHolder.imgProfileImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    HomeActivity homeActivity = new HomeActivity();
-                    homeActivity.showQuickInfoDialog(mContext);
-                }
+            Helper.glideProfileImage(context, folkGuideItem.getStrProfileImage(), folkGuidesViewHolder.imgProfileImage);
+            folkGuidesViewHolder.imgProfileImage.setOnClickListener(view -> {
+                HomeActivity homeActivity = new HomeActivity();
+                homeActivity.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
             });
 
             folkGuidesViewHolder.tvName.setText(folkGuideItem.getStrFirstName());

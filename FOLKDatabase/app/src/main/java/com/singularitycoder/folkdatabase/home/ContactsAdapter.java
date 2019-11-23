@@ -1,9 +1,19 @@
 package com.singularitycoder.folkdatabase.home;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,7 +28,7 @@ import java.util.ArrayList;
 
 public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private Context mContext;
+    private Context context;
     private ArrayList<ContactItem> contactsList;
     private OnItemClickListener clickListener;
 
@@ -26,8 +36,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public ContactsAdapter(Context context, ArrayList<ContactItem> adminList) {
-        mContext = context;
-        contactsList = adminList;
+        this.context = context;
+        this.contactsList = adminList;
     }
 
     @NonNull
@@ -49,13 +59,13 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 ////                TextDrawable drawable = TextDrawable.builder().beginConfig().width(60).height(60).endConfig().buildRound(startingLetter, R.color.colorAccent);
 //                contactsViewHolder.imgProfileImage.setImageDrawable(drawable);
 //            } else {
-//                Helper.glideProfileImage(mContext, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
+//                Helper.glideProfileImage(context, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
 //            }
 
-            Helper.glideProfileImage(mContext, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
+            Helper.glideProfileImage(context, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
             contactsViewHolder.imgProfileImage.setOnClickListener(view -> {
                 HomeActivity homeActivity = new HomeActivity();
-                homeActivity.showQuickInfoDialog(mContext);
+                homeActivity.showQuickInfoDialog(context, contactItem.getFirstName(), contactItem.getStrProfileImage(), contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail());
             });
 
             contactsViewHolder.tvName.setText(contactItem.getFirstName());

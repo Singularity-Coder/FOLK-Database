@@ -16,12 +16,12 @@ import java.util.ArrayList;
 
 public class ProfileActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    ArrayList<ProfileContactItem> mArrayList;
-    Context mContext;
+    ArrayList<ProfileContactItem> activitiesList;
+    Context context;
 
     public ProfileActivitiesAdapter(ArrayList<ProfileContactItem> arrayList, Context context) {
-        mArrayList = arrayList;
-        mContext = context;
+        this.activitiesList = arrayList;
+        this.context = context;
     }
 
     @NonNull
@@ -33,7 +33,7 @@ public class ProfileActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ProfileContactItem profileContactItem = mArrayList.get(position);
+        ProfileContactItem profileContactItem = activitiesList.get(position);
 
         ((ProfileActivitiesViewHolder) holder).profilePic.setImageResource(profileContactItem.getProfileImage());
         ((ProfileActivitiesViewHolder) holder).name.setText(profileContactItem.getName());
@@ -43,7 +43,7 @@ public class ProfileActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public int getItemCount() {
-        return mArrayList.size();
+        return activitiesList.size();
     }
 
     @Override

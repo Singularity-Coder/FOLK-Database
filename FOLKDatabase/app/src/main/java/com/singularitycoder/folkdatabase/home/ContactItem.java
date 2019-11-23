@@ -21,6 +21,13 @@ public class ContactItem {
     private String strChatCount;
     private String strFolkGuide;
     private String strOccupation;
+    private String strDobMonth;
+    private String strLocation;
+    private String strRecidencyInterest;
+    private String strPhone;
+    private String strWhatsApp;
+    private String strEmail;
+
 
     private Uri ivProfileImage;
     private String imageName;
@@ -172,5 +179,53 @@ public class ContactItem {
 
     public void setStrProfileImage(String strProfileImage) {
         this.strProfileImage = strProfileImage;
+    }
+
+    public String getStrDobMonth() {
+        return strDobMonth;
+    }
+
+    public void setStrDobMonth(String strDobMonth) {
+        this.strDobMonth = strDobMonth;
+    }
+
+    public String getStrLocation() {
+        return strLocation;
+    }
+
+    public void setStrLocation(String strLocation) {
+        this.strLocation = strLocation;
+    }
+
+    public String getStrRecidencyInterest() {
+        return strRecidencyInterest;
+    }
+
+    public void setStrRecidencyInterest(String strRecidencyInterest) {
+        this.strRecidencyInterest = strRecidencyInterest;
+    }
+
+    public String getStrPhone() {
+        return strPhone;
+    }
+
+    public void setStrPhone(String strPhone) {
+        this.strPhone = strPhone;
+    }
+
+    public String getStrWhatsApp() {
+        return strWhatsApp;
+    }
+
+    public void setStrWhatsApp(String strWhatsApp) {
+        this.strWhatsApp = strWhatsApp;
+    }
+
+    public String getStrEmail() {
+        return strEmail;
+    }
+
+    public void setStrEmail(String strEmail) {
+        this.strEmail = strEmail;
     }
 }

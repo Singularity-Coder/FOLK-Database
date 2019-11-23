@@ -122,6 +122,7 @@ public class HomeActivity extends AppCompatActivity {
         final int FOLK_GUIDES = 1;
         final int TEAM_LEADS = 2;
         final int ZONAL_HEADS = 3;
+        final int ALL_USERS = 4;
 
         viewPager = findViewById(R.id.viewpager_home);
         setupViewPager(viewPager);
@@ -130,10 +131,9 @@ public class HomeActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 switch (position) {
                     case CONTACTS:
-                        FloatingActionButton fabMain = findViewById(R.id.floating_button);
-                        fabMain.show();
-                        fabMain.setImageDrawable(getResources().getDrawable(R.drawable.ic_filter_list_black_24dp));
-                        fabMain.setOnClickListener(view -> {
+                        fab1.show();
+                        fab1.setImageDrawable(getResources().getDrawable(R.drawable.ic_filter_list_black_24dp));
+                        fab1.setOnClickListener(view -> {
                             new ContactFragment().contactFilterDialog(HomeActivity.this);
                             Toast.makeText(getApplicationContext(), "Filter Contacts", Toast.LENGTH_SHORT).show();
                         });
@@ -145,6 +145,9 @@ public class HomeActivity extends AppCompatActivity {
                         fab1.hide();
                         break;
                     case ZONAL_HEADS:
+                        fab1.hide();
+                        break;
+                    case ALL_USERS:
                         fab1.hide();
                         break;
                 }
@@ -221,8 +224,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-
-    public void showQuickInfoDialog(Context context) {
+    public void showQuickInfoDialog(Context context, String fullName, String imageUrl, String phone, String whatsApp, String email) {
         final Dialog dialog = new Dialog(context);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(true);
@@ -231,90 +233,73 @@ public class HomeActivity extends AppCompatActivity {
         Rect displayRectangle = new Rect();
         Window window = ((Activity) context).getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-        dialog.getWindow().setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
+        Objects.requireNonNull(dialog.getWindow()).setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
 
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+        TextView tvFullName = dialog.findViewById(R.id.tv_name);
+        tvFullName.setText(fullName);
+
         ImageView imgProfilePic = dialog.findViewById(R.id.img_profile_image);
-        imgProfilePic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        Helper.glideProfileImage(context, imageUrl, imgProfilePic);
+        imgProfilePic.setOnClickListener(v -> {
 //                dialog.dismiss();
-            }
         });
 
         ImageView imgCall = dialog.findViewById(R.id.img_quick_call);
-        imgCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String phone = "9535509155";
-                Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
-                callIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                startActivity(callIntent);
-            }
+        imgCall.setOnClickListener(v -> {
+            Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
+            callIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            context.startActivity(callIntent);
         });
 
         ImageView imgSms = dialog.findViewById(R.id.img_quick_message);
-        imgSms.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String phone = "9535509155";
-                Intent smsIntent = new Intent(Intent.ACTION_VIEW);
-                smsIntent.setType("vnd.android-dir/mms-sms");
-                smsIntent.putExtra("address", phone);
-                smsIntent.putExtra("sms_body", "Message Body check");
-                smsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                if (smsIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(smsIntent);
-                }
+        imgSms.setOnClickListener(v -> {
+            Intent smsIntent = new Intent(Intent.ACTION_VIEW);
+            smsIntent.setType("vnd.android-dir/mms-sms");
+            smsIntent.putExtra("address", phone);
+            smsIntent.putExtra("sms_body", "Message Body check");
+            smsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            if (smsIntent.resolveActivity(context.getPackageManager()) != null) {
+                context.startActivity(smsIntent);
             }
         });
 
         ImageView imgWhatsApp = dialog.findViewById(R.id.img_quick_whatsapp);
-        imgWhatsApp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PackageManager packageManager = getApplicationContext().getPackageManager();
-                try {
-                    // checks if such an app exists or not
-                    packageManager.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES);
-                    String phone = "9535509155";
-                    Uri uri = Uri.parse("smsto:" + phone);
-                    Intent whatsAppIntent = new Intent(Intent.ACTION_SENDTO, uri);
-                    whatsAppIntent.setPackage("com.whatsapp");
-                    startActivity(Intent.createChooser(whatsAppIntent, "Dummy Title"));
-                } catch (PackageManager.NameNotFoundException e) {
-                    new Helper().toast("WhatsApp not found. Install from playstore.", getApplicationContext(), 1);
-                    Uri uri = Uri.parse("market://details?id=com.whatsapp");
-                    Intent openPlayStore = new Intent(Intent.ACTION_VIEW, uri);
-                    openPlayStore.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                    startActivity(openPlayStore);
-                }
+        imgWhatsApp.setOnClickListener(v -> {
+            PackageManager packageManager = context.getPackageManager();
+            try {
+                // checks if such an app exists or not
+                packageManager.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES);
+                Uri uri = Uri.parse("smsto:" + whatsApp);
+                Intent whatsAppIntent = new Intent(Intent.ACTION_SENDTO, uri);
+                whatsAppIntent.setPackage("com.whatsapp");
+                context.startActivity(Intent.createChooser(whatsAppIntent, "Dummy Title"));
+            } catch (PackageManager.NameNotFoundException e) {
+                new Helper().toast("WhatsApp not found. Install from playstore.", context, 1);
+                Uri uri = Uri.parse("market://details?id=com.whatsapp");
+                Intent openPlayStore = new Intent(Intent.ACTION_VIEW, uri);
+                openPlayStore.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                context.startActivity(openPlayStore);
             }
         });
 
         ImageView imgEmail = dialog.findViewById(R.id.img_quick_email);
-        imgEmail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "name@emailaddress.com", null));
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Follow Up");
-                emailIntent.putExtra(Intent.EXTRA_TEXT, "Hi Contact, this is telecaller...");
-                startActivity(Intent.createChooser(emailIntent, "Send email..."));
-            }
+        imgEmail.setOnClickListener(v -> {
+            Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", email, null));
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Follow Up");
+            emailIntent.putExtra(Intent.EXTRA_TEXT, "Hi Contact, this is telecaller...");
+            context.startActivity(Intent.createChooser(emailIntent, "Send email..."));
         });
 
         ImageView imgShare = dialog.findViewById(R.id.img_quick_share);
-        imgShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                shareIntent.setType("text/plain");
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Title Of The Post");
-                shareIntent.putExtra(Intent.EXTRA_TEXT, "https://www.singularitycoder.com");
-                shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                startActivity(Intent.createChooser(shareIntent, "Share to"));
-            }
+        imgShare.setOnClickListener(v -> {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Full Name");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "https://www.singularitycoder.com");
+            shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            context.startActivity(Intent.createChooser(shareIntent, "Share to"));
         });
 
         dialog.show();
@@ -466,6 +451,12 @@ public class HomeActivity extends AppCompatActivity {
                                             personItemModel.setStrFolkGuide(docSnap.getString("folk_guide"));
                                         }
                                         personItemModel.setStrOccupation(docSnap.getString("occupation"));
+                                        personItemModel.setStrDobMonth(docSnap.getString("dob_month"));
+                                        personItemModel.setStrLocation(docSnap.getString("stay_map"));
+                                        personItemModel.setStrRecidencyInterest(valueOf(docSnap.getString("recidency_interest")));
+                                        personItemModel.setStrPhone(valueOf(docSnap.getString("mobile")));
+                                        personItemModel.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
+                                        personItemModel.setStrEmail(valueOf(docSnap.getString("email")));
 //                                        personItemModel.setImgProfileImage(docSnap.getData().get("photo_url"));
                                         Log.d(TAG, "profile image: " + docSnap.getData());
                                         Log.d(TAG, "profile image 2: " + docSnap.getData().get("docs"));
@@ -626,7 +617,7 @@ public class HomeActivity extends AppCompatActivity {
         }
 
 
-        public void aboutDialog(Activity activity) {
+        private void aboutDialog(Activity activity) {
             final Dialog dialog = new Dialog(activity);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.setCancelable(true);
@@ -693,7 +684,7 @@ public class HomeActivity extends AppCompatActivity {
         }
 
 
-        public void contactFilterDialog(Activity activity) {
+        private void contactFilterDialog(Activity activity) {
             final Dialog dialog = new Dialog(activity);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.setCancelable(true);
@@ -702,13 +693,16 @@ public class HomeActivity extends AppCompatActivity {
             Rect displayRectangle = new Rect();
             Window window = activity.getWindow();
             window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-            dialog.getWindow().setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
+            Objects.requireNonNull(dialog.getWindow()).setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
 
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
             ImageView imgClose = dialog.findViewById(R.id.iv_dialog_close);
             TextView tvResetContacts = dialog.findViewById(R.id.tv_dialog_reset);
             TextView tvFolkGuides = dialog.findViewById(R.id.tv_dialog_folk_guides);
+            TextView tvRecidencyInterest = dialog.findViewById(R.id.tv_dialog_recidency_interest);
+            CustomEditText etLocation = dialog.findViewById(R.id.et_dialog_location);
+            CustomEditText etDobMonth = dialog.findViewById(R.id.et_dialog_dob_month);
             Button btnApply = dialog.findViewById(R.id.btn_dialog_apply);
 
             imgClose.setOnClickListener(view -> dialog.dismiss());
@@ -717,9 +711,65 @@ public class HomeActivity extends AppCompatActivity {
                 tvFolkGuides.setText("");
                 contactsAdapter.flterList(contactList);
                 contactsAdapter.notifyDataSetChanged();
-                tvListCount.setText(contactList.size() + " Contacts");
+                tvListCount.setText(valueOf(contactList.size()) + " Contacts");
                 dialog.dismiss();
             });
+
+            etDobMonth.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    Log.d(TAG, "afterTextChanged: editable val: " + valueOf(editable));
+                    findDobMonthContacts(valueOf(editable));
+                }
+            });
+
+            etLocation.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    Log.d(TAG, "afterTextChanged: editable val: " + valueOf(editable));
+                    findLocationContacts(valueOf(editable));
+                }
+            });
+
+            tvRecidencyInterest.setOnClickListener(view -> recidencyInterest(tvRecidencyInterest));
+            tvRecidencyInterest.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    Log.d(TAG, "afterTextChanged: editable val: " + valueOf(editable));
+                    findRecidencyInterestedContacts(valueOf(editable));
+                }
+            });
+
 
             tvFolkGuides.setOnClickListener(view -> {
                 folkGuideList(tvFolkGuides);
@@ -738,7 +788,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    Log.d(TAG, "afterTextChanged: editable val: " + editable);
+                    Log.d(TAG, "afterTextChanged: editable val: " + valueOf(editable));
                     findFolkGuideContacts(valueOf(editable));
                 }
             });
@@ -797,6 +847,28 @@ public class HomeActivity extends AppCompatActivity {
             dialog.show();
         }
 
+
+        private void recidencyInterest(TextView tvRecidencyInterest) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
+            builder.setTitle("Interested in Recidency?");
+            String[] selectArray = {"YES", "NO"};
+            builder.setItems(selectArray, (dialog, which) -> {
+                switch (which) {
+                    case 0:
+                        tvRecidencyInterest.setText("YES");
+                        Log.d(TAG, "Recidency Interest 1: " + valueOf(tvRecidencyInterest.getText()));
+                        break;
+                    case 1:
+                        tvRecidencyInterest.setText("NO");
+                        Log.d(TAG, "Recidency Interest 2: " + valueOf(tvRecidencyInterest.getText()));
+                        break;
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+
+
         private void findFolkGuideContacts(String text) {
             ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
 
@@ -811,8 +883,50 @@ public class HomeActivity extends AppCompatActivity {
             }
         }
 
+        private void findRecidencyInterestedContacts(String text) {
+            ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
 
-        public void dialogNotifications(Activity activity) {
+            for (ContactItem contact : contactList) {
+                if (text.toLowerCase().trim().contains(contact.getStrRecidencyInterest().toString().toLowerCase().trim())) {
+                    filteredContactsList.add(contact);
+                    Log.d(TAG, "list: " + filteredContactsList);
+                }
+                contactsAdapter.flterList(filteredContactsList);
+                contactsAdapter.notifyDataSetChanged();
+                tvListCount.setText(filteredContactsList.size() + " Contacts");
+            }
+        }
+
+        private void findDobMonthContacts(String text) {
+            ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
+
+            for (ContactItem contact : contactList) {
+                if (text.toLowerCase().trim().contains(contact.getStrDobMonth().toString().toLowerCase().trim())) {
+                    filteredContactsList.add(contact);
+                    Log.d(TAG, "list: " + filteredContactsList);
+                }
+                contactsAdapter.flterList(filteredContactsList);
+                contactsAdapter.notifyDataSetChanged();
+                tvListCount.setText(filteredContactsList.size() + " Contacts");
+            }
+        }
+
+        private void findLocationContacts(String text) {
+            ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
+
+            for (ContactItem contact : contactList) {
+                if (text.toLowerCase().trim().contains(contact.getStrLocation().toString().toLowerCase().trim())) {
+                    filteredContactsList.add(contact);
+                    Log.d(TAG, "list: " + filteredContactsList);
+                }
+                contactsAdapter.flterList(filteredContactsList);
+                contactsAdapter.notifyDataSetChanged();
+                tvListCount.setText(filteredContactsList.size() + " Contacts");
+            }
+        }
+
+
+        private void dialogNotifications(Activity activity) {
             final Dialog dialog = new Dialog(activity);
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialog.setCancelable(true);
@@ -1144,7 +1258,7 @@ public class HomeActivity extends AppCompatActivity {
             if (hasInternet(context)) {
                 Log.d(TAG, "hit 1");
                 setUpRecyclerView();
-                readContactsData();
+                readFolkGuidesData();
                 noInternetText.setVisibility(View.GONE);
                 swipeRefreshLayout.setRefreshing(false);
                 folkGuidesAdapter.notifyDataSetChanged();
@@ -1156,7 +1270,7 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         // READ
-        private void readContactsData() {
+        private void readFolkGuidesData() {
             FirebaseFirestore.getInstance().collection("FOLKGuides").get()
                     .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                         @Override
@@ -1174,6 +1288,9 @@ public class HomeActivity extends AppCompatActivity {
                                         folkGuideItem.setStrFirstName(docSnap.getString("Name"));
                                         folkGuideItem.setStrKcExperience(docSnap.getString("Experience in KC(years)"));
                                         folkGuideItem.setStrDepartment(docSnap.getString("Department"));
+                                        folkGuideItem.setStrPhone(docSnap.getString("mobile"));
+                                        folkGuideItem.setStrWhatsApp(docSnap.getString("whatsapp"));
+                                        folkGuideItem.setStrEmail(docSnap.getString("email"));
                                     }
                                     Log.d(TAG, "firedoc id: " + docSnap.getId());
                                     folkGuidesList.add(folkGuideItem);
@@ -1355,8 +1472,13 @@ public class HomeActivity extends AppCompatActivity {
                                     Log.d(TAG, "personItem: " + allUsersItem);
                                     allUsersItem.setId(docSnap.getId());
                                     allUsersItem.setStrFirstName(docSnap.getString("firstName"));
+                                    allUsersItem.setStrLastName(docSnap.getString("lastName"));
                                     allUsersItem.setStrKcExperience(docSnap.getString("kcExperience"));
                                     allUsersItem.setStrMemberType(docSnap.getString("memberType"));
+                                    allUsersItem.setStrProfileImage(docSnap.getString("profileImageUrl"));
+                                    allUsersItem.setStrPhone(docSnap.getString("phone"));
+                                    allUsersItem.setStrWhatsApp(docSnap.getString("phone"));
+                                    allUsersItem.setStrEmail(docSnap.getString("email"));
                                 }
                                 Log.d(TAG, "firedoc id: " + docSnap.getId());
                                 allUsersList.add(allUsersItem);

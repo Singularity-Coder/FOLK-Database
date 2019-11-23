@@ -98,6 +98,66 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
+                    android:text="Location"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <com.singularitycoder.folkdatabase.helper.CustomEditText
+                    android:id="@+id/et_dialog_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_elevated_edit_text"
+                    android:digits="qwertyuiopasdfghjklzxcvbnm 1234567890 QWERTYUIOPASDFGHJKLZXCVBNM"
+                    android:fontFamily="@font/roboto_regular"
+                    android:gravity="center_vertical"
+                    android:hint="Type Location"
+                    android:inputType="text"
+                    android:maxLength="6"
+                    android:maxLines="1"
+                    android:nestedScrollingEnabled="true"
+                    android:paddingStart="15dp"
+                    android:paddingLeft="15dp"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="DOB Month"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <com.singularitycoder.folkdatabase.helper.CustomEditText
+                    android:id="@+id/et_dialog_dob_month"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_elevated_edit_text"
+                    android:digits="1234567890-"
+                    android:fontFamily="@font/roboto_regular"
+                    android:gravity="center_vertical"
+                    android:hint="Type DOB Month"
+                    android:inputType="number"
+                    android:maxLength="6"
+                    android:maxLines="1"
+                    android:nestedScrollingEnabled="true"
+                    android:paddingStart="15dp"
+                    android:paddingLeft="15dp"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
                     android:text="FOLK Guide"
                     android:textColor="@color/colorBlack"
                     android:textSize="16sp"
@@ -116,6 +176,39 @@
                     android:hint="Select FOLK Guide"
                     android:paddingStart="15dp"
                     android:paddingLeft="15dp"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Recidency Interest"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_dialog_recidency_interest"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_elevated_edit_text"
+                    android:digits="qwertyuiopasdfghjklzxcvbnm 1234567890 QWERTYUIOPASDFGHJKLZXCVBNM"
+                    android:drawableEnd="@drawable/ic_keyboard_arrow_down_black_24dp"
+                    android:drawablePadding="15dp"
+                    android:drawableTint="@color/colorAccent"
+                    android:fontFamily="@font/roboto_regular"
+                    android:gravity="center_vertical"
+                    android:hint="Recidency Interest"
+                    android:inputType="text"
+                    android:maxLength="6"
+                    android:maxLines="1"
+                    android:nestedScrollingEnabled="true"
+                    android:paddingStart="15dp"
+                    android:paddingLeft="15dp"
+                    android:scrollHorizontally="true"
+                    android:singleLine="true"
                     android:textColor="@color/colorBlack"
                     android:textSize="16sp" />
 

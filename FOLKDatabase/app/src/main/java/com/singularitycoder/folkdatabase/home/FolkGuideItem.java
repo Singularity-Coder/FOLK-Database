@@ -15,6 +15,10 @@ public class FolkGuideItem {
     private String strDepartment;
     private String strKcExperience;
 
+    private String strPhone;
+    private String strWhatsApp;
+    private String strEmail;
+
     public FolkGuideItem() {
     }
 
@@ -72,5 +76,29 @@ public class FolkGuideItem {
 
     public void setStrKcExperience(String strKcExperience) {
         this.strKcExperience = strKcExperience;
+    }
+
+    public String getStrPhone() {
+        return strPhone;
+    }
+
+    public void setStrPhone(String strPhone) {
+        this.strPhone = strPhone;
+    }
+
+    public String getStrWhatsApp() {
+        return strWhatsApp;
+    }
+
+    public void setStrWhatsApp(String strWhatsApp) {
+        this.strWhatsApp = strWhatsApp;
+    }
+
+    public String getStrEmail() {
+        return strEmail;
+    }
+
+    public void setStrEmail(String strEmail) {
+        this.strEmail = strEmail;
     }
 }
