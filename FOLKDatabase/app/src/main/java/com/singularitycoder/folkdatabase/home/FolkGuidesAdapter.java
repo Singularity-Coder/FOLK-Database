@@ -70,7 +70,6 @@ public class FolkGuidesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         notifyDataSetChanged();
     }
 
-
     class FolkGuidesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         CircularImageView imgProfileImage;

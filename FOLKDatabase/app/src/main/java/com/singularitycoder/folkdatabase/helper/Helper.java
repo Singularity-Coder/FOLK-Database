@@ -299,7 +299,7 @@ public class Helper extends AppCompatActivity {
     public static void glideLargeImage(Context context, String imgUrl, ImageView imageView, String empty1) {
         RequestOptions requestOptions = new RequestOptions()
                 .placeholder(R.color.colorAccent)
-                .error(R.drawable.header)
+                .error(R.drawable.profile_dummy_large)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
 
         Glide.with(context).load(imgUrl)
@@ -310,7 +310,7 @@ public class Helper extends AppCompatActivity {
     public static void glideProfileImage(Context context, String imgUrl, ImageView imageView) {
         RequestOptions requestOptions = new RequestOptions()
                 .placeholder(R.color.colorAccent)
-                .error(R.drawable.profile_dummy)
+                .error(R.drawable.profile_dummy_large)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
 
         Glide.with(context).load(imgUrl)

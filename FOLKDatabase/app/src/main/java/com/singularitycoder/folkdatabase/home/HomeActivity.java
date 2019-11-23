@@ -1470,6 +1470,7 @@ public class HomeActivity extends AppCompatActivity {
                                 allUsersItem = docSnap.toObject(AllUsersItem.class);
                                 if (allUsersItem != null) {
                                     Log.d(TAG, "personItem: " + allUsersItem);
+                                    // catch null for every single field here only ...oooooooooooomg
                                     allUsersItem.setId(docSnap.getId());
                                     allUsersItem.setStrFirstName(docSnap.getString("firstName"));
                                     allUsersItem.setStrLastName(docSnap.getString("lastName"));
