@@ -106,7 +106,7 @@
                 <TextView
                     android:id="@+id/tv_dialog_folk_guides"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="40dp"
                     android:layout_marginTop="10dp"
                     android:background="@drawable/bg_elevated_edit_text"
                     android:drawableEnd="@drawable/ic_keyboard_arrow_down_black_24dp"
@@ -122,7 +122,7 @@
                 <Button
                     android:id="@+id/btn_dialog_apply"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="40dp"
                     android:layout_marginTop="15dp"
                     android:layout_marginBottom="15dp"
                     android:background="@drawable/bg_button"

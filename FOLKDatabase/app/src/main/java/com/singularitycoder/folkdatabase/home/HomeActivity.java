@@ -188,6 +188,7 @@ public class HomeActivity extends AppCompatActivity {
         adapter.addFrag(new FolkGuidesFragment(), "FOLK GUIDES");
         adapter.addFrag(new TeamLeadsFragment(), "TEAM LEADS");
         adapter.addFrag(new ZonalHeadsFragment(), "ZONAL HEADS");
+        adapter.addFrag(new AllUsersFragment(), "ALL USERS");
         viewPager.setAdapter(adapter);
     }
 
@@ -460,7 +461,7 @@ public class HomeActivity extends AppCompatActivity {
                                         personItemModel.setId(docSnap.getId());
                                         personItemModel.setFirstName(docSnap.getString("name"));
                                         if (("").equals(docSnap.getString("folk_guide")) || (null) == (docSnap.getString("folk_guide"))) {
-                                            personItemModel.setStrFolkGuide("No Folk Guide");
+                                            personItemModel.setStrFolkGuide("No FOLK Guide");
                                         } else {
                                             personItemModel.setStrFolkGuide(docSnap.getString("folk_guide"));
                                         }
@@ -705,9 +706,12 @@ public class HomeActivity extends AppCompatActivity {
 
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+            ImageView imgClose = dialog.findViewById(R.id.iv_dialog_close);
             TextView tvResetContacts = dialog.findViewById(R.id.tv_dialog_reset);
             TextView tvFolkGuides = dialog.findViewById(R.id.tv_dialog_folk_guides);
             Button btnApply = dialog.findViewById(R.id.btn_dialog_apply);
+
+            imgClose.setOnClickListener(view -> dialog.dismiss());
 
             tvResetContacts.setOnClickListener(view -> {
                 tvFolkGuides.setText("");
@@ -748,7 +752,7 @@ public class HomeActivity extends AppCompatActivity {
         private void folkGuideList(TextView tvFolkGuide) {
             AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
             builder.setTitle("Choose a FOLK Guide");
-            String[] selectArray = {"SRRD", "VGND"};
+            String[] selectArray = {"SRRD", "VGND", "LMND", "SUVD", "HMCD", "KMPD", "CTCD", "Mataji", "No FOLK Guide"};
             builder.setItems(selectArray, (dialog, which) -> {
                 switch (which) {
                     case 0:
@@ -758,6 +762,34 @@ public class HomeActivity extends AppCompatActivity {
                     case 1:
                         tvFolkGuide.setText("VGND");
                         Log.d(TAG, "Folk guides value 2: " + valueOf(tvFolkGuide.getText()));
+                        break;
+                    case 2:
+                        tvFolkGuide.setText("LMND");
+                        Log.d(TAG, "Folk guides value 3: " + valueOf(tvFolkGuide.getText()));
+                        break;
+                    case 3:
+                        tvFolkGuide.setText("SUVD");
+                        Log.d(TAG, "Folk guides value 4: " + valueOf(tvFolkGuide.getText()));
+                        break;
+                    case 4:
+                        tvFolkGuide.setText("HMCD");
+                        Log.d(TAG, "Folk guides value 5: " + valueOf(tvFolkGuide.getText()));
+                        break;
+                    case 5:
+                        tvFolkGuide.setText("KMPD");
+                        Log.d(TAG, "Folk guides value 6: " + valueOf(tvFolkGuide.getText()));
+                        break;
+                    case 6:
+                        tvFolkGuide.setText("CTCD");
+                        Log.d(TAG, "Folk guides value 7: " + valueOf(tvFolkGuide.getText()));
+                        break;
+                    case 7:
+                        tvFolkGuide.setText("Mataji");
+                        Log.d(TAG, "Folk guides value 8: " + valueOf(tvFolkGuide.getText()));
+                        break;
+                    case 8:
+                        tvFolkGuide.setText("No FOLK Guide");
+                        Log.d(TAG, "Folk guides value 9: " + valueOf(tvFolkGuide.getText()));
                         break;
                 }
             });
@@ -1084,7 +1116,7 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         private void setUpRecyclerView() {
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getBaseContext());
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(Objects.requireNonNull(getActivity()).getBaseContext());
             recyclerView.setLayoutManager(linearLayoutManager);
             recyclerView.setHasFixedSize(true);
             recyclerView.setItemViewCacheSize(20);
@@ -1220,5 +1252,169 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+
+    ////////////////////////////////////////////////////// FRAGMENT 5
+    public static class AllUsersFragment extends Fragment {
+
+        private static final String TAG = "AllUsersFragment";
+        private ArrayList<AllUsersItem> allUsersList;
+        private RecyclerView recyclerView;
+        private AllUsersAdapter allUsersAdapter;
+        private AllUsersItem allUsersItem;
+        private ProgressBar progressBar;
+        private ProgressDialog loadingBar;
+        private SwipeRefreshLayout swipeRefreshLayout;
+        private TextView noInternetText;
+        private TextView tvListCount;
+
+        public AllUsersFragment() {
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setHasOptionsMenu(true);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.fragment_person, container, false);
+
+            recyclerView = view.findViewById(R.id.recycler_person);
+            progressBar = view.findViewById(R.id.progress_circular);
+            noInternetText = view.findViewById(R.id.tv_no_internet);
+            tvListCount = view.findViewById(R.id.tv_list_count);
+
+            loadingBar = new ProgressDialog(getActivity());
+
+            swipeRefreshLayout = view.findViewById(R.id.refresh_layout);
+            swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                progressBar.setVisibility(View.VISIBLE);
+                getData(getActivity());
+            });
+
+            getData(getActivity());
+            setUpRecyclerView();
+
+            return view;
+        }
+
+        private void setUpRecyclerView() {
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(Objects.requireNonNull(getActivity()).getBaseContext());
+            recyclerView.setLayoutManager(linearLayoutManager);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setItemViewCacheSize(20);
+            recyclerView.setDrawingCacheEnabled(true);
+            recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
+            allUsersList = new ArrayList<>();
+
+            allUsersAdapter = new AllUsersAdapter(getContext(), allUsersList);
+            allUsersAdapter.setHasStableIds(true);
+            allUsersAdapter.setOnItemClickListener(new AllUsersAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View view, int position) {
+                    Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
+                    // Start activity
+                    Intent adminIntent = new Intent(getContext(), ProfileActivity.class);
+                    adminIntent.putExtra("openAdmin", "ADMIN");
+                    startActivity(adminIntent);
+                }
+            });
+            recyclerView.setAdapter(allUsersAdapter);
+        }
+
+        private void getData(final Context context) {
+            if (hasInternet(context)) {
+                Log.d(TAG, "hit 1");
+                setUpRecyclerView();
+                readAllUsersData();
+                noInternetText.setVisibility(View.GONE);
+                swipeRefreshLayout.setRefreshing(false);
+                allUsersAdapter.notifyDataSetChanged();
+            } else {
+                noInternetText.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setRefreshing(false);
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+
+        // READ
+        private void readAllUsersData() {
+            FirebaseFirestore.getInstance().collection("FolkPeople").get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        progressBar.setVisibility(View.GONE);
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                            Log.d(TAG, "docList: " + docList);
+
+                            for (DocumentSnapshot docSnap : docList) {
+                                allUsersItem = docSnap.toObject(AllUsersItem.class);
+                                if (allUsersItem != null) {
+                                    Log.d(TAG, "personItem: " + allUsersItem);
+                                    allUsersItem.setId(docSnap.getId());
+                                    allUsersItem.setStrFirstName(docSnap.getString("firstName"));
+                                    allUsersItem.setStrKcExperience(docSnap.getString("kcExperience"));
+                                    allUsersItem.setStrMemberType(docSnap.getString("memberType"));
+                                }
+                                Log.d(TAG, "firedoc id: " + docSnap.getId());
+                                allUsersList.add(allUsersItem);
+                                tvListCount.setText(allUsersList.size() + " Registered Users");
+                            }
+                            allUsersAdapter.notifyDataSetChanged();
+                            Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show());
+        }
+
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            inflater.inflate(R.menu.menu_all_users, menu);
+
+            MenuItem searchItem = menu.findItem(R.id.action_all_users_search);
+            SearchView searchView = (SearchView) searchItem.getActionView();
+            searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            searchView.setQueryHint("Search Folk Guides");
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    searchAllUsers(newText);
+                    return false;
+                }
+            });
+
+            super.onCreateOptionsMenu(menu, inflater);
+        }
+
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_all_users_search:
+                    return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+
+
+        private void searchAllUsers(String text) {
+            ArrayList<AllUsersItem> filterdUsers = new ArrayList<>();
+            for (AllUsersItem user : allUsersList) {
+                if (user.getStrFirstName().toLowerCase().trim().contains(text.toLowerCase())) {
+                    filterdUsers.add(user);
+                }
+            }
+            allUsersAdapter.filterList(filterdUsers);
+        }
+
+    }
 
 }

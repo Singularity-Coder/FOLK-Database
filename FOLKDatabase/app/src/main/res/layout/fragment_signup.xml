@@ -42,8 +42,8 @@
                         android:id="@+id/iv_set_profile_image"
                         android:layout_width="60dp"
                         android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
                         android:background="@color/colorAccent"
+                        android:scaleType="centerCrop"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -235,6 +235,90 @@
                 app:layout_constraintTop_toBottomOf="@+id/tv_signup_folk_guide" />
 
             <TextView
+                android:id="@+id/tv_signup_department"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:ellipsize="end"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:maxLines="1"
+                android:text="Department"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@+id/et_signup_email"
+                app:layout_constraintStart_toStartOf="@+id/et_signup_email"
+                app:layout_constraintTop_toBottomOf="@+id/et_signup_folk_guide" />
+
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
+                android:id="@+id/et_signup_department"
+                style="@style/StyleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="15dp"
+                android:digits="qwertyuiopasdfghjklzxcvbnm 1234567890 QWERTYUIOPASDFGHJKLZXCVBNM"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/roboto_regular"
+                android:hint="Type Department"
+                android:inputType="textCapWords"
+                android:maxLength="60"
+                android:maxLines="1"
+                android:nestedScrollingEnabled="true"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_signup_department" />
+
+            <TextView
+                android:id="@+id/tv_signup_kc_experience"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:ellipsize="end"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:maxLines="1"
+                android:text="KC Experience (Years)"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@+id/et_signup_email"
+                app:layout_constraintStart_toStartOf="@+id/et_signup_email"
+                app:layout_constraintTop_toBottomOf="@+id/et_signup_department" />
+
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
+                android:id="@+id/et_signup_kc_experience"
+                style="@style/StyleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="15dp"
+                android:digits="1234567890."
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/roboto_regular"
+                android:hint="Type KC Experience"
+                android:inputType="numberDecimal"
+                android:maxLength="6"
+                android:maxLines="1"
+                android:nestedScrollingEnabled="true"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_signup_kc_experience" />
+
+            <TextView
                 android:id="@+id/tv_signup_first_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -250,7 +334,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/et_signup_first_name"
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
-                app:layout_constraintTop_toBottomOf="@+id/et_signup_folk_guide" />
+                app:layout_constraintTop_toBottomOf="@+id/et_signup_kc_experience" />
 
             <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_first_name"
@@ -292,7 +376,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/et_signup_email"
                 app:layout_constraintStart_toStartOf="@+id/et_signup_last_name"
-                app:layout_constraintTop_toBottomOf="@+id/et_signup_folk_guide" />
+                app:layout_constraintTop_toBottomOf="@+id/et_signup_kc_experience" />
 
             <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_last_name"

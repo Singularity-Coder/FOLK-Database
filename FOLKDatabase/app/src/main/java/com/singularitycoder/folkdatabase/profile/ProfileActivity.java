@@ -79,15 +79,15 @@ public class ProfileActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String profileKey = intent.getStringExtra("profileKey");
         if (("SELF").equals(profileKey)) {
-
+            // load ur own profile data from firestore
         }
 
         if (("FOLKGUIDE").equals(profileKey)) {
-
+            // load registered folk guide data from firestore
         }
 
         if (("CONTACT").equals(profileKey)) {
-
+            // load contact data from firestore
         }
     }
 

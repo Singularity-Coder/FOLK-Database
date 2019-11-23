@@ -304,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
         // Declare an instance of Firestore
         FirebaseFirestore db;
 
-        TextView tvNotAMember;
+        TextView tvNotMember;
 
         private String parentDbName = "AuthUserItem";
 
@@ -328,33 +328,29 @@ public class MainActivity extends AppCompatActivity {
             etPassword = view.findViewById(R.id.et_login_password);
             tvForgotPassword = view.findViewById(R.id.tv_login_forgot_password);
             btnLogin = view.findViewById(R.id.btn_create_event_invite_people);
-            tvNotAMember = view.findViewById(R.id.tv_login_create_account);
+            tvNotMember = view.findViewById(R.id.tv_login_create_account);
 
-            tvForgotPassword.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dialogForgotPassword(getActivity());
-                }
-            });
+            tvForgotPassword.setOnClickListener(view12 -> dialogForgotPassword(Objects.requireNonNull(getActivity())));
 
             btnLogin.setOnClickListener(view1 -> {
-                if (hasValidInput(etEmail, etPassword)) {
-                    startActivity(new Intent(getActivity(), HomeActivity.class));
+                if (Helper.hasInternet(Objects.requireNonNull(getContext()))) {
+                    if (hasValidInput(etEmail, etPassword)) {
+                        loadingBar.setTitle("Login Account");
+                        loadingBar.setMessage("Please wait, while we are checking the credentials!");
+                        loadingBar.setCanceledOnTouchOutside(false);
+                        loadingBar.show();
 
-                    loadingBar.setTitle("Login Account");
-                    loadingBar.setMessage("Please wait, while we are checking the credentials!");
-                    loadingBar.setCanceledOnTouchOutside(false);
-                    loadingBar.show();
+                        String email = etEmail.getText().toString().trim();
+                        String password = etPassword.getText().toString();
 
-                    String email = etEmail.getText().toString().trim();
-                    String password = etPassword.getText().toString();
-
-                    // Login user using Firestore DB
-                    loginUser(email, password);
+                        loginUser(email, password);
+                    }
+                } else {
+                    Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
                 }
             });
 
-            tvNotAMember.setOnClickListener(new View.OnClickListener() {
+            tvNotMember.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     authTabLayout.getTabAt(0).select();
@@ -481,6 +477,8 @@ public class MainActivity extends AppCompatActivity {
         CustomEditText etEmail;
         CustomEditText etPhone;
         CustomEditText etPassword;
+        CustomEditText etDepartment;
+        CustomEditText etKcExperience;
         Button createAccount;
         TextView tvSignUpMemberType;
 
@@ -542,6 +540,8 @@ public class MainActivity extends AppCompatActivity {
             ivSetProfileImage = view.findViewById(R.id.iv_set_profile_image);
             tvOpenGallery = view.findViewById(R.id.tv_open_gallery);
             tvSignUpMemberType = view.findViewById(R.id.et_member_type);
+            etDepartment = view.findViewById(R.id.et_signup_department);
+            etKcExperience = view.findViewById(R.id.et_signup_kc_experience);
 
             ivOpenGallery.setOnClickListener(view14 -> {
                 Dexter.withActivity(getActivity())
@@ -562,7 +562,6 @@ public class MainActivity extends AppCompatActivity {
                                 token.continuePermissionRequest();
                             }
                         }).check();
-
             });
 
             tvOpenGallery.setOnClickListener(view15 -> {
@@ -593,35 +592,43 @@ public class MainActivity extends AppCompatActivity {
             etSignUpZone.setOnClickListener(view12 -> dialogSignUpZone());
 
             createAccount.setOnClickListener(view13 -> {
-                if (hasValidInput(
-                        etSignUpZone,
-                        tvSignUpMemberType,
-                        etAdminNumber,
-                        etFolkGuideAbbr,
-                        etFirstName,
-                        etLastName,
-                        etEmail,
-                        etPhone,
-                        etPassword)) {
+                if (Helper.hasInternet(Objects.requireNonNull(getContext()))) {
+                    if (hasValidInput(
+                            etSignUpZone,
+                            tvSignUpMemberType,
+                            etAdminNumber,
+                            etFolkGuideAbbr,
+                            etDepartment,
+                            etKcExperience,
+                            etFirstName,
+                            etLastName,
+                            etEmail,
+                            etPhone,
+                            etPassword)) {
 
-                    loadingBar.setTitle("Create Account");
-                    loadingBar.setMessage("Please wait, while we are checking the credentials!");
-                    loadingBar.setCanceledOnTouchOutside(false);
-                    loadingBar.show();
+                        loadingBar.setMessage("Creating account...");
+                        loadingBar.setCanceledOnTouchOutside(false);
+                        loadingBar.show();
 
-                    String zone = etSignUpZone.getText().toString();
-                    String memberType = tvSignUpMemberType.getText().toString();
-                    String adminNumber = etAdminNumber.getText().toString();
-                    String folkGuideAbbr = etFolkGuideAbbr.getText().toString().trim();
-                    String firstName = etFirstName.getText().toString();
-                    String lastName = etLastName.getText().toString();
-                    String email = etEmail.getText().toString().trim();
-                    String phone = etPhone.getText().toString().trim();
-                    String password = etPassword.getText().toString();
+                        String zone = etSignUpZone.getText().toString();
+                        String memberType = tvSignUpMemberType.getText().toString();
+                        String adminNumber = etAdminNumber.getText().toString();
+                        String folkGuideAbbr = etFolkGuideAbbr.getText().toString().trim();
+                        String department = etDepartment.getText().toString().trim();
+                        String kcExperience = etKcExperience.getText().toString().trim();
+                        String firstName = etFirstName.getText().toString();
+                        String lastName = etLastName.getText().toString();
+                        String email = etEmail.getText().toString().trim();
+                        String phone = etPhone.getText().toString().trim();
+                        String password = etPassword.getText().toString();
 
-                    // 1. First firebase auth
-                    createAccount(zone, memberType, adminNumber, folkGuideAbbr, firstName, lastName, email, phone, password, Helper.currentDateTime());
+                        // 1. First firebase auth
+                        createAccount(zone, memberType, adminNumber, folkGuideAbbr, department, kcExperience, firstName, lastName, email, phone, password, Helper.currentDateTime());
+                    }
+                } else {
+                    Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
                 }
+
             });
 
             return view;
@@ -655,6 +662,8 @@ public class MainActivity extends AppCompatActivity {
                 TextView tvSignUpMemberType,
                 CustomEditText etAdminNumber,
                 CustomEditText etFolkGuideAbbr,
+                CustomEditText etDepartment,
+                CustomEditText etKcExperience,
                 CustomEditText etFirstName,
                 CustomEditText etLastName,
                 CustomEditText etEmail,
@@ -665,6 +674,8 @@ public class MainActivity extends AppCompatActivity {
             String memberType = tvSignUpMemberType.getText().toString();
             String adminNumber = etAdminNumber.getText().toString();
             String folkGuideAbbr = etFolkGuideAbbr.getText().toString().trim();
+            String department = etDepartment.getText().toString().trim();
+            String kcExperience = etKcExperience.getText().toString().trim();
             String firstName = etFirstName.getText().toString();
             String lastName = etLastName.getText().toString();
             String email = etEmail.getText().toString().trim();
@@ -698,6 +709,18 @@ public class MainActivity extends AppCompatActivity {
             if (folkGuideAbbr.equals("")) {
                 etFolkGuideAbbr.setError("FOLK Guide is Required!");
                 etFolkGuideAbbr.requestFocus();
+                return false;
+            }
+
+            if (department.equals("")) {
+                etDepartment.setError("Department is Required!");
+                etDepartment.requestFocus();
+                return false;
+            }
+
+            if (kcExperience.equals("")) {
+                etKcExperience.setError("KC Experience is Required!");
+                etKcExperience.requestFocus();
                 return false;
             }
 
@@ -752,7 +775,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        public void createAccount(String zone, String memberType, String adminNumber, String folkGuideAbbr, String firstName, String lastName, String email, String phone, String password, String creationTimeStamp) {
+        private void createAccount(String zone, String memberType, String adminNumber, String folkGuideAbbr, String department, String kcExperience, String firstName, String lastName, String email, String phone, String password, String creationTimeStamp) {
             loadingBar.show();
             //create user
             firebaseAuth.createUserWithEmailAndPassword(email, password)
@@ -760,11 +783,12 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             Toast.makeText(getActivity(), "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
-                            loadingBar.dismiss();
                             if (task.isSuccessful()) {
                                 // 2 If success then store image in storeage, on success of storage create firestore credentials
-                                uploadProfileImage(imageUriArray, imageExtensionStringArray, imageNameStringArray, zone, memberType, adminNumber, folkGuideAbbr, firstName, lastName, email, phone, password, creationTimeStamp);
+                                uploadProfileImage(imageUriArray, imageExtensionStringArray, imageNameStringArray, zone, memberType, adminNumber, folkGuideAbbr, department, kcExperience, firstName, lastName, email, phone, password, creationTimeStamp);
+                                loadingBar.dismiss();
                             } else {
+                                loadingBar.dismiss();
                                 if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                                     Toast.makeText(getActivity(), "Email already exists! Login or use different Email!", Toast.LENGTH_SHORT).show();
                                     etEmail.setError("Email already exists! Login or use different Email!");
@@ -787,6 +811,8 @@ public class MainActivity extends AppCompatActivity {
                 String memberType,
                 String adminNumber,
                 String folkGuideAbbr,
+                String department,
+                String kcExperience,
                 String firstName,
                 String lastName,
                 String email,
@@ -803,55 +829,60 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < imgUriArray.size(); i++) {
                 final int finalI = i;
 
-                // First put file in Storage
-                FirebaseStorage.getInstance().getReference()
-                        .child("ProfileImages/")
-                        .child(imgUriArray.get(i).getImageName())
-                        .putFile(imgUriArray.get(i).getIvProfileImage())
-                        .addOnCompleteListener(task -> {
+                if ((null) != FirebaseStorage.getInstance().getReference().child("ProfileImages/")) {
+                    // First put file in Storage
+                    FirebaseStorage.getInstance().getReference()
+                            .child("ProfileImages/")
+                            .child(imgUriArray.get(i).getImageName())
+                            .putFile(imgUriArray.get(i).getIvProfileImage())
+                            .addOnCompleteListener(task -> {
 
-                            // Then get the download URL with the filename from Storage
-                            if (task.isSuccessful()) {
-                                FirebaseStorage.getInstance().getReference()
-                                        .child("ProfileImages/")
-                                        .child(imgUriArray.get(finalI).getImageName())
-                                        .getDownloadUrl()
-                                        .addOnCompleteListener(task1 -> {
+                                // Then get the download URL with the filename from Storage
+                                if (task.isSuccessful()) {
+                                    FirebaseStorage.getInstance().getReference()
+                                            .child("ProfileImages/")
+                                            .child(imgUriArray.get(finalI).getImageName())
+                                            .getDownloadUrl()
+                                            .addOnCompleteListener(task1 -> {
 
-                                            progressDialog.setMessage("Uploading");
-                                            if (task1.isSuccessful()) {
+                                                progressDialog.setMessage("Uploading");
+                                                if (task1.isSuccessful()) {
 
-                                                // 3. Create user using Firestore DB image storage, get Profile image uri from storage
-                                                createUserFirestore(
-                                                        zone,
-                                                        memberType,
-                                                        adminNumber,
-                                                        folkGuideAbbr,
-                                                        firstName,
-                                                        lastName,
-                                                        email,
-                                                        phone,
-                                                        password,
-                                                        Objects.requireNonNull(task1.getResult()).toString(),
-                                                        "false",
-                                                        creationTimeStamp);
+                                                    // 3. Create user using Firestore DB image storage, get Profile image uri from storage
+                                                    createUserFirestore(
+                                                            zone,
+                                                            memberType,
+                                                            adminNumber,
+                                                            folkGuideAbbr,
+                                                            department,
+                                                            kcExperience,
+                                                            firstName,
+                                                            lastName,
+                                                            email,
+                                                            phone,
+                                                            password,
+                                                            Objects.requireNonNull(task1.getResult()).toString(),
+                                                            "false",
+                                                            creationTimeStamp);
 
-                                                Log.d(TAG, "task data: " + task1.getResult().toString());
-                                                progressDialog.dismiss();
+                                                    Log.d(TAG, "task data: " + task1.getResult().toString());
+                                                    progressDialog.dismiss();
 
-                                            } else {
-                                                FirebaseStorage.getInstance().getReference()
-                                                        .child("ProfileImages/")
-                                                        .child(imageUriArray.get(finalI).getImageName())
-                                                        .delete();
-                                                Toast.makeText(getActivity(), "Couldn't upload Image", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
-                            } else {
-                                Toast.makeText(getActivity(), "Some Error. Couldn't Uplaod", Toast.LENGTH_SHORT).show();
-                            }
+                                                } else {
+                                                    FirebaseStorage.getInstance().getReference()
+                                                            .child("ProfileImages/")
+                                                            .child(imageUriArray.get(finalI).getImageName())
+                                                            .delete();
+                                                    Toast.makeText(getActivity(), "Couldn't upload Image", Toast.LENGTH_SHORT).show();
+                                                    progressDialog.dismiss();
+                                                }
+                                            });
+                                } else {
+                                    Toast.makeText(getActivity(), "Some Error. Couldn't Uplaod", Toast.LENGTH_SHORT).show();
+                                }
 
-                        });
+                            });
+                }
             }
         }
 
@@ -861,6 +892,8 @@ public class MainActivity extends AppCompatActivity {
                 String memberType,
                 String adminNumber,
                 String folkGuideAbbr,
+                String department,
+                String kcExperience,
                 String firstName,
                 String lastName,
                 String email,
@@ -876,6 +909,8 @@ public class MainActivity extends AppCompatActivity {
                     memberType,
                     adminNumber,
                     folkGuideAbbr,
+                    department,
+                    kcExperience,
                     firstName,
                     lastName,
                     phone,
@@ -888,30 +923,32 @@ public class MainActivity extends AppCompatActivity {
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
             // Collection name is "AuthUserItem". U can create a new collection this way
-            db.collection("FolkPeople")
-                    .add(authUserItem)
-                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                        @Override
-                        public void onSuccess(DocumentReference documentReference) {
-                            Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                            Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(getActivity(), HomeActivity.class));
-                            Objects.requireNonNull(getActivity()).finish();
-                            loadingBar.dismiss();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error adding document", e);
-                            Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
-                            loadingBar.dismiss();
-                        }
-                    });
+            if ((null) != db.collection("FolkPeople")) {
+                db.collection("FolkPeople")
+                        .add(authUserItem)
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(getActivity(), HomeActivity.class));
+                                Objects.requireNonNull(getActivity()).finish();
+                                loadingBar.dismiss();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error adding document", e);
+                                Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                                loadingBar.dismiss();
+                            }
+                        });
+            }
         }
 
-        public void dialogSignUpMemberType() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        private void dialogSignUpMemberType() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
             builder.setTitle("I am a");
             String[] selectArray = {"FOLK Guide", "Team Lead", "Zonal Head"};
             builder.setItems(selectArray, new DialogInterface.OnClickListener() {
@@ -942,8 +979,8 @@ public class MainActivity extends AppCompatActivity {
                     .pickPhoto(this);
         }
 
-        public void dialogSignUpZone() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        private void dialogSignUpZone() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(Objects.requireNonNull(getActivity())));
             builder.setTitle("Which Zone?");
             String[] selectArray = {"Bengaluru South", "Bengaluru North", "Ahemadabad South", "Ahemadabad North"};
             builder.setItems(selectArray, new DialogInterface.OnClickListener() {
