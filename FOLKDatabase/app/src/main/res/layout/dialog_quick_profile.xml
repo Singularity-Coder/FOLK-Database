@@ -23,7 +23,7 @@
             android:layout_height="270dp"
             android:background="@drawable/round_image_top"
             android:scaleType="centerCrop"
-            android:src="@drawable/face2"
+            android:src="@drawable/profile_dummy_large"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

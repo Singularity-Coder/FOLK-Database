@@ -1,6 +1,11 @@
 package com.singularitycoder.folkdatabase.auth;
 
+import com.google.firebase.firestore.Exclude;
+
 public class AuthUserItem {
+
+    @Exclude
+    private String docId;
     // Make sure u use the same names as u provided in the Firebase. Same obj names
     private String zone, memberType, adminNumber, folkGuideAbbr, department, kcExperience, firstName, lastName, phone, email, password, profileImageUrl, signUpStatus, creationTimeStamp;
 
@@ -78,5 +83,13 @@ public class AuthUserItem {
 
     public String getCreationTimeStamp() {
         return creationTimeStamp;
+    }
+
+    public String getDocId() {
+        return docId;
+    }
+
+    public void setDocId(String docId) {
+        this.docId = docId;
     }
 }

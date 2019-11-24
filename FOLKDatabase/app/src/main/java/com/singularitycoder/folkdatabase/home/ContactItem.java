@@ -4,9 +4,10 @@ import android.net.Uri;
 
 import com.google.firebase.firestore.Exclude;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class ContactItem {
+public class ContactItem implements Serializable {
 
     @Exclude
     private String id;

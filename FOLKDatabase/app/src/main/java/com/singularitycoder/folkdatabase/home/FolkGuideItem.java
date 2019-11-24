@@ -4,7 +4,9 @@ import android.net.Uri;
 
 import com.google.firebase.firestore.Exclude;
 
-public class FolkGuideItem {
+import java.io.Serializable;
+
+public class FolkGuideItem implements Serializable {
 
     @Exclude
     private String id;

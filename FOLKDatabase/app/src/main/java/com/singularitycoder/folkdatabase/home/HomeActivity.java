@@ -131,7 +131,8 @@ public class HomeActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 switch (position) {
                     case CONTACTS:
-                        fab1.show();
+                        fab1.hide();
+//                        fab1.show();
                         fab1.setImageDrawable(getResources().getDrawable(R.drawable.ic_filter_list_black_24dp));
                         fab1.setOnClickListener(view -> {
                             new ContactFragment().contactFilterDialog(HomeActivity.this);
@@ -398,8 +399,10 @@ public class HomeActivity extends AppCompatActivity {
                 public void onItemClick(View view, int position) {
                     Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
                     // Start activity
+                    ContactItem contactItem = contactList.get(position);
                     Intent contactIntent = new Intent(getContext(), ProfileActivity.class);
-                    contactIntent.putExtra("openContact", "CONTACT");
+                    contactIntent.putExtra("profileKey", "CONTACT");
+                    contactIntent.putExtra("contactItem", contactItem);
                     startActivity(contactIntent);
                 }
             });
@@ -451,7 +454,12 @@ public class HomeActivity extends AppCompatActivity {
                                             personItemModel.setStrFolkGuide(docSnap.getString("folk_guide"));
                                         }
                                         personItemModel.setStrOccupation(docSnap.getString("occupation"));
-                                        personItemModel.setStrDobMonth(docSnap.getString("dob_month"));
+                                        if (("").equals(docSnap.getString("dob_month")) || (null) == (docSnap.getString("dob_month"))) {
+                                            personItemModel.setStrDobMonth(docSnap.getString("0"));
+                                        } else {
+                                            personItemModel.setStrDobMonth(valueOf(docSnap.getString("dob_month")));
+                                            Log.d(TAG, "dob month: " + docSnap.getString("dob_month"));
+                                        }
                                         personItemModel.setStrLocation(docSnap.getString("stay_map"));
                                         personItemModel.setStrRecidencyInterest(valueOf(docSnap.getString("recidency_interest")));
                                         personItemModel.setStrPhone(valueOf(docSnap.getString("mobile")));
@@ -460,6 +468,7 @@ public class HomeActivity extends AppCompatActivity {
 //                                        personItemModel.setImgProfileImage(docSnap.getData().get("photo_url"));
                                         Log.d(TAG, "profile image: " + docSnap.getData());
                                         Log.d(TAG, "profile image 2: " + docSnap.getData().get("docs"));
+                                        Log.d(TAG, "address: " + docSnap.getData().get("address"));
                                         Object profileImages = docSnap.getData().get("docs");
                                         Map<String, String> mapImage = (Map<String, String>) docSnap.getData().get("docs");
                                         Log.d(TAG, "prof image map: " + mapImage);
@@ -544,7 +553,7 @@ public class HomeActivity extends AppCompatActivity {
                     return true;
                 case R.id.action_my_profile:
                     Intent intent = new Intent(getActivity(), ProfileActivity.class);
-                    intent.putExtra("profileKey", "SELF");
+                    intent.putExtra("profileKey", "AUTHUSER");
                     startActivity(intent);
                     return true;
                 case R.id.action_about:
@@ -873,7 +882,7 @@ public class HomeActivity extends AppCompatActivity {
             ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
 
             for (ContactItem contact : contactList) {
-                if (text.toLowerCase().trim().contains(contact.getStrFolkGuide().toString().toLowerCase().trim())) {
+                if (text.toLowerCase().trim().contains(valueOf(contact.getStrFolkGuide()).toLowerCase().trim())) {
                     filteredContactsList.add(contact);
                     Log.d(TAG, "list: " + filteredContactsList);
                 }
@@ -887,7 +896,7 @@ public class HomeActivity extends AppCompatActivity {
             ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
 
             for (ContactItem contact : contactList) {
-                if (text.toLowerCase().trim().contains(contact.getStrRecidencyInterest().toString().toLowerCase().trim())) {
+                if (text.toLowerCase().trim().contains(valueOf(contact.getStrRecidencyInterest()).toLowerCase().trim())) {
                     filteredContactsList.add(contact);
                     Log.d(TAG, "list: " + filteredContactsList);
                 }
@@ -900,14 +909,21 @@ public class HomeActivity extends AppCompatActivity {
         private void findDobMonthContacts(String text) {
             ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
 
+            Log.d(TAG, "findDobMonthContacts: full list: " + contactList);
+
             for (ContactItem contact : contactList) {
-                if (text.toLowerCase().trim().contains(contact.getStrDobMonth().toString().toLowerCase().trim())) {
-                    filteredContactsList.add(contact);
-                    Log.d(TAG, "list: " + filteredContactsList);
+                Log.d(TAG, "findDobMonthContacts: contact: " + contact);
+                if (("") != valueOf(contact.getStrDobMonth()).toLowerCase().trim() || (null) != valueOf(contact.getStrDobMonth()).toLowerCase().trim()) {
+                    Log.d(TAG, "findDobMonthContacts: got hit 1");
+                    if (text.toLowerCase().trim().contains(valueOf(contact.getStrDobMonth()).toLowerCase().trim())) {
+                        Log.d(TAG, "findDobMonthContacts: got hit 2");
+                        filteredContactsList.add(contact);
+                        Log.d(TAG, "filtered list: " + filteredContactsList);
+                    }
+                    contactsAdapter.flterList(filteredContactsList);
+                    contactsAdapter.notifyDataSetChanged();
+                    tvListCount.setText(filteredContactsList.size() + " Contacts");
                 }
-                contactsAdapter.flterList(filteredContactsList);
-                contactsAdapter.notifyDataSetChanged();
-                tvListCount.setText(filteredContactsList.size() + " Contacts");
             }
         }
 
@@ -915,7 +931,7 @@ public class HomeActivity extends AppCompatActivity {
             ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
 
             for (ContactItem contact : contactList) {
-                if (text.toLowerCase().trim().contains(contact.getStrLocation().toString().toLowerCase().trim())) {
+                if (text.toLowerCase().trim().contains(valueOf(contact.getStrLocation()).toLowerCase().trim())) {
                     filteredContactsList.add(contact);
                     Log.d(TAG, "list: " + filteredContactsList);
                 }
@@ -935,7 +951,7 @@ public class HomeActivity extends AppCompatActivity {
             Rect displayRectangle = new Rect();
             Window window = activity.getWindow();
             window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-            dialog.getWindow().setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
+            Objects.requireNonNull(dialog.getWindow()).setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
 
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
@@ -951,6 +967,10 @@ public class HomeActivity extends AppCompatActivity {
             });
 
             ArrayList<ContactItem> notificationList = new ArrayList<>();
+            notificationList.add(new ContactItem("Michael Marvin", "", "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
+            notificationList.add(new ContactItem("Michael Marvin", "", "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
+            notificationList.add(new ContactItem("Michael Marvin", "", "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
+            notificationList.add(new ContactItem("Michael Marvin", "", "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
             notificationList.add(new ContactItem("Michael Marvin", "", "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
 
             LinearLayoutManager commentLayoutManager = new LinearLayoutManager(activity, RecyclerView.VERTICAL, false);

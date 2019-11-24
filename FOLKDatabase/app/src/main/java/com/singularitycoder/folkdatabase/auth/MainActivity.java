@@ -6,8 +6,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -920,6 +922,15 @@ public class MainActivity extends AppCompatActivity {
                     signUpStatus,
                     creationTimeStamp
             );
+
+            SharedPreferences sp = Objects.requireNonNull(getActivity()).getSharedPreferences("authItem", Context.MODE_PRIVATE);
+            sp.edit().putString("profileImage", profileImage).commit();
+            sp.edit().putString("firstName", firstName).commit();
+            sp.edit().putString("lastName", lastName).commit();
+            sp.edit().putString("memberType", memberType).commit();
+            sp.edit().putString("phone", phone).commit();
+            sp.edit().putString("email", email).commit();
+
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
             // Collection name is "AuthUserItem". U can create a new collection this way

@@ -23,6 +23,7 @@ import com.amulyakhare.textdrawable.TextDrawable;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.helper.Helper;
+import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
 
@@ -109,7 +110,13 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         @Override
         public void onClick(View view) {
-            clickListener.onItemClick(view, getAdapterPosition());
+//            clickListener.onItemClick(view, getAdapterPosition());
+            ContactItem contactItem = contactsList.get(getAdapterPosition());
+            Intent contactIntent = new Intent(context, ProfileActivity.class);
+            contactIntent.putExtra("profileKey", "CONTACT");
+            contactIntent.putExtra("contactItem", contactItem);
+            context.startActivity(contactIntent);
+
         }
     }
 

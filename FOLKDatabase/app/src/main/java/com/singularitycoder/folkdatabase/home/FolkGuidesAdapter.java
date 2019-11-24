@@ -1,6 +1,7 @@
 package com.singularitycoder.folkdatabase.home;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.helper.Helper;
+import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
 
@@ -45,7 +47,8 @@ public class FolkGuidesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             Helper.glideProfileImage(context, folkGuideItem.getStrProfileImage(), folkGuidesViewHolder.imgProfileImage);
             folkGuidesViewHolder.imgProfileImage.setOnClickListener(view -> {
                 HomeActivity homeActivity = new HomeActivity();
-                homeActivity.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
+//                homeActivity.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
+                homeActivity.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), "9999999999", "9999999999", "email@email.com");
             });
 
             folkGuidesViewHolder.tvName.setText(folkGuideItem.getStrFirstName());
@@ -88,7 +91,12 @@ public class FolkGuidesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         @Override
         public void onClick(View view) {
-            clickListener.onItemClick(view, getAdapterPosition());
+//            clickListener.onItemClick(view, getAdapterPosition());
+            FolkGuideItem folkGuideItem = folkGuidesList.get(getAdapterPosition());
+            Intent intent = new Intent(context, ProfileActivity.class);
+            intent.putExtra("profileKey", "FOLKGUIDE");
+            intent.putExtra("folkguideItem", folkGuideItem);
+            context.startActivity(intent);
         }
     }
 

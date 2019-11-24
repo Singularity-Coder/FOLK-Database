@@ -43,7 +43,7 @@
         android:clickable="true"
         android:focusable="true"
         android:src="@drawable/ic_filter_list_black_24dp"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewpager_home"

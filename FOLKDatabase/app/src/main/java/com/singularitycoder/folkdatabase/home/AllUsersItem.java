@@ -2,7 +2,9 @@ package com.singularitycoder.folkdatabase.home;
 
 import com.google.firebase.firestore.Exclude;
 
-public class AllUsersItem {
+import java.io.Serializable;
+
+public class AllUsersItem implements Serializable {
 
     @Exclude
     private String id;

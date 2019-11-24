@@ -1,6 +1,7 @@
 package com.singularitycoder.folkdatabase.home;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.helper.Helper;
+import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
 
@@ -90,7 +92,12 @@ public class AllUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         @Override
         public void onClick(View view) {
-            clickListener.onItemClick(view, getAdapterPosition());
+//            clickListener.onItemClick(view, getAdapterPosition());
+            AllUsersItem allUsersItem = allUsersList.get(getAdapterPosition());
+            Intent intent = new Intent(context, ProfileActivity.class);
+            intent.putExtra("profileKey", "ALLUSER");
+            intent.putExtra("alluserItem", allUsersItem);
+            context.startActivity(intent);
         }
     }
 
