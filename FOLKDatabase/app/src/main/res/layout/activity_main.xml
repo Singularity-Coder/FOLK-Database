@@ -73,6 +73,7 @@
                 app:tabIndicator="@drawable/bg_tab_indicator"
                 app:tabIndicatorColor="@color/colorAccent"
                 app:tabIndicatorHeight="4dp"
+                app:tabMode="fixed"
                 app:tabSelectedTextColor="@android:color/white"
                 app:tabTextColor="@color/white_70" />
 

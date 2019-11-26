@@ -14,8 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,8 +22,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,9 +45,9 @@ import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.AuthUserItem;
 import com.singularitycoder.folkdatabase.auth.MainActivity;
 import com.singularitycoder.folkdatabase.helper.Helper;
-import com.singularitycoder.folkdatabase.home.AllUsersItem;
-import com.singularitycoder.folkdatabase.home.ContactItem;
-import com.singularitycoder.folkdatabase.home.FolkGuideItem;
+import com.singularitycoder.folkdatabase.database.AllUsersItem;
+import com.singularitycoder.folkdatabase.database.ContactItem;
+import com.singularitycoder.folkdatabase.database.FolkGuideItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -264,9 +260,12 @@ public class ProfileActivity extends AppCompatActivity {
         // Set ViewPager
         viewPager = findViewById(R.id.viewpager_profile);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new AboutFragment(), "ABOUT");
-        adapter.addFrag(new ActivityFragment(), "ACTIVITY");
+        adapter.addFrag(new AboutFragment(), "BASIC INFO");
+        adapter.addFrag(new AboutFragment(), "OCCUPATION");
+        adapter.addFrag(new AboutFragment(), "RESIDENCE");
         adapter.addFrag(new TalentFragment(), "TALENT");
+        adapter.addFrag(new TalentFragment(), "FAMILY");
+        adapter.addFrag(new ActivityFragment(), "ACTIVITY");
         viewPager.setAdapter(adapter);
     }
 
@@ -343,29 +342,27 @@ public class ProfileActivity extends AppCompatActivity {
                     scrollRange = appBarLayout.getTotalScrollRange();
                 }
                 if (scrollRange + verticalOffset == 0) {
-                    if (getSupportActionBar() != null)
-
+                    if (getSupportActionBar() != null) {
                         if (("AUTHUSER").equals(profileKey)) {
                             getSupportActionBar().setTitle(authUserItem.getFirstName() + " " + authUserItem.getLastName());
                             Objects.requireNonNull(getSupportActionBar()).setSubtitle(authUserItem.getMemberType());
                         }
 
-                    if (("FOLKGUIDE").equals(profileKey)) {
-                        getSupportActionBar().setTitle(folkGuideItem.getStrFirstName());
-                        Objects.requireNonNull(getSupportActionBar()).setSubtitle("KC Experience: " + folkGuideItem.getStrKcExperience());
+                        if (("FOLKGUIDE").equals(profileKey)) {
+                            getSupportActionBar().setTitle(folkGuideItem.getStrFirstName());
+                            Objects.requireNonNull(getSupportActionBar()).setSubtitle("KC Experience: " + folkGuideItem.getStrKcExperience());
+                        }
+
+                        if (("CONTACT").equals(profileKey)) {
+                            getSupportActionBar().setTitle(contactItem.getFirstName());
+                            Objects.requireNonNull(getSupportActionBar()).setSubtitle(contactItem.getStrFolkGuide());
+                        }
+
+                        if (("ALLUSER").equals(profileKey)) {
+                            getSupportActionBar().setTitle(allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName());
+                            Objects.requireNonNull(getSupportActionBar()).setSubtitle(allUsersItem.getStrMemberType());
+                        }
                     }
-
-                    if (("CONTACT").equals(profileKey)) {
-                        getSupportActionBar().setTitle(contactItem.getFirstName());
-                        Objects.requireNonNull(getSupportActionBar()).setSubtitle(contactItem.getStrFolkGuide());
-                    }
-
-                    if (("ALLUSER").equals(profileKey)) {
-                        getSupportActionBar().setTitle(allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName());
-                        Objects.requireNonNull(getSupportActionBar()).setSubtitle(allUsersItem.getStrMemberType());
-                    }
-
-
                     isShow = true;
                 } else if (isShow) {
                     if (getSupportActionBar() != null) getSupportActionBar().setTitle(" ");

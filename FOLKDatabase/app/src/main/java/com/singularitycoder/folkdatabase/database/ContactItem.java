@@ -1,11 +1,10 @@
-package com.singularitycoder.folkdatabase.home;
+package com.singularitycoder.folkdatabase.database;
 
 import android.net.Uri;
 
 import com.google.firebase.firestore.Exclude;
 
 import java.io.Serializable;
-import java.util.Map;
 
 public class ContactItem implements Serializable {
 
@@ -28,6 +27,7 @@ public class ContactItem implements Serializable {
     private String strPhone;
     private String strWhatsApp;
     private String strEmail;
+    private String strBirthday;
 
 
     private Uri ivProfileImage;
@@ -228,5 +228,13 @@ public class ContactItem implements Serializable {
 
     public void setStrEmail(String strEmail) {
         this.strEmail = strEmail;
+    }
+
+    public String getStrBirthday() {
+        return strBirthday;
+    }
+
+    public void setStrBirthday(String strBirthday) {
+        this.strBirthday = strBirthday;
     }
 }

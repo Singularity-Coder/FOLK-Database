@@ -31,12 +31,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".home.ApproveOthersActivity" />
-        <activity android:name=".home.ApprovalStatusActivity" />
-        <activity
-            android:name=".profile.ProfileActivity"
-            android:parentActivityName=".home.HomeActivity" />
-        <activity android:name=".home.HomeActivity" />
         <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,6 +39,15 @@
             </intent-filter>
         </activity>
         <activity android:name=".auth.MainActivity" />
+        <activity android:name=".home.HomeActivity" />
+        <activity android:name=".database.ApproveOthersActivity" />
+        <activity android:name=".database.ApprovalStatusActivity" />
+        <activity
+            android:name=".profile.ProfileActivity"
+            android:parentActivityName=".database.DatabaseActivity" />
+        <activity
+            android:name=".database.DatabaseActivity"
+            android:parentActivityName=".home.HomeActivity" />
     </application>
 
 </manifest>

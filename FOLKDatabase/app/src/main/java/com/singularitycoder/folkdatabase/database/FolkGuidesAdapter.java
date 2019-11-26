@@ -1,4 +1,4 @@
-package com.singularitycoder.folkdatabase.home;
+package com.singularitycoder.folkdatabase.database;
 
 import android.content.Context;
 import android.content.Intent;
@@ -46,9 +46,9 @@ public class FolkGuidesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             FolkGuidesViewHolder folkGuidesViewHolder = (FolkGuidesViewHolder) holder;
             Helper.glideProfileImage(context, folkGuideItem.getStrProfileImage(), folkGuidesViewHolder.imgProfileImage);
             folkGuidesViewHolder.imgProfileImage.setOnClickListener(view -> {
-                HomeActivity homeActivity = new HomeActivity();
-//                homeActivity.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
-                homeActivity.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), "9999999999", "9999999999", "email@email.com");
+                DatabaseActivity databaseActivity = new DatabaseActivity();
+//                databaseActivity.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
+                databaseActivity.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), "9999999999", "9999999999", "email@email.com");
             });
 
             folkGuidesViewHolder.tvName.setText(folkGuideItem.getStrFirstName());

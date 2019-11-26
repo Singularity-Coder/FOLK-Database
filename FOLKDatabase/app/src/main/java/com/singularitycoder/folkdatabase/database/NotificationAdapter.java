@@ -1,4 +1,4 @@
-package com.singularitycoder.folkdatabase.home;
+package com.singularitycoder.folkdatabase.database;
 
 import android.content.Context;
 import android.view.LayoutInflater;

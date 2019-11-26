@@ -1,4 +1,4 @@
-package com.singularitycoder.folkdatabase.home;
+package com.singularitycoder.folkdatabase.database;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,11 +6,11 @@ import android.os.Bundle;
 
 import com.singularitycoder.folkdatabase.R;
 
-public class ApproveOthersActivity extends AppCompatActivity {
+public class ApprovalStatusActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_approve_others);
+        setContentView(R.layout.activity_approval_status);
     }
 }

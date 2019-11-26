@@ -64,10 +64,10 @@ import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-import com.singularitycoder.folkdatabase.helper.CustomEditText;
 import com.singularitycoder.folkdatabase.R;
+import com.singularitycoder.folkdatabase.database.ContactItem;
+import com.singularitycoder.folkdatabase.helper.CustomEditText;
 import com.singularitycoder.folkdatabase.helper.Helper;
-import com.singularitycoder.folkdatabase.home.ContactItem;
 import com.singularitycoder.folkdatabase.home.HomeActivity;
 
 import java.io.ByteArrayOutputStream;
@@ -934,17 +934,140 @@ public class MainActivity extends AppCompatActivity {
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
             // Collection name is "AuthUserItem". U can create a new collection this way
-            if ((null) != db.collection("FolkPeople")) {
-                db.collection("FolkPeople")
+                db.collection("AllFolkPeople")
                         .add(authUserItem)
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
-                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(getActivity(), HomeActivity.class));
-                                Objects.requireNonNull(getActivity()).finish();
-                                loadingBar.dismiss();
+
+                                if (("FOLK Guide").equals(memberType)) {
+                                    // AuthUserItem obj
+                                    AuthUserItem authUserItem = new AuthUserItem(
+                                            zone,
+                                            memberType,
+                                            adminNumber,
+                                            folkGuideAbbr,
+                                            department,
+                                            kcExperience,
+                                            firstName,
+                                            lastName,
+                                            phone,
+                                            email,
+                                            password,
+                                            profileImage,
+                                            signUpStatus,
+                                            creationTimeStamp
+                                    );
+
+                                    // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
+                                    // Collection name is "AuthUserItem". U can create a new collection this way
+                                        db.collection("AllFolkGuides")
+                                                .add(authUserItem)
+                                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentReference documentReference) {
+                                                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                                        Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                                        startActivity(new Intent(getActivity(), HomeActivity.class));
+                                                        Objects.requireNonNull(getActivity()).finish();
+                                                        loadingBar.dismiss();
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w(TAG, "Error adding document", e);
+                                                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                                                        loadingBar.dismiss();
+                                                    }
+                                                });
+                                }
+
+                                if (("Team Lead").equals(memberType)) {
+                                // AuthUserItem obj
+                                    AuthUserItem authUserItem = new AuthUserItem(
+                                            zone,
+                                            memberType,
+                                            adminNumber,
+                                            folkGuideAbbr,
+                                            department,
+                                            kcExperience,
+                                            firstName,
+                                            lastName,
+                                            phone,
+                                            email,
+                                            password,
+                                            profileImage,
+                                            signUpStatus,
+                                            creationTimeStamp
+                                    );
+
+                                    // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
+                                    // Collection name is "AuthUserItem". U can create a new collection this way
+                                    db.collection("AllTeamLeads")
+                                            .add(authUserItem)
+                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                @Override
+                                                public void onSuccess(DocumentReference documentReference) {
+                                                    Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                                    Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                                    startActivity(new Intent(getActivity(), HomeActivity.class));
+                                                    Objects.requireNonNull(getActivity()).finish();
+                                                    loadingBar.dismiss();
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w(TAG, "Error adding document", e);
+                                                    Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                                                    loadingBar.dismiss();
+                                                }
+                                            });
+                                }
+
+                                if (("Zonal Head").equals(memberType)) {
+                                    // AuthUserItem obj
+                                    AuthUserItem authUserItem = new AuthUserItem(
+                                            zone,
+                                            memberType,
+                                            adminNumber,
+                                            folkGuideAbbr,
+                                            department,
+                                            kcExperience,
+                                            firstName,
+                                            lastName,
+                                            phone,
+                                            email,
+                                            password,
+                                            profileImage,
+                                            signUpStatus,
+                                            creationTimeStamp
+                                    );
+
+                                    // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
+                                    // Collection name is "AuthUserItem". U can create a new collection this way
+                                    db.collection("AllZonalHeads")
+                                            .add(authUserItem)
+                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                @Override
+                                                public void onSuccess(DocumentReference documentReference) {
+                                                    Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                                                    Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                                    startActivity(new Intent(getActivity(), HomeActivity.class));
+                                                    Objects.requireNonNull(getActivity()).finish();
+                                                    loadingBar.dismiss();
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w(TAG, "Error adding document", e);
+                                                    Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                                                    loadingBar.dismiss();
+                                                }
+                                            });
+                                }
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
@@ -955,7 +1078,6 @@ public class MainActivity extends AppCompatActivity {
                                 loadingBar.dismiss();
                             }
                         });
-            }
         }
 
         private void dialogSignUpMemberType() {

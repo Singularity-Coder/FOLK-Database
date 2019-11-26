@@ -1,4 +1,4 @@
-package com.singularitycoder.folkdatabase.home;
+package com.singularitycoder.folkdatabase.database;
 
 import android.content.Context;
 import android.content.Intent;
@@ -47,8 +47,8 @@ public class AllUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             Helper.glideProfileImage(context, allUsersItem.getStrProfileImage(), allUsersViewHolder.imgProfileImage);
             String fullName = allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName();
             allUsersViewHolder.imgProfileImage.setOnClickListener(view -> {
-                HomeActivity homeActivity = new HomeActivity();
-                homeActivity.showQuickInfoDialog(context, fullName, allUsersItem.getStrProfileImage(), allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail());
+                DatabaseActivity databaseActivity = new DatabaseActivity();
+                databaseActivity.showQuickInfoDialog(context, fullName, allUsersItem.getStrProfileImage(), allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail());
             });
 
             allUsersViewHolder.tvName.setText(allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName());

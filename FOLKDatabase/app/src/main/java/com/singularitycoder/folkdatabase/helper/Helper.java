@@ -75,6 +75,12 @@ public class Helper extends AppCompatActivity {
     }
 
     @SuppressLint("SimpleDateFormat")
+    public static String currentDate() {
+        String date = new SimpleDateFormat("MM-dd").format(new Date());
+        return date;
+    }
+
+    @SuppressLint("SimpleDateFormat")
     public static String currentDateTime() {
         String dateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
@@ -167,7 +173,7 @@ public class Helper extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
-    public void comingSoonDialog(Activity activity) {
+    public static void comingSoonDialog(Activity activity) {
         new AlertDialog.Builder(activity)
                 .setTitle("Coming Soon")
                 // Specifying a listener allows you to take an action before dismissing the dialog.
@@ -180,7 +186,7 @@ public class Helper extends AppCompatActivity {
                 .show();
     }
 
-    public void toast(String msg, Context context, int length) {
+    public static void toast(String msg, Context context, int length) {
         Toast.makeText(context, msg, length).show();
     }
 

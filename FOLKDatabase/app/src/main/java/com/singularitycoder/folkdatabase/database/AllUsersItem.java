@@ -1,12 +1,10 @@
-package com.singularitycoder.folkdatabase.home;
-
-import android.net.Uri;
+package com.singularitycoder.folkdatabase.database;
 
 import com.google.firebase.firestore.Exclude;
 
 import java.io.Serializable;
 
-public class FolkGuideItem implements Serializable {
+public class AllUsersItem implements Serializable {
 
     @Exclude
     private String id;
@@ -14,22 +12,22 @@ public class FolkGuideItem implements Serializable {
     private String strProfileImage;
     private String strFirstName;
     private String strLastName;
-    private String strDepartment;
     private String strKcExperience;
+    private String strMemberType;
 
     private String strPhone;
     private String strWhatsApp;
     private String strEmail;
 
-    public FolkGuideItem() {
+    public AllUsersItem() {
     }
 
-    public FolkGuideItem(String strProfileImage, String strFirstName, String strLastName, String strDepartment, String strKcExperience) {
+    public AllUsersItem(String strProfileImage, String strFirstName, String strLastName, String strKcExperience, String strMemberType) {
         this.strProfileImage = strProfileImage;
         this.strFirstName = strFirstName;
         this.strLastName = strLastName;
-        this.strDepartment = strDepartment;
         this.strKcExperience = strKcExperience;
+        this.strMemberType = strMemberType;
     }
 
     public String getId() {
@@ -64,20 +62,20 @@ public class FolkGuideItem implements Serializable {
         this.strLastName = strLastName;
     }
 
-    public String getStrDepartment() {
-        return strDepartment;
-    }
-
-    public void setStrDepartment(String strDepartment) {
-        this.strDepartment = strDepartment;
-    }
-
     public String getStrKcExperience() {
         return strKcExperience;
     }
 
     public void setStrKcExperience(String strKcExperience) {
         this.strKcExperience = strKcExperience;
+    }
+
+    public String getStrMemberType() {
+        return strMemberType;
+    }
+
+    public void setStrMemberType(String strMemberType) {
+        this.strMemberType = strMemberType;
     }
 
     public String getStrPhone() {
