@@ -18,6 +18,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -218,25 +219,22 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                if (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0) {
-                    //  Collapsed
+        appBarLayout.addOnOffsetChangedListener((appBarLayout1, verticalOffset) -> {
+            if (Math.abs(verticalOffset) - appBarLayout1.getTotalScrollRange() == 0) {
+                //  Collapsed
 //                    Toast.makeText(getApplicationContext(), "Collapsed", Toast.LENGTH_LONG).show();
 //                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.colorPrimary));
 //                    tabLayout.setTabTextColors(ContextCompat.getColorStateList(getApplicationContext(), R.color.colorBlack));
-                    toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                    authTabLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                    toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
-                } else {
-                    //Expanded
+                toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                authTabLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
+            } else {
+                //Expanded
 //                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.colorWhite));
 //                    tabLayout.setTabTextColors(ContextCompat.getColorStateList(getApplicationContext(), R.color.colorWhite));
-                    toolbar.setBackgroundColor(Color.TRANSPARENT);
-                    authTabLayout.setBackgroundColor(Color.TRANSPARENT);
+                toolbar.setBackgroundColor(Color.TRANSPARENT);
+                authTabLayout.setBackgroundColor(Color.TRANSPARENT);
 //                    toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
-                }
             }
         });
     }
@@ -298,20 +296,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     public static class LoginFragment extends Fragment {
-        CustomEditText etEmail;
-        CustomEditText etPassword;
-        Button btnLogin;
-        TextView tvForgotPassword;
+        private CustomEditText etEmail;
+        private CustomEditText etPassword;
+        private Button btnLogin;
+        private TextView tvForgotPassword;
+        private TextView tvNotMember;
 
         // Declare an instance of Firestore
-        FirebaseFirestore db;
-
-        TextView tvNotMember;
-
-        private String parentDbName = "AuthUserItem";
-
+        private FirebaseFirestore db;
         private ProgressDialog loadingBar;
-
         private FirebaseAuth firebaseAuth;
 
         public LoginFragment() {
@@ -332,7 +325,9 @@ public class MainActivity extends AppCompatActivity {
             btnLogin = view.findViewById(R.id.btn_create_event_invite_people);
             tvNotMember = view.findViewById(R.id.tv_login_create_account);
 
-            tvForgotPassword.setOnClickListener(view12 -> dialogForgotPassword(Objects.requireNonNull(getActivity())));
+            tvForgotPassword.setOnClickListener(view12 -> {
+                dialogForgotPassword(Objects.requireNonNull(getActivity()));
+            });
 
             btnLogin.setOnClickListener(view1 -> {
                 if (Helper.hasInternet(Objects.requireNonNull(getContext()))) {
@@ -345,19 +340,14 @@ public class MainActivity extends AppCompatActivity {
                         String email = etEmail.getText().toString().trim();
                         String password = etPassword.getText().toString();
 
-                        loginUser(email, password);
+                        AsyncTask.execute(() -> loginUser(email, password));
                     }
                 } else {
                     Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
                 }
             });
 
-            tvNotMember.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    authTabLayout.getTabAt(0).select();
-                }
-            });
+            tvNotMember.setOnClickListener(view13 -> authTabLayout.getTabAt(0).select());
 
             return view;
         }
@@ -441,7 +431,7 @@ public class MainActivity extends AppCompatActivity {
                     etResetEmail.setError("Invalid Email!");
                     etResetEmail.requestFocus();
                 } else {
-                    resetPassword(etResetEmail.getText().toString().trim());
+                    AsyncTask.execute(() -> resetPassword(etResetEmail.getText().toString().trim()));
                     dialog.dismiss();
                 }
             });
@@ -450,9 +440,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private void resetPassword(String email) {
-            loadingBar.show();
-            loadingBar.setMessage("Please wait...");
-            loadingBar.setCanceledOnTouchOutside(false);
+            getActivity().runOnUiThread(() -> {
+                loadingBar.show();
+                loadingBar.setMessage("Please wait...");
+                loadingBar.setCanceledOnTouchOutside(false);
+            });
             firebaseAuth.sendPasswordResetEmail(email)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
@@ -460,10 +452,9 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             Toast.makeText(getActivity(), "Failed to send reset email!", Toast.LENGTH_SHORT).show();
                         }
-                        loadingBar.dismiss();
                     });
+            getActivity().runOnUiThread(() -> loadingBar.dismiss());
         }
-
     }
 
     public static class SignUpFragment extends Fragment {
@@ -523,9 +514,6 @@ public class MainActivity extends AppCompatActivity {
             }
             db = FirebaseFirestore.getInstance();
             loadingBar = new ProgressDialog(getActivity());
-
-            adminKey();
-            Log.d(TAG, "adminKey: " + adminKey());
 
             tvTermsPrivacy = view.findViewById(R.id.tv_signup_terms);
             etSignUpZone = view.findViewById(R.id.et_signup_zone_type);
@@ -625,39 +613,45 @@ public class MainActivity extends AppCompatActivity {
                         String password = etPassword.getText().toString();
 
                         // 1. First firebase auth
-                        createAccount(zone, memberType, adminNumber, folkGuideAbbr, department, kcExperience, firstName, lastName, email, phone, password, Helper.currentDateTime());
+                        AsyncTask.execute(() -> {
+                            createAccount(
+                                    zone,
+                                    memberType,
+                                    adminNumber,
+                                    folkGuideAbbr,
+                                    department,
+                                    kcExperience,
+                                    firstName,
+                                    lastName,
+                                    email,
+                                    phone,
+                                    password,
+                                    Helper.currentDateTime());
+                        });
                     }
                 } else {
                     Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
                 }
-
             });
-
             return view;
         }
+
 
         private String adminKey() {
             FirebaseFirestore
                     .getInstance()
                     .collection("AdminKey")
                     .get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                adminKey = queryDocumentSnapshots.getDocuments().get(0).getString("key");
-                                Log.d(TAG, "onSuccess: adminkey: " + queryDocumentSnapshots.getDocuments().get(0).get("key").toString());
-                            }
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            adminKey = queryDocumentSnapshots.getDocuments().get(0).getString("key");
+                            Log.d(TAG, "onSuccess: adminkey: " + queryDocumentSnapshots.getDocuments().get(0).get("key").toString());
                         }
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.d(TAG, "onFailure: got hit");
-                        }
-                    });
+                    .addOnFailureListener(e -> Log.d(TAG, "onFailure: got hit"));
             return adminKey;
         }
+
 
         private boolean hasValidInput(
                 TextView etSignUpZone,
@@ -778,7 +772,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         private void createAccount(String zone, String memberType, String adminNumber, String folkGuideAbbr, String department, String kcExperience, String firstName, String lastName, String email, String phone, String password, String creationTimeStamp) {
-            loadingBar.show();
+            getActivity().runOnUiThread(() -> loadingBar.show());
             //create user
             firebaseAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(Objects.requireNonNull(getActivity()), new OnCompleteListener<AuthResult>() {
@@ -788,16 +782,15 @@ public class MainActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 // 2 If success then store image in storeage, on success of storage create firestore credentials
                                 uploadProfileImage(imageUriArray, imageExtensionStringArray, imageNameStringArray, zone, memberType, adminNumber, folkGuideAbbr, department, kcExperience, firstName, lastName, email, phone, password, creationTimeStamp);
-                                loadingBar.dismiss();
+                                getActivity().runOnUiThread(() -> loadingBar.dismiss());
                             } else {
-                                loadingBar.dismiss();
+                                getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                 if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                                     Toast.makeText(getActivity(), "Email already exists! Login or use different Email!", Toast.LENGTH_SHORT).show();
                                     etEmail.setError("Email already exists! Login or use different Email!");
                                 } else {
                                     Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                 }
-
                                 Toast.makeText(getActivity(), "Authentication failed." + task.getException(), Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -882,7 +875,6 @@ public class MainActivity extends AppCompatActivity {
                                 } else {
                                     Toast.makeText(getActivity(), "Some Error. Couldn't Uplaod", Toast.LENGTH_SHORT).show();
                                 }
-
                             });
                 }
             }
@@ -934,150 +926,126 @@ public class MainActivity extends AppCompatActivity {
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
             // Collection name is "AuthUserItem". U can create a new collection this way
-                db.collection("AllFolkPeople")
-                        .add(authUserItem)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                            @Override
-                            public void onSuccess(DocumentReference documentReference) {
+            db.collection("AllFolkPeople")
+                    .add(authUserItem)
+                    .addOnSuccessListener(documentReference -> {
 
-                                if (("FOLK Guide").equals(memberType)) {
-                                    // AuthUserItem obj
-                                    AuthUserItem authUserItem = new AuthUserItem(
-                                            zone,
-                                            memberType,
-                                            adminNumber,
-                                            folkGuideAbbr,
-                                            department,
-                                            kcExperience,
-                                            firstName,
-                                            lastName,
-                                            phone,
-                                            email,
-                                            password,
-                                            profileImage,
-                                            signUpStatus,
-                                            creationTimeStamp
-                                    );
+                        if (("FOLK Guide").equals(memberType)) {
+                            // AuthUserItem obj
+                            AuthUserItem authUserItem1 = new AuthUserItem(
+                                    zone,
+                                    memberType,
+                                    adminNumber,
+                                    folkGuideAbbr,
+                                    department,
+                                    kcExperience,
+                                    firstName,
+                                    lastName,
+                                    phone,
+                                    email,
+                                    password,
+                                    profileImage,
+                                    signUpStatus,
+                                    creationTimeStamp
+                            );
 
-                                    // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
-                                    // Collection name is "AuthUserItem". U can create a new collection this way
-                                        db.collection("AllFolkGuides")
-                                                .add(authUserItem)
-                                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                    @Override
-                                                    public void onSuccess(DocumentReference documentReference) {
-                                                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                                        Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                                                        startActivity(new Intent(getActivity(), HomeActivity.class));
-                                                        Objects.requireNonNull(getActivity()).finish();
-                                                        loadingBar.dismiss();
-                                                    }
-                                                })
-                                                .addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Log.w(TAG, "Error adding document", e);
-                                                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
-                                                        loadingBar.dismiss();
-                                                    }
-                                                });
-                                }
+                            // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
+                            // Collection name is "AuthUserItem". U can create a new collection this way
+                            db.collection("AllFolkGuides")
+                                    .add(authUserItem1)
+                                    .addOnSuccessListener(documentReference13 -> {
+                                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference13.getId());
+                                        Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(getActivity(), HomeActivity.class));
+                                        Objects.requireNonNull(getActivity()).finish();
+                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.w(TAG, "Error adding document", e);
+                                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                    });
+                        }
 
-                                if (("Team Lead").equals(memberType)) {
-                                // AuthUserItem obj
-                                    AuthUserItem authUserItem = new AuthUserItem(
-                                            zone,
-                                            memberType,
-                                            adminNumber,
-                                            folkGuideAbbr,
-                                            department,
-                                            kcExperience,
-                                            firstName,
-                                            lastName,
-                                            phone,
-                                            email,
-                                            password,
-                                            profileImage,
-                                            signUpStatus,
-                                            creationTimeStamp
-                                    );
+                        if (("Team Lead").equals(memberType)) {
+                            // AuthUserItem obj
+                            AuthUserItem authUserItem1 = new AuthUserItem(
+                                    zone,
+                                    memberType,
+                                    adminNumber,
+                                    folkGuideAbbr,
+                                    department,
+                                    kcExperience,
+                                    firstName,
+                                    lastName,
+                                    phone,
+                                    email,
+                                    password,
+                                    profileImage,
+                                    signUpStatus,
+                                    creationTimeStamp
+                            );
 
-                                    // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
-                                    // Collection name is "AuthUserItem". U can create a new collection this way
-                                    db.collection("AllTeamLeads")
-                                            .add(authUserItem)
-                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                @Override
-                                                public void onSuccess(DocumentReference documentReference) {
-                                                    Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                                    Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                                                    startActivity(new Intent(getActivity(), HomeActivity.class));
-                                                    Objects.requireNonNull(getActivity()).finish();
-                                                    loadingBar.dismiss();
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.w(TAG, "Error adding document", e);
-                                                    Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
-                                                    loadingBar.dismiss();
-                                                }
-                                            });
-                                }
+                            // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
+                            // Collection name is "AuthUserItem". U can create a new collection this way
+                            db.collection("AllTeamLeads")
+                                    .add(authUserItem1)
+                                    .addOnSuccessListener(documentReference12 -> {
+                                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference12.getId());
+                                        Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(getActivity(), HomeActivity.class));
+                                        Objects.requireNonNull(getActivity()).finish();
+                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.w(TAG, "Error adding document", e);
+                                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                    });
+                        }
 
-                                if (("Zonal Head").equals(memberType)) {
-                                    // AuthUserItem obj
-                                    AuthUserItem authUserItem = new AuthUserItem(
-                                            zone,
-                                            memberType,
-                                            adminNumber,
-                                            folkGuideAbbr,
-                                            department,
-                                            kcExperience,
-                                            firstName,
-                                            lastName,
-                                            phone,
-                                            email,
-                                            password,
-                                            profileImage,
-                                            signUpStatus,
-                                            creationTimeStamp
-                                    );
+                        if (("Zonal Head").equals(memberType)) {
+                            // AuthUserItem obj
+                            AuthUserItem authUserItem1 = new AuthUserItem(
+                                    zone,
+                                    memberType,
+                                    adminNumber,
+                                    folkGuideAbbr,
+                                    department,
+                                    kcExperience,
+                                    firstName,
+                                    lastName,
+                                    phone,
+                                    email,
+                                    password,
+                                    profileImage,
+                                    signUpStatus,
+                                    creationTimeStamp
+                            );
 
-                                    // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
-                                    // Collection name is "AuthUserItem". U can create a new collection this way
-                                    db.collection("AllZonalHeads")
-                                            .add(authUserItem)
-                                            .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                @Override
-                                                public void onSuccess(DocumentReference documentReference) {
-                                                    Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                                                    Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                                                    startActivity(new Intent(getActivity(), HomeActivity.class));
-                                                    Objects.requireNonNull(getActivity()).finish();
-                                                    loadingBar.dismiss();
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.w(TAG, "Error adding document", e);
-                                                    Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
-                                                    loadingBar.dismiss();
-                                                }
-                                            });
-                                }
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error adding document", e);
-                                Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
-                                loadingBar.dismiss();
-                            }
-                        });
+                            // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
+                            // Collection name is "AuthUserItem". U can create a new collection this way
+                            db.collection("AllZonalHeads")
+                                    .add(authUserItem1)
+                                    .addOnSuccessListener(documentReference1 -> {
+                                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
+                                        Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(getActivity(), HomeActivity.class));
+                                        Objects.requireNonNull(getActivity()).finish();
+                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.w(TAG, "Error adding document", e);
+                                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                    });
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Error adding document", e);
+                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                    });
         }
 
         private void dialogSignUpMemberType() {

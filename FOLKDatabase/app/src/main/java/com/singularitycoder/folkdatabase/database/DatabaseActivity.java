@@ -394,8 +394,8 @@ public class DatabaseActivity extends AppCompatActivity {
             if (hasInternet(context)) {
                 Log.d(TAG, "hit 1");
                 setUpRecyclerView();
-//                readContactsData();
-                new ReadContactsAsync().execute();
+//                new ReadContactsAsync().execute();
+                AsyncTask.execute(this::readContactsData);
                 noInternetText.setVisibility(View.GONE);
                 swipeRefreshLayout.setRefreshing(false);
                 contactsAdapter.notifyDataSetChanged();
@@ -408,15 +408,8 @@ public class DatabaseActivity extends AppCompatActivity {
 
         class ReadContactsAsync extends AsyncTask<String, Integer, String>  {
 
-            ProgressDialog progressDialog;
-
             @Override
             protected void onPreExecute() {
-                progressDialog = new ProgressDialog(getActivity());
-                progressDialog.setMessage("Please Wait...");
-                progressDialog.setIndeterminate(false);
-                progressDialog.setCancelable(false);
-                progressDialog.show();
                 super.onPreExecute();
             }
 
@@ -433,11 +426,6 @@ public class DatabaseActivity extends AppCompatActivity {
 
             @Override
             protected void onPostExecute(String s) {
-                if (progressDialog!= null) {
-                    if (progressDialog.isShowing()) {
-                        progressDialog.dismiss();
-                    }
-                }
                 super.onPostExecute(s);
             }
         }
@@ -803,7 +791,7 @@ public class DatabaseActivity extends AppCompatActivity {
 
             for (ContactItem contact : contactList) {
                 Log.d(TAG, "findDobMonthContacts: contact: " + contact);
-                if (("") != valueOf(contact.getStrDobMonth()).toLowerCase().trim() || (null) != valueOf(contact.getStrDobMonth()).toLowerCase().trim()) {
+                if (!("").equals(valueOf(contact.getStrDobMonth()).toLowerCase().trim()) || (null) != valueOf(contact.getStrDobMonth()).toLowerCase().trim()) {
                     Log.d(TAG, "findDobMonthContacts: got hit 1");
                     if (text.toLowerCase().trim().contains(valueOf(contact.getStrDobMonth()).toLowerCase().trim())) {
                         Log.d(TAG, "findDobMonthContacts: got hit 2");
@@ -940,7 +928,7 @@ public class DatabaseActivity extends AppCompatActivity {
             if (hasInternet(context)) {
                 Log.d(TAG, "hit 1");
                 setUpRecyclerView();
-                readFolkGuidesData();
+                AsyncTask.execute(this::readFolkGuidesData);
                 noInternetText.setVisibility(View.GONE);
                 swipeRefreshLayout.setRefreshing(false);
                 folkGuidesAdapter.notifyDataSetChanged();
@@ -1128,7 +1116,7 @@ public class DatabaseActivity extends AppCompatActivity {
             if (hasInternet(context)) {
                 Log.d(TAG, "hit 1");
                 setUpRecyclerView();
-                readAllUsersData();
+                AsyncTask.execute(this::readAllUsersData);
                 noInternetText.setVisibility(View.GONE);
                 swipeRefreshLayout.setRefreshing(false);
                 allUsersAdapter.notifyDataSetChanged();
