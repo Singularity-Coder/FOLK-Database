@@ -59,8 +59,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = "HomeActivity";
 
-    Toolbar toolbar;
-
+    private Toolbar toolbar;
     private ArrayList<HomeItem> homeList;
     private RecyclerView recyclerView;
     private HomeAdapter homeAdapter;
@@ -288,54 +287,35 @@ public class HomeActivity extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT)); // for rounded corners
 
         TextView tvContactUs = dialog.findViewById(R.id.tv_contact_us);
-        tvContactUs.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "name@emailaddress.com", null));
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Contact Us");
-                emailIntent.putExtra(Intent.EXTRA_TEXT, "Feedback, Help, Report Bugs etc.");
-                activity.startActivity(Intent.createChooser(emailIntent, "Send email..."));
-            }
+        tvContactUs.setOnClickListener(view -> {
+            Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "name@emailaddress.com", null));
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Contact Us");
+            emailIntent.putExtra(Intent.EXTRA_TEXT, "Feedback, Help, Report Bugs etc.");
+            activity.startActivity(Intent.createChooser(emailIntent, "Send email..."));
         });
-        TextView tvRateUs = dialog.findViewById(R.id.tv_rate_us);
-        tvRateUs.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=org.srilaprabhupadalila&hl=en")));
-            }
-        });
-        TextView tvVolunteer = dialog.findViewById(R.id.tv_volunteer_appdev);
-        tvVolunteer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.gle/WCBV2q4b1ZBgDf3B9")));
-            }
-        });
-        TextView tvDedicated = dialog.findViewById(R.id.tv_dedicated_to);
-        tvDedicated.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.srilaprabhupadalila.org/who-is-srila-prabhupada")));
-            }
-        });
-        TextView tvShareApk = dialog.findViewById(R.id.tv_share_app_apk);
-        tvShareApk.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-            }
+        TextView tvRateUs = dialog.findViewById(R.id.tv_rate_us);
+        tvRateUs.setOnClickListener(view -> activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=org.srilaprabhupadalila&hl=en"))));
+
+        TextView tvVolunteer = dialog.findViewById(R.id.tv_volunteer_appdev);
+        tvVolunteer.setOnClickListener(view -> activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.gle/WCBV2q4b1ZBgDf3B9"))));
+
+        TextView tvDedicated = dialog.findViewById(R.id.tv_dedicated_to);
+        tvDedicated.setOnClickListener(view -> activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.srilaprabhupadalila.org/who-is-srila-prabhupada"))));
+
+        TextView tvShareApk = dialog.findViewById(R.id.tv_share_app_apk);
+        tvShareApk.setOnClickListener(view -> {
+
         });
+
         TextView tvShareLink = dialog.findViewById(R.id.tv_share_app_link);
-        tvShareLink.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                shareIntent.setType("text/plain");
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Title Of The Post");
-                shareIntent.putExtra(Intent.EXTRA_TEXT, "https://www.singularitycoder.com");
-                shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                activity.startActivity(Intent.createChooser(shareIntent, "Share to"));
-            }
+        tvShareLink.setOnClickListener(view -> {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Title Of The Post");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "https://www.singularitycoder.com");
+            shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            activity.startActivity(Intent.createChooser(shareIntent, "Share to"));
         });
         dialog.show();
     }
@@ -389,6 +369,7 @@ public class HomeActivity extends AppCompatActivity {
         dialog.show();
     }
 
+
     private void dialogChangePassword(Activity activity) {
         final Dialog dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -422,6 +403,7 @@ public class HomeActivity extends AppCompatActivity {
         dialog.show();
     }
 
+
     private boolean hasValidInput(CustomEditText etOldPassword, CustomEditText etNewPassword, CustomEditText etNewPasswordAgain) {
         if (etOldPassword.getText().toString().trim().equals("")) {
             etOldPassword.setError("Password is Required!");
@@ -435,7 +417,7 @@ public class HomeActivity extends AppCompatActivity {
             return false;
         }
 
-//            if (!etOldPassword.getText().toString().trim().equals("fewea")) {
+//            if (!etOldPassword.getText().toString().trim().equals(oldPassword())) {
 //                etOldPassword.setError("Wrong old password!");
 //                etOldPassword.requestFocus();
 //                return false;
@@ -474,6 +456,7 @@ public class HomeActivity extends AppCompatActivity {
 
         return true;
     }
+
 
     private String oldPassword() {
         FirebaseFirestore
