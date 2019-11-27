@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -393,7 +394,8 @@ public class DatabaseActivity extends AppCompatActivity {
             if (hasInternet(context)) {
                 Log.d(TAG, "hit 1");
                 setUpRecyclerView();
-                readContactsData();
+//                readContactsData();
+                new ReadContactsAsync().execute();
                 noInternetText.setVisibility(View.GONE);
                 swipeRefreshLayout.setRefreshing(false);
                 contactsAdapter.notifyDataSetChanged();
@@ -401,6 +403,42 @@ public class DatabaseActivity extends AppCompatActivity {
                 noInternetText.setVisibility(View.VISIBLE);
                 swipeRefreshLayout.setRefreshing(false);
                 progressBar.setVisibility(View.GONE);
+            }
+        }
+
+        class ReadContactsAsync extends AsyncTask<String, Integer, String>  {
+
+            ProgressDialog progressDialog;
+
+            @Override
+            protected void onPreExecute() {
+                progressDialog = new ProgressDialog(getActivity());
+                progressDialog.setMessage("Please Wait...");
+                progressDialog.setIndeterminate(false);
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+                super.onPreExecute();
+            }
+
+            @Override
+            protected String doInBackground(String... strings) {
+                readContactsData();
+                return "Done";
+            }
+
+            @Override
+            protected void onProgressUpdate(Integer... values) {
+                super.onProgressUpdate(values);
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                if (progressDialog!= null) {
+                    if (progressDialog.isShowing()) {
+                        progressDialog.dismiss();
+                    }
+                }
+                super.onPostExecute(s);
             }
         }
 
