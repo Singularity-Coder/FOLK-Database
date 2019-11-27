@@ -21,6 +21,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -165,37 +166,34 @@ public class HomeActivity extends AppCompatActivity {
 
         homeAdapter = new HomeAdapter(homeList, this);
         homeAdapter.setHasStableIds(true);
-        homeAdapter.setOnItemClickListener(new HomeAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                if (position == 0) {
-                    Helper.comingSoonDialog(HomeActivity.this);
-                }
+        homeAdapter.setOnItemClickListener((view, position) -> {
+            if (position == 0) {
+                Helper.comingSoonDialog(HomeActivity.this);
+            }
 
-                if (position == 1) {
-                    Helper.comingSoonDialog(HomeActivity.this);
-                }
+            if (position == 1) {
+                Helper.comingSoonDialog(HomeActivity.this);
+            }
 
-                if (position == 2) {
-                    Intent intent = new Intent(getApplicationContext(), DatabaseActivity.class);
-                    startActivity(intent);
-                }
+            if (position == 2) {
+                Intent intent = new Intent(getApplicationContext(), DatabaseActivity.class);
+                startActivity(intent);
+            }
 
-                if (position == 3) {
-                    Helper.comingSoonDialog(HomeActivity.this);
-                }
+            if (position == 3) {
+                Helper.comingSoonDialog(HomeActivity.this);
+            }
 
-                if (position == 4) {
-                    Helper.comingSoonDialog(HomeActivity.this);
-                }
+            if (position == 4) {
+                Helper.comingSoonDialog(HomeActivity.this);
+            }
 
-                if (position == 5) {
-                    Helper.comingSoonDialog(HomeActivity.this);
-                }
+            if (position == 5) {
+                Helper.comingSoonDialog(HomeActivity.this);
+            }
 
-                if (position == 6) {
-                    Helper.comingSoonDialog(HomeActivity.this);
-                }
+            if (position == 6) {
+                Helper.comingSoonDialog(HomeActivity.this);
             }
         });
         recyclerView.setAdapter(homeAdapter);
@@ -234,7 +232,7 @@ public class HomeActivity extends AppCompatActivity {
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        deleteAccount();
+                        AsyncTask.execute(() -> deleteAccount());
                         dialog.dismiss();
                     }
                 });
@@ -256,7 +254,7 @@ public class HomeActivity extends AppCompatActivity {
                 builderLogOut.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        logOut();
+                        AsyncTask.execute(() -> logOut());
                         dialog.dismiss();
                     }
                 });
@@ -417,7 +415,7 @@ public class HomeActivity extends AppCompatActivity {
                 // 1. Check old password matches or not
                 // 2. Update in firestore new password value
                 // 3. Update in auth new password value
-                changePassword(etNewPassword.getText().toString().trim());
+                AsyncTask.execute(() -> changePassword(etNewPassword.getText().toString().trim()));
             }
         });
 
@@ -480,7 +478,7 @@ public class HomeActivity extends AppCompatActivity {
     private String oldPassword() {
         FirebaseFirestore
                 .getInstance()
-                .collection("FolkPeople")
+                .collection("AllFolkPeople")
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
@@ -500,23 +498,23 @@ public class HomeActivity extends AppCompatActivity {
         return strOldPassword;
     }
 
+
     private void changePassword(String newPassword) {
-        loadingBar.setMessage("Please wait...");
-        loadingBar.setCanceledOnTouchOutside(false);
-        loadingBar.show();
+        runOnUiThread(() -> {
+            loadingBar.setMessage("Please wait...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+        });
         if (firebaseUser != null) {
             firebaseUser.updatePassword(newPassword)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(HomeActivity.this, "Password is updated! LogIn with new password!", Toast.LENGTH_SHORT).show();
-                                logOut();
-                                loadingBar.dismiss();
-                            } else {
-                                Toast.makeText(HomeActivity.this, "Failed to update Password!", Toast.LENGTH_SHORT).show();
-                                loadingBar.dismiss();
-                            }
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(HomeActivity.this, "Password is updated! LogIn with new password!", Toast.LENGTH_SHORT).show();
+                            AsyncTask.execute(this::logOut);
+                            runOnUiThread(() -> loadingBar.dismiss());
+                        } else {
+                            Toast.makeText(HomeActivity.this, "Failed to update Password!", Toast.LENGTH_SHORT).show();
+                            runOnUiThread(() -> loadingBar.dismiss());
                         }
                     });
         }
@@ -524,23 +522,22 @@ public class HomeActivity extends AppCompatActivity {
 
 
     private void deleteAccount() {
-        loadingBar.setMessage("Please wait...");
-        loadingBar.setCanceledOnTouchOutside(false);
-        loadingBar.show();
+        runOnUiThread(() -> {
+            loadingBar.setMessage("Please wait...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+        });
         if (firebaseUser != null) {
             firebaseUser.delete()
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(HomeActivity.this, "Your profile is deleted :( Create an account now!", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(HomeActivity.this, MainActivity.class));
-                                Objects.requireNonNull(HomeActivity.this).finish();
-                                loadingBar.dismiss();
-                            } else {
-                                Toast.makeText(HomeActivity.this, "Failed to delete your account!", Toast.LENGTH_SHORT).show();
-                                loadingBar.dismiss();
-                            }
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(HomeActivity.this, "Your profile is deleted :( Create an account now!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(HomeActivity.this, MainActivity.class));
+                            Objects.requireNonNull(HomeActivity.this).finish();
+                            runOnUiThread(() -> loadingBar.dismiss());
+                        } else {
+                            Toast.makeText(HomeActivity.this, "Failed to delete your account!", Toast.LENGTH_SHORT).show();
+                            runOnUiThread(() -> loadingBar.dismiss());
                         }
                     });
         }
