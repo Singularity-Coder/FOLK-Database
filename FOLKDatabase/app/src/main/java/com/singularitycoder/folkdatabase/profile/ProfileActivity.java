@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,9 +24,12 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,12 +40,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.mikhaellopez.circularimageview.CircularImageView;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.AuthUserItem;
 import com.singularitycoder.folkdatabase.auth.MainActivity;
@@ -49,6 +63,9 @@ import com.singularitycoder.folkdatabase.database.AllUsersItem;
 import com.singularitycoder.folkdatabase.database.ContactItem;
 import com.singularitycoder.folkdatabase.database.FolkGuideItem;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -65,11 +82,12 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView ivProfileImage;
     private TextView tvName, tvSubTitle;
     private ImageView ivCall, ivSms, ivWhatsApp, ivEmail, ivShare;
+    private ConstraintLayout conLayProfileActions;
 
-    ContactItem contactItem;
-    FolkGuideItem folkGuideItem;
-    AllUsersItem allUsersItem;
-    AuthUserItem authUserItem;
+    private ContactItem contactItem;
+    private FolkGuideItem folkGuideItem;
+    private AllUsersItem allUsersItem;
+    private AuthUserItem authUserItem;
 
     // Create a firebase auth object
     private FirebaseAuth mAuth;
@@ -156,22 +174,17 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void inits() {
         mCoordinatorLayout = findViewById(R.id.coordinator_profile);
-
         ivProfileImage = findViewById(R.id.img_profile_header);
         tvName = findViewById(R.id.tv_main_title);
         tvSubTitle = findViewById(R.id.tv_main_subtitle);
-
-//        ivCall = findViewById(R.id.img_call);
-//        ivSms = findViewById(R.id.img_sms);
-//        ivWhatsApp = findViewById(R.id.img_whatsapp);
-//        ivEmail = findViewById(R.id.img_email);
-//        ivShare = findViewById(R.id.img_share);
+        conLayProfileActions = findViewById(R.id.con_lay_profile_action_icons);
 
         if (("AUTHUSER").equals(profileKey)) {
             Helper.glideProfileImage(this, authUserItem.getProfileImageUrl(), ivProfileImage);
             tvName.setText(authUserItem.getFirstName() + " " + authUserItem.getLastName());
             tvSubTitle.setText(authUserItem.getMemberType());
             profileActions(this, authUserItem.getPhone(), authUserItem.getPhone(), authUserItem.getEmail());
+            conLayProfileActions.setVisibility(View.GONE);
         }
 
         if (("FOLKGUIDE").equals(profileKey)) {
@@ -180,6 +193,7 @@ public class ProfileActivity extends AppCompatActivity {
             tvSubTitle.setText("KC Experience: " + folkGuideItem.getStrKcExperience());
 //            profileActions(this, folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
             profileActions(this, "9999999999", "9999999999", "email@email.com");
+            conLayProfileActions.setVisibility(View.VISIBLE);
         }
 
         if (("CONTACT").equals(profileKey)) {
@@ -187,6 +201,7 @@ public class ProfileActivity extends AppCompatActivity {
             tvName.setText(contactItem.getFirstName());
             tvSubTitle.setText(contactItem.getStrFolkGuide());
             profileActions(this, contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail());
+            conLayProfileActions.setVisibility(View.VISIBLE);
         }
 
         if (("ALLUSER").equals(profileKey)) {
@@ -194,6 +209,7 @@ public class ProfileActivity extends AppCompatActivity {
             tvName.setText(allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName());
             tvSubTitle.setText(allUsersItem.getStrMemberType());
             profileActions(this, allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail());
+            conLayProfileActions.setVisibility(View.VISIBLE);
         }
     }
 
@@ -246,13 +262,100 @@ public class ProfileActivity extends AppCompatActivity {
 
         ImageView imgShare = findViewById(R.id.img_share);
         imgShare.setOnClickListener(v -> {
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Full Name");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "https://www.singularitycoder.com");
-            shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-            startActivity(Intent.createChooser(shareIntent, "Share to"));
+            if (("AUTHUSER").equals(profileKey)) {
+                shareProfile(authUserItem.getProfileImageUrl(), ivProfileImage, authUserItem.getFirstName() + " " + authUserItem.getLastName(), authUserItem.getMemberType());
+            }
+
+            if (("FOLKGUIDE").equals(profileKey)) {
+                shareProfile(folkGuideItem.getStrProfileImage(), ivProfileImage, folkGuideItem.getStrFirstName(), "KC Experience: " + folkGuideItem.getStrKcExperience());
+            }
+
+            if (("CONTACT").equals(profileKey)) {
+                shareProfile(contactItem.getStrProfileImage(), ivProfileImage, contactItem.getFirstName(), "FOLK Guide: " + contactItem.getStrFolkGuide());
+            }
+
+            if (("ALLUSER").equals(profileKey)) {
+                shareProfile(allUsersItem.getStrProfileImage(), ivProfileImage, allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName(), allUsersItem.getStrMemberType());
+            }
         });
+    }
+
+    private void shareProfile(String imageUrl, ImageView imageView, String title, String subtitle) {
+        if (!("").equals(imageUrl)) {
+            Dexter.withActivity(this)
+                    .withPermissions(
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    .withListener(new MultiplePermissionsListener() {
+                        @Override
+                        public void onPermissionsChecked(MultiplePermissionsReport report) {
+                            if (report.areAllPermissionsGranted()) {
+
+                                Glide.with(ProfileActivity.this)
+                                        .asBitmap()
+                                        .load(imageUrl)
+                                        .into(new CustomTarget<Bitmap>() {
+                                            @Override
+                                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                                imageView.setImageBitmap(resource);
+                                            }
+
+                                            @Override
+                                            public void onLoadCleared(@Nullable Drawable placeholder) {
+                                            }
+                                        });
+
+                                Uri bmpUri = getLocalBitmapUri(imageView);
+                                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                                sharingIntent.setType("image/.*");
+                                sharingIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
+                                sharingIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+                                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Name: " + title + " and other info: " + subtitle + ". Sent using FOLK Database App!");
+                                sharingIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                                startActivity(Intent.createChooser(sharingIntent, "Share Image Using"));
+                            }
+                        }
+
+                        @Override
+                        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                            token.continuePermissionRequest();
+                        }
+                    }).check();
+        } else {
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setType("text/plain");
+            share.putExtra(Intent.EXTRA_SUBJECT, title);
+            share.putExtra(Intent.EXTRA_TEXT, "Name: " + title + " and other info: " + subtitle + ". Sent using FOLK Database App!");
+//                share.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+            share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            startActivity(Intent.createChooser(share, "Share to"));
+        }
+    }
+
+
+    private Uri getLocalBitmapUri(ImageView imageView) {
+        // Extract Bitmap from ImageView drawable
+        Drawable drawable = imageView.getDrawable();
+        Bitmap bmp;
+        if (drawable instanceof BitmapDrawable) {
+            bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        } else {
+            return null;
+        }
+        // Store image to default external storage directory
+        Uri bmpUri = null;
+        try {
+            // Use methods on Context to access package-specific directories on external storage. This way, you don't need to request external read/write permission.
+            File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
+            FileOutputStream out = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
+            out.close();
+            // Warning: This will fail for API >= 24, use a FileProvider as shown below instead.
+            bmpUri = Uri.fromFile(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bmpUri;
     }
 
 

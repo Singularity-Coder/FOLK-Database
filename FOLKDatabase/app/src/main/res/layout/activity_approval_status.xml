@@ -35,6 +35,17 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/colorRed"
+                android:gravity="center_horizontal"
+                android:lineSpacingExtra="3dp"
+                android:text="NOT APPROVED"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp" />
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="15dp"
                 android:layout_marginEnd="15dp"
@@ -54,61 +65,33 @@
                 android:textColor="@color/colorNiceBlack"
                 android:textSize="16sp" />
 
-            <LinearLayout
+
+            <Button
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:clipChildren="true"
-                android:clipToPadding="true"
+                android:layout_height="40dp"
+                android:layout_marginStart="15dp"
                 android:layout_marginTop="15dp"
-                android:layout_margin="15dp"
-                android:elevation="5dp"
-                android:backgroundTint="@color/colorRed"
+                android:layout_marginEnd="15dp"
                 android:background="@drawable/bg_button"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
+                android:backgroundTint="@color/colorAccent"
+                android:text="CALL AUTHORITY"
+                android:textColor="@color/colorWhite"
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:gravity="center_horizontal"
-                    android:lineSpacingExtra="3dp"
-                    android:text="NOT APPROVED"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="16sp" />
-
-                <ProgressBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"/>
-
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="15dp"
-                    android:background="@drawable/bg_button"
-                    android:backgroundTint="@color/colorWhite"
-                    android:text="CALL AUTHORITY"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginEnd="15dp"
-                    android:layout_marginBottom="15dp"
-                    android:background="@drawable/bg_button"
-                    android:backgroundTint="@color/colorWhite"
-                    android:text="CHECK STATUS"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/bg_button"
+                android:backgroundTint="@color/colorAccent"
+                android:text="CHECK STATUS"
+                android:textColor="@color/colorWhite"
+                android:textSize="15sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

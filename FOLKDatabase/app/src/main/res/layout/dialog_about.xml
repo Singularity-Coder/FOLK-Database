@@ -30,49 +30,6 @@
             android:scrollbarAlwaysDrawVerticalTrack="true"
             android:scrollbars="vertical">
 
-            <!--<ImageView-->
-            <!--android:id="@+id/img_event_filter_dialog_close"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginStart="15dp"-->
-            <!--android:layout_marginLeft="15dp"-->
-            <!--android:layout_marginTop="15dp"-->
-            <!--android:src="@drawable/ic_close_black_24dp"-->
-            <!--android:tint="@color/colorAccent"-->
-            <!--app:layout_constraintStart_toStartOf="parent"-->
-            <!--app:layout_constraintTop_toTopOf="parent" />-->
-
-            <!--<TextView-->
-            <!--android:id="@+id/tv_event_filter_dialog_title"-->
-            <!--android:layout_width="0dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginStart="15dp"-->
-            <!--android:layout_marginLeft="15dp"-->
-            <!--android:layout_marginTop="12dp"-->
-            <!--android:layout_marginEnd="15dp"-->
-            <!--android:text="About"-->
-            <!--android:textColor="@color/colorBlack"-->
-            <!--android:textSize="20sp"-->
-            <!--android:textStyle="bold"-->
-            <!--app:layout_constraintEnd_toEndOf="parent"-->
-            <!--app:layout_constraintStart_toEndOf="@+id/img_event_filter_dialog_close"-->
-            <!--app:layout_constraintTop_toTopOf="parent" />-->
-
-
-            <!--<View-->
-            <!--android:id="@+id/view_divider"-->
-            <!--android:layout_width="0dp"-->
-            <!--android:layout_height="0.2dp"-->
-            <!--android:layout_marginTop="15dp"-->
-            <!--android:background="@color/colorGrey"-->
-            <!--android:textColor="@color/colorBlack"-->
-            <!--android:textSize="16sp"-->
-            <!--android:textStyle="bold"-->
-            <!--app:layout_constraintEnd_toEndOf="@+id/tv_event_filter_dialog_title"-->
-            <!--app:layout_constraintStart_toStartOf="@+id/img_event_filter_dialog_close"-->
-            <!--app:layout_constraintTop_toBottomOf="@+id/img_event_filter_dialog_close" />-->
-
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -90,14 +47,14 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="20dp"
                     android:outlineProvider="bounds"
-                    android:src="@drawable/logo" />
+                    android:src="@drawable/logo192" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="5dp"
-                    android:text="FOLK Database"
+                    android:text="@string/app_name"
                     android:textColor="@color/colorBlack"
                     android:textSize="23sp" />
 
@@ -171,7 +128,7 @@
                     android:gravity="center_vertical"
                     android:text="Volunteer to App Development"
                     android:textColor="@color/colorAccent"
-                    android:textSize="16sp"/>
+                    android:textSize="16sp" />
 
                 <View
                     android:layout_width="match_parent"
