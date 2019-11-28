@@ -66,6 +66,7 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.R;
+import com.singularitycoder.folkdatabase.database.ApprovalStatusActivity;
 import com.singularitycoder.folkdatabase.database.ContactItem;
 import com.singularitycoder.folkdatabase.helper.CustomEditText;
 import com.singularitycoder.folkdatabase.helper.Helper;
@@ -509,7 +510,8 @@ public class MainActivity extends AppCompatActivity {
 
             firebaseAuth = FirebaseAuth.getInstance();
             if (firebaseAuth.getCurrentUser() != null) {
-                startActivity(new Intent(getActivity(), HomeActivity.class));
+                // check if key is false. If ture then send to main activity
+                startActivity(new Intent(getActivity(), ApprovalStatusActivity.class));
                 Objects.requireNonNull(getActivity()).finish();
             }
             db = FirebaseFirestore.getInstance();
@@ -881,6 +883,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        // 1. Create user
+        // 2. Jump to verification screen. Every user jumps to this screen
+        // 3. If Zonal Head then turn the key to true
+        // 4. Make Zonal Heads get into the app on pressing the check status button - firebase key for that doc == true allow inside app
+        // 5. Big issue is sending request. Maintain list of requests in firebase. Send request to zonal head if team lead, if folkguide then to teamlead
+        // 5.1 Check if zonal head exits. then send a notification. Populate his list - accept means make value true, else reject. Get doc ids n store under a zonal head.
         private void createUserFirestore(
                 String zone,
                 String memberType,
@@ -956,7 +964,7 @@ public class MainActivity extends AppCompatActivity {
                                     .addOnSuccessListener(documentReference13 -> {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference13.getId());
                                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(getActivity(), HomeActivity.class));
+                                        startActivity(new Intent(getActivity(), ApprovalStatusActivity.class));
                                         Objects.requireNonNull(getActivity()).finish();
                                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                     })
@@ -993,7 +1001,7 @@ public class MainActivity extends AppCompatActivity {
                                     .addOnSuccessListener(documentReference12 -> {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference12.getId());
                                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(getActivity(), HomeActivity.class));
+                                        startActivity(new Intent(getActivity(), ApprovalStatusActivity.class));
                                         Objects.requireNonNull(getActivity()).finish();
                                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                     })
@@ -1030,7 +1038,7 @@ public class MainActivity extends AppCompatActivity {
                                     .addOnSuccessListener(documentReference1 -> {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
                                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(getActivity(), HomeActivity.class));
+                                        startActivity(new Intent(getActivity(), ApprovalStatusActivity.class));
                                         Objects.requireNonNull(getActivity()).finish();
                                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                     })

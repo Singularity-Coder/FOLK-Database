@@ -1,6 +1,7 @@
 package com.singularitycoder.folkdatabase.home;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -9,21 +10,29 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,6 +44,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -43,6 +55,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.MainActivity;
 import com.singularitycoder.folkdatabase.database.ContactItem;
@@ -52,7 +69,13 @@ import com.singularitycoder.folkdatabase.helper.CustomEditText;
 import com.singularitycoder.folkdatabase.helper.Helper;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity {
@@ -286,6 +309,8 @@ public class HomeActivity extends AppCompatActivity {
 
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT)); // for rounded corners
 
+        ImageView ivLogo = dialog.findViewById(R.id.img_about_logo);
+
         TextView tvContactUs = dialog.findViewById(R.id.tv_contact_us);
         tvContactUs.setOnClickListener(view -> {
             Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "name@emailaddress.com", null));
@@ -305,19 +330,113 @@ public class HomeActivity extends AppCompatActivity {
 
         TextView tvShareApk = dialog.findViewById(R.id.tv_share_app_apk);
         tvShareApk.setOnClickListener(view -> {
-
+            try {
+                sendApp(HomeActivity.this);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         TextView tvShareLink = dialog.findViewById(R.id.tv_share_app_link);
         tvShareLink.setOnClickListener(view -> {
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Title Of The Post");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "https://www.singularitycoder.com");
-            shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-            activity.startActivity(Intent.createChooser(shareIntent, "Share to"));
+            shareProfile(getResources().getDrawable(R.drawable.logo192), ivLogo, "FOLK Database App", "Get the FOLK Database App from Playstore!");
         });
         dialog.show();
+    }
+
+
+    private void shareProfile(Drawable imageDrawable, ImageView imageView, String title, String subtitle) {
+        if ((null) != imageDrawable) {
+            Dexter.withActivity(this)
+                    .withPermissions(
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    .withListener(new MultiplePermissionsListener() {
+                        @Override
+                        public void onPermissionsChecked(MultiplePermissionsReport report) {
+                            if (report.areAllPermissionsGranted()) {
+
+                                Glide.with(HomeActivity.this)
+                                        .asBitmap()
+                                        .load(imageDrawable)
+                                        .into(new CustomTarget<Bitmap>() {
+                                            @Override
+                                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                                                imageView.setImageBitmap(resource);
+                                            }
+
+                                            @Override
+                                            public void onLoadCleared(@Nullable Drawable placeholder) {
+                                            }
+                                        });
+
+                                Uri bmpUri = getLocalBitmapUri(imageView);
+                                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                                sharingIntent.setType("image/.*");
+                                sharingIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
+                                sharingIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+                                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, subtitle);
+                                sharingIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                                startActivity(Intent.createChooser(sharingIntent, "Share Image Using"));
+                            }
+                        }
+
+                        @Override
+                        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                            token.continuePermissionRequest();
+                        }
+                    }).check();
+        } else {
+            Intent share = new Intent(Intent.ACTION_SEND);
+            share.setType("text/plain");
+            share.putExtra(Intent.EXTRA_SUBJECT, title);
+            share.putExtra(Intent.EXTRA_TEXT, subtitle);
+//                share.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+            share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            startActivity(Intent.createChooser(share, "Share to"));
+        }
+    }
+
+
+    private Uri getLocalBitmapUri(ImageView imageView) {
+        // Extract Bitmap from ImageView drawable
+        Drawable drawable = imageView.getDrawable();
+        Bitmap bmp;
+        if (drawable instanceof BitmapDrawable) {
+            bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        } else {
+            return null;
+        }
+        // Store image to default external storage directory
+        Uri bmpUri = null;
+        try {
+            // Use methods on Context to access package-specific directories on external storage. This way, you don't need to request external read/write permission.
+            File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
+            FileOutputStream out = new FileOutputStream(file);
+            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
+            out.close();
+            // Warning: This will fail for API >= 24, use a FileProvider as shown below instead.
+            bmpUri = Uri.fromFile(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bmpUri;
+    }
+
+
+    public static void sendApp(Activity activity) throws IOException {
+        PackageManager pm = activity.getPackageManager();
+        ApplicationInfo appInfo;
+        try {
+            appInfo = pm.getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("*/*");
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + appInfo.publicSourceDir));
+            intent.putExtra(android.content.Intent.EXTRA_TEXT, "FOLK Database APK");
+            activity.startActivity(Intent.createChooser(intent, "Share it using"));
+        } catch (PackageManager.NameNotFoundException e1) {
+            e1.printStackTrace();
+        }
     }
 
 
