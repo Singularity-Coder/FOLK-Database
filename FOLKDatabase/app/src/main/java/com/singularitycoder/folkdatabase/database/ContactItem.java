@@ -29,7 +29,6 @@ public class ContactItem implements Serializable {
     private String strEmail;
     private String strBirthday;
 
-
     private Uri ivProfileImage;
     private String imageName;
     private String imageExtension;

@@ -24,7 +24,6 @@ public class ApprovalStatusActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
 
-
     // this listener is called when there is change in firebase fireUser session
     FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
         FirebaseUser user = firebaseAuth.getCurrentUser();

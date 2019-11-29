@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -24,8 +25,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -43,6 +46,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.material.snackbar.Snackbar;
 import com.singularitycoder.folkdatabase.R;
 
 import java.io.File;
@@ -63,6 +67,7 @@ import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOption
 public class Helper extends AppCompatActivity {
 
     private static final String TAG = "Helper";
+    private final static int FADE_DURATION = 550;
 
     // Different Toasts n Snackbars
     // Image Viewing Libraries
@@ -310,11 +315,13 @@ public class Helper extends AppCompatActivity {
 
     public static void glideLargeImage(Context context, String imgUrl, ImageView imageView, String empty1) {
         RequestOptions requestOptions = new RequestOptions()
+                .fitCenter()
                 .placeholder(R.color.colorAccent)
                 .error(R.drawable.profile_dummy_large)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
 
         Glide.with(context).load(imgUrl)
+                .transition(withCrossFade(300))
                 .apply(requestOptions)
                 .into(imageView);
     }
@@ -326,6 +333,7 @@ public class Helper extends AppCompatActivity {
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
 
         Glide.with(context).load(imgUrl)
+                .transition(withCrossFade(300))
                 .apply(requestOptions)
                 .into(imageView);
     }
@@ -387,5 +395,28 @@ public class Helper extends AppCompatActivity {
                 .into(imageView);
     }
 
+    public static void setFadeAnimation(View view) {
+        AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+        anim.setDuration(FADE_DURATION);
+        view.startAnimation(anim);
+    }
 
+    public static void showSnack(View view, String message) {
+        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG);
+        View snackbarView = snackbar.getView();
+        TextView textView = snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+        textView.setTextColor(Color.WHITE);
+        snackbar.show();
+    }
+
+    public static void toast(Context context, String message, int length) {
+        switch (length) {
+            case 0:
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                break;
+            case 1:
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+                break;
+        }
+    }
 }

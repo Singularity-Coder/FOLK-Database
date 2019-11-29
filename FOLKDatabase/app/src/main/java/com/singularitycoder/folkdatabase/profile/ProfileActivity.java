@@ -81,7 +81,6 @@ public class ProfileActivity extends AppCompatActivity {
     private String profileKey;
     private ImageView ivProfileImage;
     private TextView tvName, tvSubTitle;
-    private ImageView ivCall, ivSms, ivWhatsApp, ivEmail, ivShare;
     private ConstraintLayout conLayProfileActions;
 
     private ContactItem contactItem;

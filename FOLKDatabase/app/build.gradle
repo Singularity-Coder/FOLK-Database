@@ -64,4 +64,7 @@ dependencies {
 
     // Doc and Photo Picker
     implementation 'com.droidninja:filepicker:2.2.1'
+
+    // Facebook Shimmer
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
 }

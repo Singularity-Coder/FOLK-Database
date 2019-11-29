@@ -93,7 +93,7 @@ public class HomeActivity extends AppCompatActivity {
     private FirebaseUser firebaseUser;
 
     // this listener is called when there is change in firebase fireUser session
-    FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
+    private FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user == null) {
             // fireUser fireAuth state is changed - fireUser is null launch login activity

@@ -7,7 +7,20 @@ public class AuthUserItem {
     @Exclude
     private String docId;
     // Make sure u use the same names as u provided in the Firebase. Same obj names
-    private String zone, memberType, adminNumber, folkGuideAbbr, department, kcExperience, firstName, lastName, phone, email, password, profileImageUrl, signUpStatus, creationTimeStamp;
+    private String zone;
+    private String memberType;
+    private String adminNumber;
+    private String folkGuideAbbr;
+    private String department;
+    private String kcExperience;
+    private String firstName;
+    private String lastName;
+    private String phone;
+    private String email;
+    private String password;
+    private String profileImageUrl;
+    private String signUpStatus;
+    private String creationTimeStamp;
 
     public AuthUserItem() {
     }

@@ -16,8 +16,8 @@ import java.util.ArrayList;
 
 public class ProfileActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    ArrayList<ProfileContactItem> activitiesList;
-    Context context;
+    private ArrayList<ProfileContactItem> activitiesList;
+    private Context context;
 
     public ProfileActivitiesAdapter(ArrayList<ProfileContactItem> arrayList, Context context) {
         this.activitiesList = arrayList;

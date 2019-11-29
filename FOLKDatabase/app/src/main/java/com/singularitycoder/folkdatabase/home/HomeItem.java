@@ -4,12 +4,12 @@ import java.io.Serializable;
 
 public class HomeItem implements Serializable {
 
-    int intHomeImage;
-    String strHomeTitle;
-    String strHomeCount;
+    private int intHomeImage;
+    private String strHomeTitle;
+    private String strHomeCount;
 
-    String strImageUrl;
-    String strUserName;
+    private String strImageUrl;
+    private String strUserName;
 
     public HomeItem(int intHomeImage, String strHomeTitle, String strHomeCount) {
         this.intHomeImage = intHomeImage;

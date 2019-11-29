@@ -21,9 +21,9 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int HOME_HEADER = 0;
     private static final int HOME_ITEM = 1;
 
-    ArrayList<HomeItem> homeList;
-    Context context;
-    OnItemClickListener clickListener;
+    private ArrayList<HomeItem> homeList;
+    private Context context;
+    private OnItemClickListener clickListener;
 
     public HomeAdapter(ArrayList<HomeItem> homeList, Context context) {
         this.homeList = homeList;

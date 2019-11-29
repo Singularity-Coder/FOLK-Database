@@ -18,8 +18,8 @@ import java.util.ArrayList;
 
 public class NotificationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    ArrayList<ContactItem> notifList;
-    Context context;
+    private ArrayList<ContactItem> notifList;
+    private Context context;
 
     public NotificationAdapter(ArrayList<ContactItem> notifList, Context context) {
         this.notifList = notifList;

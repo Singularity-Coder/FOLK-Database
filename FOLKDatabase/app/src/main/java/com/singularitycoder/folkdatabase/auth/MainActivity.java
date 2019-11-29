@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         // Set ViewPager
         viewPager = findViewById(R.id.viewpager_main);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new SignUpFragment(ContextCompat.getColor(this, R.color.colorWhite)), "SIGN UP");
+        adapter.addFrag(new SignUpFragment(), "SIGN UP");
         adapter.addFrag(new LoginFragment(), "LOGIN");
         viewPager.setAdapter(adapter);
     }
@@ -459,49 +459,40 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static class SignUpFragment extends Fragment {
-        int color;
-        TextView tvTermsPrivacy;
-        TextView tvMemberType;
-        TextView tvAdminNumber;
-        CustomEditText etAdminNumber;
-        CustomEditText etFolkGuideAbbr;
-        TextView etSignUpZone;
-        CustomEditText etFirstName;
-        CustomEditText etLastName;
-        CustomEditText etEmail;
-        CustomEditText etPhone;
-        CustomEditText etPassword;
-        CustomEditText etDepartment;
-        CustomEditText etKcExperience;
-        Button createAccount;
-        TextView tvSignUpMemberType;
+        private TextView tvTermsPrivacy;
+        private TextView tvMemberType;
+        private TextView tvAdminNumber;
+        private TextView tvOpenGallery;
+        private CustomEditText etAdminNumber;
+        private CustomEditText etFolkGuideAbbr;
+        private TextView etSignUpZone;
+        private CustomEditText etFirstName;
+        private CustomEditText etLastName;
+        private CustomEditText etEmail;
+        private CustomEditText etPhone;
+        private CustomEditText etPassword;
+        private CustomEditText etDepartment;
+        private CustomEditText etKcExperience;
+        private Button createAccount;
+        private TextView tvSignUpMemberType;
+        private ImageView ivOpenGallery;
+        private ImageView ivSetProfileImage;
 
-        ImageView ivOpenGallery;
-        ImageView ivSetProfileImage;
-        TextView tvOpenGallery;
-
-        String adminKey;
-
+        private String adminKey;
         private String lastFourDigits;
         private String newImagePath = null;
+
         private final ArrayList<ContactItem> imageUriArray = new ArrayList<>();
         private final ArrayList<String> imageExtensionStringArray = new ArrayList<>();
         private final ArrayList<String> imageNameStringArray = new ArrayList<>();
         private final ArrayList<String> imageFilePathsStringArray = new ArrayList<>();
 
         private ProgressDialog dialog;
-
         private ProgressDialog loadingBar;
-
         private FirebaseAuth firebaseAuth;
-        FirebaseFirestore db;
+        private FirebaseFirestore db;
 
         public SignUpFragment() {
-        }
-
-        @SuppressLint("ValidFragment")
-        public SignUpFragment(int color) {
-            this.color = color;
         }
 
         @Override

@@ -75,11 +75,11 @@ import static java.lang.String.valueOf;
 
 public class DatabaseActivity extends AppCompatActivity {
 
-    Toolbar toolbar;
-    ViewPager viewPager;
-    TabLayout tabLayout;
-    Context mContext;
-    FloatingActionButton fab1;
+    private Toolbar toolbar;
+    private ViewPager viewPager;
+    private TabLayout tabLayout;
+    private Context mContext;
+    private FloatingActionButton fab1;
 
 
     @Override
@@ -1207,7 +1207,5 @@ public class DatabaseActivity extends AppCompatActivity {
             }
             allUsersAdapter.filterList(filterdUsers);
         }
-
     }
-
 }
