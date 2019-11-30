@@ -9,7 +9,7 @@ public class AuthUserItem {
     // Make sure u use the same names as u provided in the Firebase. Same obj names
     private String zone;
     private String memberType;
-    private String adminNumber;
+    private String directAuthority;
     private String folkGuideAbbr;
     private String department;
     private String kcExperience;
@@ -25,10 +25,10 @@ public class AuthUserItem {
     public AuthUserItem() {
     }
 
-    public AuthUserItem(String zone, String memberType, String adminNumber, String folkGuideAbbr, String department, String kcExperience, String firstName, String lastName, String phone, String email, String password, String profileImageUrl, String signUpStatus, String creationTimeStamp) {
+    public AuthUserItem(String zone, String memberType, String directAuthority, String folkGuideAbbr, String department, String kcExperience, String firstName, String lastName, String phone, String email, String password, String profileImageUrl, String signUpStatus, String creationTimeStamp) {
         this.zone = zone;
         this.memberType = memberType;
-        this.adminNumber = adminNumber;
+        this.directAuthority = directAuthority;
         this.folkGuideAbbr = folkGuideAbbr;
         this.department = department;
         this.kcExperience = kcExperience;
@@ -50,8 +50,8 @@ public class AuthUserItem {
         return memberType;
     }
 
-    public String getAdminNumber() {
-        return adminNumber;
+    public String getDirectAuthority() {
+        return directAuthority;
     }
 
     public String getFolkGuideAbbr() {

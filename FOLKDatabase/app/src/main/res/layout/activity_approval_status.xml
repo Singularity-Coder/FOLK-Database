@@ -38,18 +38,30 @@
                 android:background="@color/colorRed"
                 android:gravity="center_horizontal"
                 android:lineSpacingExtra="3dp"
-                android:text="NOT APPROVED"
                 android:paddingTop="2dp"
                 android:paddingBottom="3dp"
+                android:text="NOT APPROVED"
                 android:textColor="@color/colorLightRed"
                 android:textSize="16sp" />
 
-
             <TextView
+                android:id="@+id/tv_folk_guide_greeting_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:gravity="center_horizontal"
+                android:lineSpacingExtra="3dp"
+                android:text="Hello FOLK Guide,"
+                android:textColor="@color/colorSubtitle"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_welcome_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
                 android:layout_marginEnd="15dp"
                 android:layout_marginBottom="15dp"
                 android:gravity="center_horizontal"
@@ -69,6 +81,7 @@
 
 
             <Button
+                android:id="@+id/btn_call_authority"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginStart="15dp"
@@ -82,6 +95,7 @@
                 android:textStyle="bold" />
 
             <Button
+                android:id="@+id/btn_check_status"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginStart="15dp"

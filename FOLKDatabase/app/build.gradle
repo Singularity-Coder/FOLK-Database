@@ -67,4 +67,10 @@ dependencies {
 
     // Facebook Shimmer
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
+
+    // Facebook Fresco for animated GIF, WebP, animated WebP support
+    implementation 'com.facebook.fresco:fresco:2.0.0'
+    implementation 'com.facebook.fresco:animated-gif:2.0.0'
+    implementation 'com.facebook.fresco:animated-webp:2.0.0'
+    implementation 'com.facebook.fresco:webpsupport:2.0.0'
 }

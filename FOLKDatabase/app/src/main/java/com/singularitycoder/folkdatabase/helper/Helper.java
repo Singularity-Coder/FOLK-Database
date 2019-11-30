@@ -321,7 +321,7 @@ public class Helper extends AppCompatActivity {
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
 
         Glide.with(context).load(imgUrl)
-                .transition(withCrossFade(300))
+                .transition(withCrossFade(300))     // giving issues
                 .apply(requestOptions)
                 .into(imageView);
     }
@@ -333,7 +333,6 @@ public class Helper extends AppCompatActivity {
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC);
 
         Glide.with(context).load(imgUrl)
-                .transition(withCrossFade(300))
                 .apply(requestOptions)
                 .into(imageView);
     }

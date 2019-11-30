@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
@@ -48,18 +47,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.singularitycoder.folkdatabase.auth.MainActivity;
 import com.singularitycoder.folkdatabase.helper.CustomEditText;
 import com.singularitycoder.folkdatabase.helper.Helper;
 import com.singularitycoder.folkdatabase.R;
@@ -78,7 +73,6 @@ public class DatabaseActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private ViewPager viewPager;
     private TabLayout tabLayout;
-    private Context mContext;
     private FloatingActionButton fab1;
 
 
@@ -90,11 +84,8 @@ public class DatabaseActivity extends AppCompatActivity {
         initToolBar();
         initViewPager();
         initTabLayout();
-        mContext = this.getApplicationContext();
-
-        fab1 = findViewById(R.id.floating_button);
-
     }
+
 
     private void setUpStatusBar() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -108,6 +99,7 @@ public class DatabaseActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
+
     private void initToolBar() {
         toolbar = findViewById(R.id.toolbar_home);
         setSupportActionBar(toolbar);
@@ -117,14 +109,15 @@ public class DatabaseActivity extends AppCompatActivity {
         }
     }
 
-    private void initViewPager() {
 
+    private void initViewPager() {
         final int CONTACTS = 0;
         final int FOLK_GUIDES = 1;
         final int TEAM_LEADS = 2;
         final int ZONAL_HEADS = 3;
         final int ALL_USERS = 4;
 
+        fab1 = findViewById(R.id.floating_button);
         viewPager = findViewById(R.id.viewpager_home);
         setupViewPager(viewPager);
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
@@ -157,6 +150,7 @@ public class DatabaseActivity extends AppCompatActivity {
         });
     }
 
+
     private void initTabLayout() {
         tabLayout = findViewById(R.id.tabs_home);
         tabLayout.setupWithViewPager(viewPager);
@@ -187,6 +181,7 @@ public class DatabaseActivity extends AppCompatActivity {
         });
     }
 
+
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFrag(new ContactFragment(), "CONTACTS");
@@ -196,6 +191,7 @@ public class DatabaseActivity extends AppCompatActivity {
         adapter.addFrag(new AllUsersFragment(), "ALL USERS");
         viewPager.setAdapter(adapter);
     }
+
 
     private static class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
@@ -226,6 +222,7 @@ public class DatabaseActivity extends AppCompatActivity {
         }
     }
 
+
     public void showQuickInfoDialog(Context context, String fullName, String imageUrl, String phone, String whatsApp, String email) {
         final Dialog dialog = new Dialog(context);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -245,7 +242,8 @@ public class DatabaseActivity extends AppCompatActivity {
         ImageView imgProfilePic = dialog.findViewById(R.id.img_profile_image);
         Helper.glideProfileImage(context, imageUrl, imgProfilePic);
         imgProfilePic.setOnClickListener(v -> {
-//                dialog.dismiss();
+            SimpleDraweeView draweeView = findViewById(R.id.img_fresco_full_image);
+            draweeView.setImageURI(imageUrl);
         });
 
         ImageView imgCall = dialog.findViewById(R.id.img_quick_call);
@@ -307,11 +305,13 @@ public class DatabaseActivity extends AppCompatActivity {
         dialog.show();
     }
 
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         finish();
     }
+
 
     ////////////////////////////////////////////////////// FRAGMENT 1
     public static class ContactFragment extends Fragment {
@@ -340,28 +340,55 @@ public class DatabaseActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_person, container, false);
+            if (null != getActivity()) {
+                init(view);
+                setRefreshLayout();
+                getData(getActivity());
+                setUpRecyclerView();
+                Log.d(TAG, "onCreateView: current date: " + Helper.currentDate());
+//            findBirthdays(Helper.currentDate());
+                findBirthdays("06-01");
+            }
+            return view;
+        }
 
+
+        private void init(View view) {
+            Fresco.initialize(Objects.requireNonNull(getActivity()));
             recyclerView = view.findViewById(R.id.recycler_person);
             progressBar = view.findViewById(R.id.progress_circular);
             noInternetText = view.findViewById(R.id.tv_no_internet);
             tvListCount = view.findViewById(R.id.tv_list_count);
-
             loadingBar = new ProgressDialog(getActivity());
-
             swipeRefreshLayout = view.findViewById(R.id.refresh_layout);
+        }
+
+
+        private void setRefreshLayout() {
             swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
             swipeRefreshLayout.setOnRefreshListener(() -> {
                 progressBar.setVisibility(View.VISIBLE);
                 getData(getActivity());
             });
-
-            getData(getActivity());
-            setUpRecyclerView();
-            Log.d(TAG, "onCreateView: current date: " + Helper.currentDate());
-//            findBirthdays(Helper.currentDate());
-            findBirthdays("06-01");
-            return view;
         }
+
+
+        private void getData(final Context context) {
+            if (hasInternet(context)) {
+                Log.d(TAG, "hit 1");
+                setUpRecyclerView();
+//                new ReadContactsAsync().execute();
+                AsyncTask.execute(this::readContactsData);
+                noInternetText.setVisibility(View.GONE);
+                swipeRefreshLayout.setRefreshing(false);
+                contactsAdapter.notifyDataSetChanged();
+            } else {
+                noInternetText.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setRefreshing(false);
+                progressBar.setVisibility(View.GONE);
+            }
+        }
+
 
         private void setUpRecyclerView() {
             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getBaseContext());
@@ -370,9 +397,7 @@ public class DatabaseActivity extends AppCompatActivity {
             recyclerView.setItemViewCacheSize(20);
             recyclerView.setDrawingCacheEnabled(true);
             recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-
             contactList = new ArrayList<>();
-
             contactsAdapter = new ContactsAdapter(getContext(), contactList);
             contactsAdapter.setHasStableIds(true);
             contactsAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
@@ -390,21 +415,6 @@ public class DatabaseActivity extends AppCompatActivity {
             recyclerView.setAdapter(contactsAdapter);
         }
 
-        private void getData(final Context context) {
-            if (hasInternet(context)) {
-                Log.d(TAG, "hit 1");
-                setUpRecyclerView();
-//                new ReadContactsAsync().execute();
-                AsyncTask.execute(this::readContactsData);
-                noInternetText.setVisibility(View.GONE);
-                swipeRefreshLayout.setRefreshing(false);
-                contactsAdapter.notifyDataSetChanged();
-            } else {
-                noInternetText.setVisibility(View.VISIBLE);
-                swipeRefreshLayout.setRefreshing(false);
-                progressBar.setVisibility(View.GONE);
-            }
-        }
 
         class ReadContactsAsync extends AsyncTask<String, Integer, String>  {
 
@@ -430,72 +440,77 @@ public class DatabaseActivity extends AppCompatActivity {
             }
         }
 
+
         // READ
         private void readContactsData() {
             FirebaseFirestore.getInstance().collection("FolkMembers").get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                            progressBar.setVisibility(View.GONE);
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
-                                Log.d(TAG, "docList: " + docList);
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        progressBar.setVisibility(View.GONE);
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                            Log.d(TAG, "docList: " + docList);
 
-                                for (DocumentSnapshot docSnap : docList) {
-                                    personItemModel = docSnap.toObject(ContactItem.class);
-                                    if (personItemModel != null) {
-                                        Log.d(TAG, "personItem: " + personItemModel);
-                                        personItemModel.setId(docSnap.getId());
-                                        personItemModel.setFirstName(docSnap.getString("name"));
+                            for (DocumentSnapshot docSnap : docList) {
+                                personItemModel = docSnap.toObject(ContactItem.class);
+                                if (personItemModel != null) {
+                                    Log.d(TAG, "personItem: " + personItemModel);
+                                    personItemModel.setId(docSnap.getId());
+                                    personItemModel.setFirstName(docSnap.getString("name"));
 
-                                        if (("").equals(docSnap.getString("folk_guide")) || (null) == (docSnap.getString("folk_guide"))) {
-                                            personItemModel.setStrFolkGuide("No FOLK Guide");
-                                        } else {
-                                            personItemModel.setStrFolkGuide(docSnap.getString("folk_guide"));
-                                        }
+                                    if (("").equals(docSnap.getString("folk_guide")) || (null) == (docSnap.getString("folk_guide"))) {
+                                        personItemModel.setStrFolkGuide("No FOLK Guide");
+                                    } else {
+                                        personItemModel.setStrFolkGuide(docSnap.getString("folk_guide"));
+                                    }
 
-                                        personItemModel.setStrOccupation(docSnap.getString("occupation"));
+                                    personItemModel.setStrOccupation(docSnap.getString("occupation"));
 
-                                        if (("").equals(docSnap.getString("dob_month")) || (null) == (docSnap.getString("dob_month"))) {
-                                            personItemModel.setStrDobMonth(docSnap.getString("0"));
-                                        } else {
-                                            personItemModel.setStrDobMonth(valueOf(docSnap.getString("dob_month")));
-                                            Log.d(TAG, "dob month: " + docSnap.getString("dob_month"));
-                                        }
+                                    if (("").equals(docSnap.getString("dob_month")) || (null) == (docSnap.getString("dob_month"))) {
+                                        personItemModel.setStrDobMonth(docSnap.getString("0"));
+                                    } else {
+                                        personItemModel.setStrDobMonth(valueOf(docSnap.getString("dob_month")));
+                                        Log.d(TAG, "dob month: " + docSnap.getString("dob_month"));
+                                    }
 
-                                        if (("").equals(docSnap.getString("dob")) || (null) == (docSnap.getString("dob"))) {
-                                            personItemModel.setStrBirthday("Missing Birthday");
-                                        } else {
-                                            personItemModel.setStrBirthday(docSnap.getString("dob"));
-                                        }
+                                    if (("").equals(docSnap.getString("dob")) || (null) == (docSnap.getString("dob"))) {
+                                        personItemModel.setStrBirthday("Missing Birthday");
+                                    } else {
+                                        personItemModel.setStrBirthday(docSnap.getString("dob"));
+                                    }
 
-                                        personItemModel.setStrLocation(docSnap.getString("stay_map"));
-                                        personItemModel.setStrRecidencyInterest(valueOf(docSnap.getString("recidency_interest")));
-                                        personItemModel.setStrPhone(valueOf(docSnap.getString("mobile")));
-                                        personItemModel.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
-                                        personItemModel.setStrEmail(valueOf(docSnap.getString("email")));
-                                        Log.d(TAG, "profile image: " + docSnap.getData());
-                                        Log.d(TAG, "profile image 2: " + docSnap.getData().get("docs"));
-                                        Log.d(TAG, "address: " + docSnap.getData().get("address"));
-                                        Object profileImages = docSnap.getData().get("docs");
-                                        Map<String, String> mapImage = (Map<String, String>) docSnap.getData().get("docs");
-                                        Log.d(TAG, "prof image map: " + mapImage);
+                                    personItemModel.setStrLocation(docSnap.getString("stay_map"));
+                                    personItemModel.setStrRecidencyInterest(valueOf(docSnap.getString("recidency_interest")));
+                                    personItemModel.setStrPhone(valueOf(docSnap.getString("mobile")));
+                                    personItemModel.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
+                                    personItemModel.setStrEmail(valueOf(docSnap.getString("email")));
+                                    Log.d(TAG, "profile image: " + docSnap.getData());
+                                    Log.d(TAG, "profile image 2: " + docSnap.getData().get("docs"));
+                                    Log.d(TAG, "address: " + docSnap.getData().get("address"));
+                                    Object profileImages = docSnap.getData().get("docs");
+                                    Map<String, String> mapImage = (Map<String, String>) docSnap.getData().get("docs");
+                                    Log.d(TAG, "prof image map: " + mapImage);
 //                                        if (!("").equals(valueOf(mapImage.get("photo_url")))) {
 //                                            personItemModel.setImgProfileImage(valueOf(mapImage.get("photo_url")));
 //                                            Log.d(TAG, "onSuccess: img url: " + valueOf(mapImage.get("photo_url")));
 //                                        }
-                                    }
-                                    Log.d(TAG, "firedoc id: " + docSnap.getId());
-                                    contactList.add(personItemModel);
-                                    tvListCount.setText(contactList.size() + " Contacts");
                                 }
-                                contactsAdapter.notifyDataSetChanged();
+                                Log.d(TAG, "firedoc id: " + docSnap.getId());
+                                contactList.add(personItemModel);
+                                tvListCount.setText(contactList.size() + " Contacts");
+                            }
+                            contactsAdapter.notifyDataSetChanged();
+                            if (null != getActivity()) {
                                 Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
                             }
                         }
                     })
-                    .addOnFailureListener(e -> Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> {
+                        if (null != getActivity()) {
+                            Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         }
+
 
         private void findBirthdays(String text) {
             ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
@@ -543,6 +558,7 @@ public class DatabaseActivity extends AppCompatActivity {
 
             super.onCreateOptionsMenu(menu, inflater);
         }
+
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
@@ -638,7 +654,7 @@ public class DatabaseActivity extends AppCompatActivity {
                 }
             });
 
-            tvRecidencyInterest.setOnClickListener(view -> recidencyInterest(tvRecidencyInterest));
+            tvRecidencyInterest.setOnClickListener(view -> residencyInterest(tvRecidencyInterest));
             tvRecidencyInterest.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -685,6 +701,7 @@ public class DatabaseActivity extends AppCompatActivity {
 
             dialog.show();
         }
+
 
         private void folkGuideList(TextView tvFolkGuide) {
             AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
@@ -735,19 +752,19 @@ public class DatabaseActivity extends AppCompatActivity {
         }
 
 
-        private void recidencyInterest(TextView tvRecidencyInterest) {
+        private void residencyInterest(TextView tvResidencyInterest) {
             AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
             builder.setTitle("Interested in Recidency?");
             String[] selectArray = {"YES", "NO"};
             builder.setItems(selectArray, (dialog, which) -> {
                 switch (which) {
                     case 0:
-                        tvRecidencyInterest.setText("YES");
-                        Log.d(TAG, "Recidency Interest 1: " + valueOf(tvRecidencyInterest.getText()));
+                        tvResidencyInterest.setText("YES");
+                        Log.d(TAG, "Recidency Interest 1: " + valueOf(tvResidencyInterest.getText()));
                         break;
                     case 1:
-                        tvRecidencyInterest.setText("NO");
-                        Log.d(TAG, "Recidency Interest 2: " + valueOf(tvRecidencyInterest.getText()));
+                        tvResidencyInterest.setText("NO");
+                        Log.d(TAG, "Recidency Interest 2: " + valueOf(tvResidencyInterest.getText()));
                         break;
                 }
             });
@@ -941,10 +958,9 @@ public class DatabaseActivity extends AppCompatActivity {
 
         // READ
         private void readFolkGuidesData() {
-            FirebaseFirestore.getInstance().collection("FOLKGuides").get()
-                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                        @Override
-                        public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+            if (null != getActivity()) {
+                FirebaseFirestore.getInstance().collection("FOLKGuides").get()
+                        .addOnSuccessListener(queryDocumentSnapshots -> {
                             progressBar.setVisibility(View.GONE);
                             if (!queryDocumentSnapshots.isEmpty()) {
                                 List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
@@ -967,11 +983,17 @@ public class DatabaseActivity extends AppCompatActivity {
                                     tvListCount.setText(folkGuidesList.size() + " FOLK Guides");
                                 }
                                 folkGuidesAdapter.notifyDataSetChanged();
-                                Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
+                                if (null != getActivity()) {
+                                    Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
+                                }
                             }
-                        }
-                    })
-                    .addOnFailureListener(e -> Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show());
+                        })
+                        .addOnFailureListener(e -> {
+                            if (null != getActivity()) {
+                                Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
         }
 
 

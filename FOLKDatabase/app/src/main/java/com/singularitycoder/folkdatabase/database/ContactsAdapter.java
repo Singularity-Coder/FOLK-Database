@@ -63,7 +63,6 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             contactsViewHolder.tvSubTitle1.setText("FOLK Guide: " + contactItem.getStrFolkGuide());
             contactsViewHolder.tvSubTitle2.setText("Occupation: " + contactItem.getStrOccupation());
         }
-
     }
 
 

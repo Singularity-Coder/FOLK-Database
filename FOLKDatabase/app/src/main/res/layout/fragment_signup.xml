@@ -149,7 +149,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/tv_member_type" />
 
             <TextView
-                android:id="@+id/tv_signup_admin_number"
+                android:id="@+id/tv_signup_direct_authority"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -158,7 +158,7 @@
                 android:ellipsize="end"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:maxLines="1"
-                android:text="Admin Number"
+                android:text="Direct Authority Abbreviation"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -168,29 +168,28 @@
                 app:layout_constraintTop_toBottomOf="@+id/et_member_type" />
 
             <com.singularitycoder.folkdatabase.helper.CustomEditText
-                android:id="@+id/et_signup_admin_number"
+                android:id="@+id/et_signup_direct_authority"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="15dp"
+                android:digits="QWERTYUIOPASDFGHJKLZXCVBNM"
                 android:drawablePadding="10dp"
                 android:fontFamily="@font/roboto_regular"
-                android:hint="Type Admin Number"
-                android:inputType="textEmailAddress"
-                android:maxLength="20"
+                android:hint="Whom do you report to? Ex: SSRD"
+                android:inputType="textCapCharacters"
+                android:maxLength="6"
                 android:maxLines="1"
                 android:nestedScrollingEnabled="true"
                 android:scrollHorizontally="true"
                 android:singleLine="true"
-                android:textAllCaps="true"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
-                android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_signup_admin_number" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_signup_direct_authority" />
 
             <TextView
                 android:id="@+id/tv_signup_folk_guide"
@@ -208,7 +207,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/et_signup_email"
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
-                app:layout_constraintTop_toBottomOf="@+id/et_signup_admin_number" />
+                app:layout_constraintTop_toBottomOf="@+id/et_signup_direct_authority" />
 
             <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_folk_guide"

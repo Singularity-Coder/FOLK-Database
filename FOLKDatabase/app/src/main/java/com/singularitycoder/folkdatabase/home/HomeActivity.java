@@ -47,6 +47,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -78,6 +80,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static java.lang.String.valueOf;
+
 public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = "HomeActivity";
@@ -108,6 +112,8 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setUpStatusBar();
+        setContentView(R.layout.activity_home);
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -122,8 +128,6 @@ public class HomeActivity extends AppCompatActivity {
 
         loadingBar = new ProgressDialog(this);
 
-        setUpStatusBar();
-        setContentView(R.layout.activity_home);
         initToolBar();
         setUpRecyclerView();
     }
@@ -204,6 +208,10 @@ public class HomeActivity extends AppCompatActivity {
 
             if (position == 3) {
                 Helper.comingSoonDialog(HomeActivity.this);
+                Fresco.initialize(this);
+                SimpleDraweeView draweeView = findViewById(R.id.img_fresco_full_image);
+                Uri uri = Uri.parse("https://raw.githubusercontent.com/facebook/fresco/master/docs/static/logo.png");
+                draweeView.setImageURI(uri);/
             }
 
             if (position == 4) {
@@ -515,7 +523,7 @@ public class HomeActivity extends AppCompatActivity {
                 // 1. Check old password matches or not
                 // 2. Update in firestore new password value
                 // 3. Update in auth new password value
-                AsyncTask.execute(() -> changePassword(etNewPassword.getText().toString().trim()));
+                AsyncTask.execute(() -> changePassword(valueOf(etNewPassword.getText()).trim()));
             }
         });
 
@@ -524,49 +532,49 @@ public class HomeActivity extends AppCompatActivity {
 
 
     private boolean hasValidInput(CustomEditText etOldPassword, CustomEditText etNewPassword, CustomEditText etNewPasswordAgain) {
-        if (etOldPassword.getText().toString().trim().equals("")) {
+        if (valueOf(etOldPassword.getText()).trim().equals("")) {
             etOldPassword.setError("Password is Required!");
             etOldPassword.requestFocus();
             return false;
         }
 
-        if (!Helper.hasValidPassword(etOldPassword.getText().toString().trim())) {
+        if (!Helper.hasValidPassword(valueOf(etOldPassword.getText()).trim())) {
             etOldPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
             etOldPassword.requestFocus();
             return false;
         }
 
-//            if (!etOldPassword.getText().toString().trim().equals(oldPassword())) {
+//            if (!valueOf(etOldPassword.getText()).trim().equals(oldPassword())) {
 //                etOldPassword.setError("Wrong old password!");
 //                etOldPassword.requestFocus();
 //                return false;
 //            }
 
-        if (etNewPassword.getText().toString().trim().equals("")) {
+        if (valueOf(etNewPassword.getText()).trim().equals("")) {
             etNewPassword.setError("Password is Required!");
             etNewPassword.requestFocus();
             return false;
         }
 
-        if (!Helper.hasValidPassword(etNewPassword.getText().toString().trim())) {
+        if (!Helper.hasValidPassword(valueOf(etNewPassword.getText()).trim())) {
             etNewPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
             etNewPassword.requestFocus();
             return false;
         }
 
-        if (etNewPasswordAgain.getText().toString().trim().equals("")) {
+        if (valueOf(etNewPasswordAgain.getText()).trim().equals("")) {
             etNewPasswordAgain.setError("Password is Required!");
             etNewPasswordAgain.requestFocus();
             return false;
         }
 
-        if (!Helper.hasValidPassword(etNewPasswordAgain.getText().toString().trim())) {
+        if (!Helper.hasValidPassword(valueOf(etNewPasswordAgain.getText()).trim())) {
             etNewPasswordAgain.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
             etNewPasswordAgain.requestFocus();
             return false;
         }
 
-        if (!etNewPassword.getText().toString().trim().equals(etNewPasswordAgain.getText().toString().trim())) {
+        if (!valueOf(etNewPassword.getText()).trim().equals(valueOf(etNewPasswordAgain.getText()).trim())) {
             etNewPassword.setError("Password is not matching!");
             etNewPasswordAgain.setError("Password is not matching!");
             etNewPassword.requestFocus();
