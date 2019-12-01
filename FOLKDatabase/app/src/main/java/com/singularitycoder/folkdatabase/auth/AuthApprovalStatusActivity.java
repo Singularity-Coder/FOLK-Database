@@ -1,4 +1,4 @@
-package com.singularitycoder.folkdatabase.database;
+package com.singularitycoder.folkdatabase.auth;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -22,11 +22,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.AuthUserItem;
 import com.singularitycoder.folkdatabase.auth.MainActivity;
+import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import com.singularitycoder.folkdatabase.home.HomeActivity;
 
 import java.util.Objects;
 
-public class ApprovalStatusActivity extends AppCompatActivity {
+public class AuthApprovalStatusActivity extends AppCompatActivity {
 
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
@@ -35,6 +36,7 @@ public class ApprovalStatusActivity extends AppCompatActivity {
     private Button btnCheckStatus;
     private TextView tvFolkGuideGreetingText;
     private AuthUserItem authUserItem;
+    private HelperSharedPreference helperSharedPreference;
 
     // this listener is called when there is change in firebase fireUser session
     FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
@@ -58,6 +60,7 @@ public class ApprovalStatusActivity extends AppCompatActivity {
         authCheck();
         setData();
         clickListeners();
+        getStatus();
     }
 
 
@@ -121,8 +124,10 @@ public class ApprovalStatusActivity extends AppCompatActivity {
     private boolean getStatus() {
 //        firestore.collection("AllFolkGuides").document(authUserItem.getDocId()).get()
 //                .addOnSuccessListener((OnSuccessListener<Void>) aVoid -> {
-//                    Toast.makeText(ApprovalStatusActivity.this, "Product Updated", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(AuthApprovalStatusActivity.this, "Product Updated", Toast.LENGTH_LONG).show();
 //                });
+
+        helperSharedPreference.setSignupStatus("true");
         return false;
     }
 

@@ -105,4 +105,5 @@ public class AuthUserItem {
     public void setDocId(String docId) {
         this.docId = docId;
     }
+
 }

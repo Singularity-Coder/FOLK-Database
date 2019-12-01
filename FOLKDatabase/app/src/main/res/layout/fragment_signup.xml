@@ -167,7 +167,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_phone"
                 app:layout_constraintTop_toBottomOf="@+id/et_member_type" />
 
-            <com.singularitycoder.folkdatabase.helper.CustomEditText
+            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
                 android:id="@+id/et_signup_direct_authority"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -209,7 +209,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_direct_authority" />
 
-            <com.singularitycoder.folkdatabase.helper.CustomEditText
+            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
                 android:id="@+id/et_signup_folk_guide"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -251,7 +251,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_folk_guide" />
 
-            <com.singularitycoder.folkdatabase.helper.CustomEditText
+            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
                 android:id="@+id/et_signup_department"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -293,7 +293,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_department" />
 
-            <com.singularitycoder.folkdatabase.helper.CustomEditText
+            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
                 android:id="@+id/et_signup_kc_experience"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -335,7 +335,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_kc_experience" />
 
-            <com.singularitycoder.folkdatabase.helper.CustomEditText
+            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
                 android:id="@+id/et_signup_first_name"
                 style="@style/StyleEditText"
                 android:layout_width="0dp"
@@ -377,7 +377,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_last_name"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_kc_experience" />
 
-            <com.singularitycoder.folkdatabase.helper.CustomEditText
+            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
                 android:id="@+id/et_signup_last_name"
                 style="@style/StyleEditText"
                 android:layout_width="0dp"
@@ -418,7 +418,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_first_name" />
 
-            <com.singularitycoder.folkdatabase.helper.CustomEditText
+            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
                 android:id="@+id/et_signup_email"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -460,7 +460,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_email" />
 
-            <com.singularitycoder.folkdatabase.helper.CustomEditText
+            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
                 android:id="@+id/et_signup_phone"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -502,7 +502,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_phone"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_phone" />
 
-            <com.singularitycoder.folkdatabase.helper.CustomEditText
+            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
                 android:id="@+id/et_login_password"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"

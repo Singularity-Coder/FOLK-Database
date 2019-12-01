@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.singularitycoder.folkdatabase.R;
-import com.singularitycoder.folkdatabase.helper.Helper;
+import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 
 import java.util.ArrayList;
 
@@ -57,7 +57,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         else if (holder instanceof HomeHeaderViewHolder) {
-            Helper.glideProfileImage(context, homeItem.getStrImageUrl(), ((HomeHeaderViewHolder) holder).imgUserImage);
+            HelperGeneral.glideProfileImage(context, homeItem.getStrImageUrl(), ((HomeHeaderViewHolder) holder).imgUserImage);
             ((HomeHeaderViewHolder) holder).tvUserName.setText(homeItem.getStrUserName());
         }
     }

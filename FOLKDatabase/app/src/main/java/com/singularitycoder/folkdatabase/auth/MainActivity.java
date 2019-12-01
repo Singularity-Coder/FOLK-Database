@@ -57,10 +57,11 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.R;
-import com.singularitycoder.folkdatabase.database.ApprovalStatusActivity;
 import com.singularitycoder.folkdatabase.database.ContactItem;
-import com.singularitycoder.folkdatabase.helper.CustomEditText;
-import com.singularitycoder.folkdatabase.helper.Helper;
+import com.singularitycoder.folkdatabase.helper.HelperConstants;
+import com.singularitycoder.folkdatabase.helper.HelperCustomEditText;
+import com.singularitycoder.folkdatabase.helper.HelperGeneral;
+import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import com.singularitycoder.folkdatabase.home.HomeActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +76,7 @@ import java.util.Objects;
 import droidninja.filepicker.FilePickerBuilder;
 import droidninja.filepicker.FilePickerConst;
 
-import static com.singularitycoder.folkdatabase.helper.ImageHelper.showSettingsDialog;
+import static com.singularitycoder.folkdatabase.helper.HelperImage.showSettingsDialog;
 import static java.lang.String.valueOf;
 
 public class MainActivity extends AppCompatActivity {
@@ -286,8 +287,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     public static class LoginFragment extends Fragment {
-        private CustomEditText etEmail;
-        private CustomEditText etPassword;
+        private HelperCustomEditText etEmail;
+        private HelperCustomEditText etPassword;
         private Button btnLogin;
         private TextView tvForgotPassword;
         private TextView tvNotMember;
@@ -327,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
             });
 
             btnLogin.setOnClickListener(view1 -> {
-                if (Helper.hasInternet(Objects.requireNonNull(getContext()))) {
+                if (HelperGeneral.hasInternet(Objects.requireNonNull(getContext()))) {
                     if (hasValidInput(etEmail, etPassword)) {
                         loadingBar.setTitle("Login Account");
                         loadingBar.setMessage("Please wait, while we are checking the credentials!");
@@ -345,11 +346,10 @@ public class MainActivity extends AppCompatActivity {
             });
 
             tvNotMember.setOnClickListener(view13 -> authTabLayout.getTabAt(0).select());
-
         }
 
 
-        private boolean hasValidInput(CustomEditText etEmail, CustomEditText etPassword) {
+        private boolean hasValidInput(HelperCustomEditText etEmail, HelperCustomEditText etPassword) {
             String email = valueOf(etEmail.getText()).trim();
             String password = valueOf(etPassword.getText());
 
@@ -359,7 +359,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
 
-            if (!Helper.hasValidEmail(email)) {
+            if (!HelperGeneral.hasValidEmail(email)) {
                 etEmail.setError("Invalid Email!");
                 etEmail.requestFocus();
                 return false;
@@ -371,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
 
-            if (!Helper.hasValidPassword(password)) {
+            if (!HelperGeneral.hasValidPassword(password)) {
                 etPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
                 etPassword.requestFocus();
                 return false;
@@ -414,7 +414,7 @@ public class MainActivity extends AppCompatActivity {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
             ImageView imgClose = dialog.findViewById(R.id.img_close);
-            CustomEditText etResetEmail = dialog.findViewById(R.id.et_reset_email);
+            HelperCustomEditText etResetEmail = dialog.findViewById(R.id.et_reset_email);
             Button btnReset = dialog.findViewById(R.id.btn_reset_password);
 
             imgClose.setOnClickListener(view -> dialog.dismiss());
@@ -424,7 +424,7 @@ public class MainActivity extends AppCompatActivity {
                 if (valueOf(etResetEmail.getText()).trim().equals("")) {
                     etResetEmail.setError("Email cannot be empty!");
                     etResetEmail.requestFocus();
-                } else if (!Helper.hasValidEmail(valueOf(etResetEmail.getText()).trim())) {
+                } else if (!HelperGeneral.hasValidEmail(valueOf(etResetEmail.getText()).trim())) {
                     etResetEmail.setError("Invalid Email!");
                     etResetEmail.requestFocus();
                 } else {
@@ -463,16 +463,16 @@ public class MainActivity extends AppCompatActivity {
         private TextView tvMemberType;
         private TextView tvDirectAuthority;
         private TextView tvOpenGallery;
-        private CustomEditText etDirectAuthority;
-        private CustomEditText etFolkGuideAbbr;
+        private HelperCustomEditText etDirectAuthority;
+        private HelperCustomEditText etFolkGuideAbbr;
         private TextView etSignUpZone;
-        private CustomEditText etFirstName;
-        private CustomEditText etLastName;
-        private CustomEditText etEmail;
-        private CustomEditText etPhone;
-        private CustomEditText etPassword;
-        private CustomEditText etDepartment;
-        private CustomEditText etKcExperience;
+        private HelperCustomEditText etFirstName;
+        private HelperCustomEditText etLastName;
+        private HelperCustomEditText etEmail;
+        private HelperCustomEditText etPhone;
+        private HelperCustomEditText etPassword;
+        private HelperCustomEditText etDepartment;
+        private HelperCustomEditText etKcExperience;
         private Button btnCreateAccount;
         private TextView tvSignUpMemberType;
         private ImageView ivOpenGallery;
@@ -534,8 +534,19 @@ public class MainActivity extends AppCompatActivity {
         private void authCheck() {
             if (firebaseAuth.getCurrentUser() != null) {
                 // check if key is false. If ture then send to main activity
-                startActivity(new Intent(getActivity(), ApprovalStatusActivity.class));
-                Objects.requireNonNull(getActivity()).finish();
+                // if shared pref value is not null n if true or false
+                HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
+                String signUpStatus = helperSharedPreference.getSignupStatus();
+
+                if (null != signUpStatus) {
+                    if (("false").equals(signUpStatus)) {
+                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                        Objects.requireNonNull(getActivity()).finish();
+                    } else {
+                        startActivity(new Intent(getActivity(), HomeActivity.class));
+                        Objects.requireNonNull(getActivity()).finish();
+                    }
+                }
             }
         }
 
@@ -590,7 +601,7 @@ public class MainActivity extends AppCompatActivity {
             etSignUpZone.setOnClickListener(view12 -> dialogSignUpZone());
 
             btnCreateAccount.setOnClickListener(view13 -> {
-                if (Helper.hasInternet(Objects.requireNonNull(getContext()))) {
+                if (HelperGeneral.hasInternet(Objects.requireNonNull(getContext()))) {
                     if (hasValidInput(
                             etSignUpZone,
                             tvSignUpMemberType,
@@ -634,7 +645,7 @@ public class MainActivity extends AppCompatActivity {
                                     email,
                                     phone,
                                     password,
-                                    Helper.currentDateTime());
+                                    HelperGeneral.currentDateTime());
                         });
                     }
                 } else {
@@ -663,15 +674,15 @@ public class MainActivity extends AppCompatActivity {
         private boolean hasValidInput(
                 TextView etSignUpZone,
                 TextView tvSignUpMemberType,
-                CustomEditText etDirectAuthority,
-                CustomEditText etFolkGuideAbbr,
-                CustomEditText etDepartment,
-                CustomEditText etKcExperience,
-                CustomEditText etFirstName,
-                CustomEditText etLastName,
-                CustomEditText etEmail,
-                CustomEditText etPhone,
-                CustomEditText etPassword) {
+                HelperCustomEditText etDirectAuthority,
+                HelperCustomEditText etFolkGuideAbbr,
+                HelperCustomEditText etDepartment,
+                HelperCustomEditText etKcExperience,
+                HelperCustomEditText etFirstName,
+                HelperCustomEditText etLastName,
+                HelperCustomEditText etEmail,
+                HelperCustomEditText etPhone,
+                HelperCustomEditText etPassword) {
 
             String zone = valueOf(etSignUpZone.getText());
             String memberType = valueOf(tvSignUpMemberType.getText());
@@ -739,7 +750,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
 
-            if (!Helper.hasValidEmail(email)) {
+            if (!HelperGeneral.hasValidEmail(email)) {
                 etEmail.setError("Invalid Email!");
                 etEmail.requestFocus();
                 return false;
@@ -763,7 +774,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
 
-            if (!Helper.hasValidPassword(password)) {
+            if (!HelperGeneral.hasValidPassword(password)) {
                 etPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
                 etPassword.requestFocus();
                 return false;
@@ -823,10 +834,10 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < imgUriArray.size(); i++) {
                 final int finalI = i;
 
-                if ((null) != FirebaseStorage.getInstance().getReference().child("ProfileImages/")) {
+                if ((null) != FirebaseStorage.getInstance().getReference().child(HelperConstants.FOLK_PROFILE_IMAGES_PATH)) {
                     // First put file in Storage
                     FirebaseStorage.getInstance().getReference()
-                            .child("ProfileImages/")
+                            .child(HelperConstants.FOLK_PROFILE_IMAGES_PATH)
                             .child(imgUriArray.get(i).getImageName())
                             .putFile(imgUriArray.get(i).getIvProfileImage())
                             .addOnCompleteListener(task -> {
@@ -834,7 +845,7 @@ public class MainActivity extends AppCompatActivity {
                                 // Then get the download URL with the filename from Storage
                                 if (task.isSuccessful()) {
                                     FirebaseStorage.getInstance().getReference()
-                                            .child("ProfileImages/")
+                                            .child(HelperConstants.FOLK_PROFILE_IMAGES_PATH)
                                             .child(imgUriArray.get(finalI).getImageName())
                                             .getDownloadUrl()
                                             .addOnCompleteListener(task1 -> {
@@ -864,7 +875,7 @@ public class MainActivity extends AppCompatActivity {
 
                                                 } else {
                                                     FirebaseStorage.getInstance().getReference()
-                                                            .child("ProfileImages/")
+                                                            .child(HelperConstants.FOLK_PROFILE_IMAGES_PATH)
                                                             .child(imageUriArray.get(finalI).getImageName())
                                                             .delete();
                                                     Toast.makeText(getActivity(), "Couldn't upload Image", Toast.LENGTH_SHORT).show();
@@ -920,19 +931,21 @@ public class MainActivity extends AppCompatActivity {
                     creationTimeStamp
             );
 
-            SharedPreferences sp = Objects.requireNonNull(getActivity()).getSharedPreferences("authItem", Context.MODE_PRIVATE);
-            sp.edit().putString("profileImage", profileImage).commit();
-            sp.edit().putString("firstName", firstName).commit();
-            sp.edit().putString("lastName", lastName).commit();
-            sp.edit().putString("memberType", memberType).commit();
-            sp.edit().putString("phone", phone).commit();
-            sp.edit().putString("email", email).commit();
-            sp.edit().putString("folkGuideAbbr", folkGuideAbbr).commit();
+            if (null != getActivity()) {
+                SharedPreferences sp = Objects.requireNonNull(getActivity()).getSharedPreferences("authItem", Context.MODE_PRIVATE);
+                sp.edit().putString("profileImage", profileImage).apply();
+                sp.edit().putString("firstName", firstName).apply();
+                sp.edit().putString("lastName", lastName).apply();
+                sp.edit().putString("memberType", memberType).apply();
+                sp.edit().putString("phone", phone).apply();
+                sp.edit().putString("email", email).apply();
+                sp.edit().putString("folkGuideAbbr", folkGuideAbbr).apply();
+            }
 
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
             // Collection name is "AuthUserItem". U can create a new collection this way
-            firestore.collection("AllFolkPeople")
+            firestore.collection(HelperConstants.AUTH_FOLK_PEOPLE)
                     .add(authUserItem)
                     .addOnSuccessListener(documentReference -> {
 
@@ -957,15 +970,15 @@ public class MainActivity extends AppCompatActivity {
 
                             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
                             // Collection name is "AuthUserItem". U can create a new collection this way
-                            firestore.collection("AllFolkGuides")
+                            firestore.collection(HelperConstants.AUTH_FOLK_GUIDES)
                                     .add(authUserItem1)
                                     .addOnSuccessListener(documentReference13 -> {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference13.getId());
                                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(getActivity(), ApprovalStatusActivity.class));
-                                        Objects.requireNonNull(getActivity()).finish();
+                                        // Create another collection for FolkGuideApprovals -> to Team Leads
+                                        authUserItem1.setDocId(documentReference13.getId());
                                         btnCreateAccount.setEnabled(false);
-                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                        approveFolkGuides(documentReference13.getId(), zone, memberType, directAuthority, folkGuideAbbr, firstName, lastName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.w(TAG, "Error adding document", e);
@@ -995,15 +1008,15 @@ public class MainActivity extends AppCompatActivity {
 
                             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
                             // Collection name is "AuthUserItem". U can create a new collection this way
-                            firestore.collection("AllTeamLeads")
+                            firestore.collection(HelperConstants.AUTH_FOLK_TEAM_LEADS)
                                     .add(authUserItem1)
                                     .addOnSuccessListener(documentReference12 -> {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference12.getId());
                                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(getActivity(), ApprovalStatusActivity.class));
-                                        Objects.requireNonNull(getActivity()).finish();
+                                        // Collection for Team Lead approvals -> to Zonal Heads
+                                        authUserItem1.setDocId(documentReference12.getId());
                                         btnCreateAccount.setEnabled(false);
-                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                        approveTeamLeads(documentReference12.getId(), zone, memberType, directAuthority, folkGuideAbbr, firstName, lastName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.w(TAG, "Error adding document", e);
@@ -1033,12 +1046,13 @@ public class MainActivity extends AppCompatActivity {
 
                             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
                             // Collection name is "AuthUserItem". U can create a new collection this way
-                            firestore.collection("AllZonalHeads")
+                            firestore.collection(HelperConstants.AUTH_FOLK_ZONAL_HEADS)
                                     .add(authUserItem1)
                                     .addOnSuccessListener(documentReference1 -> {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
                                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                                        startActivity(new Intent(getActivity(), ApprovalStatusActivity.class));
+                                        authUserItem1.setDocId(documentReference1.getId());
+                                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
                                         Objects.requireNonNull(getActivity()).finish();
                                         btnCreateAccount.setEnabled(false);
                                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
@@ -1056,6 +1070,101 @@ public class MainActivity extends AppCompatActivity {
                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
                     });
         }
+
+
+        private void approveFolkGuides(
+                String docId,
+                String zone,
+                String memberType,
+                String directAuthority,
+                String folkGuideAbbr,
+                String firstName,
+                String lastName,
+                String profileImage,
+                String signUpStatus,
+                String redFlagStatus,
+                String approveRequestTimeStamp) {
+
+            AuthUserApprovalItem authUserApprovalItem = new AuthUserApprovalItem(
+                    docId,
+                    zone,
+                    memberType,
+                    directAuthority,
+                    folkGuideAbbr,
+                    firstName,
+                    lastName,
+                    profileImage,
+                    signUpStatus,
+                    redFlagStatus,
+                    approveRequestTimeStamp
+            );
+
+            // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
+            // Collection name is "AuthUserItem". U can create a new collection this way
+            firestore.collection(HelperConstants.AUTH_FOLK_GUIDE_APPROVALS)
+                    .add(authUserApprovalItem)
+                    .addOnSuccessListener(documentReference1 -> {
+                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
+                        Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                        Objects.requireNonNull(getActivity()).finish();
+                        btnCreateAccount.setEnabled(false);
+                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Error adding document", e);
+                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                    });
+        }
+
+
+        private void approveTeamLeads(
+                String docId,
+                String zone,
+                String memberType,
+                String directAuthority,
+                String folkGuideAbbr,
+                String firstName,
+                String lastName,
+                String profileImage,
+                String signUpStatus,
+                String redFlagStatus,
+                String approveRequestTimeStamp) {
+
+            AuthUserApprovalItem authUserApprovalItem = new AuthUserApprovalItem(
+                    docId,
+                    zone,
+                    memberType,
+                    directAuthority,
+                    folkGuideAbbr,
+                    firstName,
+                    lastName,
+                    profileImage,
+                    signUpStatus,
+                    redFlagStatus,
+                    approveRequestTimeStamp
+            );
+
+            // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
+            // Collection name is "AuthUserItem". U can create a new collection this way
+            firestore.collection(HelperConstants.AUTH_FOLK_TEAM_LEAD_APPROVALS)
+                    .add(authUserApprovalItem)
+                    .addOnSuccessListener(documentReference1 -> {
+                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
+                        Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                        Objects.requireNonNull(getActivity()).finish();
+                        btnCreateAccount.setEnabled(false);
+                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Error adding document", e);
+                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                    });
+        }
+
 
         private void dialogSignUpMemberType() {
             AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));

@@ -49,14 +49,13 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.singularitycoder.folkdatabase.helper.CustomEditText;
-import com.singularitycoder.folkdatabase.helper.Helper;
+import com.singularitycoder.folkdatabase.helper.HelperConstants;
+import com.singularitycoder.folkdatabase.helper.HelperCustomEditText;
+import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
@@ -65,7 +64,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.singularitycoder.folkdatabase.helper.Helper.hasInternet;
+import static com.singularitycoder.folkdatabase.helper.HelperGeneral.hasInternet;
 import static java.lang.String.valueOf;
 
 public class DatabaseActivity extends AppCompatActivity {
@@ -160,13 +159,13 @@ public class DatabaseActivity extends AppCompatActivity {
                 viewPager.setCurrentItem(tab.getPosition());
                 switch (tab.getPosition()) {
                     case 0:
-                        new Helper().toast("1", getApplicationContext(), 0);
+                        new HelperGeneral().toast("1", getApplicationContext(), 0);
                         break;
                     case 1:
-                        new Helper().toast("2", getApplicationContext(), 0);
+                        new HelperGeneral().toast("2", getApplicationContext(), 0);
                         break;
                     case 2:
-                        new Helper().toast("3", getApplicationContext(), 0);
+                        new HelperGeneral().toast("3", getApplicationContext(), 0);
                         break;
                 }
             }
@@ -240,7 +239,7 @@ public class DatabaseActivity extends AppCompatActivity {
         tvFullName.setText(fullName);
 
         ImageView imgProfilePic = dialog.findViewById(R.id.img_profile_image);
-        Helper.glideProfileImage(context, imageUrl, imgProfilePic);
+        HelperGeneral.glideProfileImage(context, imageUrl, imgProfilePic);
         imgProfilePic.setOnClickListener(v -> {
             SimpleDraweeView draweeView = findViewById(R.id.img_fresco_full_image);
             draweeView.setImageURI(imageUrl);
@@ -276,7 +275,7 @@ public class DatabaseActivity extends AppCompatActivity {
                 whatsAppIntent.setPackage("com.whatsapp");
                 context.startActivity(Intent.createChooser(whatsAppIntent, "Dummy Title"));
             } catch (PackageManager.NameNotFoundException e) {
-                new Helper().toast("WhatsApp not found. Install from playstore.", context, 1);
+                new HelperGeneral().toast("WhatsApp not found. Install from playstore.", context, 1);
                 Uri uri = Uri.parse("market://details?id=com.whatsapp");
                 Intent openPlayStore = new Intent(Intent.ACTION_VIEW, uri);
                 openPlayStore.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
@@ -345,8 +344,8 @@ public class DatabaseActivity extends AppCompatActivity {
                 setRefreshLayout();
                 getData(getActivity());
                 setUpRecyclerView();
-                Log.d(TAG, "onCreateView: current date: " + Helper.currentDate());
-//            findBirthdays(Helper.currentDate());
+                Log.d(TAG, "onCreateView: current date: " + HelperGeneral.currentDate());
+//            findBirthdays(HelperGeneral.currentDate());
                 findBirthdays("06-01");
             }
             return view;
@@ -375,7 +374,6 @@ public class DatabaseActivity extends AppCompatActivity {
 
         private void getData(final Context context) {
             if (hasInternet(context)) {
-                Log.d(TAG, "hit 1");
                 setUpRecyclerView();
 //                new ReadContactsAsync().execute();
                 AsyncTask.execute(this::readContactsData);
@@ -443,7 +441,7 @@ public class DatabaseActivity extends AppCompatActivity {
 
         // READ
         private void readContactsData() {
-            FirebaseFirestore.getInstance().collection("FolkMembers").get()
+            FirebaseFirestore.getInstance().collection(HelperConstants.FOLK_MEMBERS).get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         progressBar.setVisibility(View.GONE);
                         if (!queryDocumentSnapshots.isEmpty()) {
@@ -604,8 +602,8 @@ public class DatabaseActivity extends AppCompatActivity {
             TextView tvResetContacts = dialog.findViewById(R.id.tv_dialog_reset);
             TextView tvFolkGuides = dialog.findViewById(R.id.tv_dialog_folk_guides);
             TextView tvRecidencyInterest = dialog.findViewById(R.id.tv_dialog_recidency_interest);
-            CustomEditText etLocation = dialog.findViewById(R.id.et_dialog_location);
-            CustomEditText etDobMonth = dialog.findViewById(R.id.et_dialog_dob_month);
+            HelperCustomEditText etLocation = dialog.findViewById(R.id.et_dialog_location);
+            HelperCustomEditText etDobMonth = dialog.findViewById(R.id.et_dialog_dob_month);
             Button btnApply = dialog.findViewById(R.id.btn_dialog_apply);
 
             imgClose.setOnClickListener(view -> dialog.dismiss());
@@ -959,7 +957,7 @@ public class DatabaseActivity extends AppCompatActivity {
         // READ
         private void readFolkGuidesData() {
             if (null != getActivity()) {
-                FirebaseFirestore.getInstance().collection("FOLKGuides").get()
+                FirebaseFirestore.getInstance().collection(HelperConstants.FOLK_GUIDES).get()
                         .addOnSuccessListener(queryDocumentSnapshots -> {
                             progressBar.setVisibility(View.GONE);
                             if (!queryDocumentSnapshots.isEmpty()) {
@@ -1151,7 +1149,7 @@ public class DatabaseActivity extends AppCompatActivity {
 
         // READ
         private void readAllUsersData() {
-            FirebaseFirestore.getInstance().collection("AllFolkPeople").get()
+            FirebaseFirestore.getInstance().collection(HelperConstants.AUTH_FOLK_PEOPLE).get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         progressBar.setVisibility(View.GONE);
                         if (!queryDocumentSnapshots.isEmpty()) {

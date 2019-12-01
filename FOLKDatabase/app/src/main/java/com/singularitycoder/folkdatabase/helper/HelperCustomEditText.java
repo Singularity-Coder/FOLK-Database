@@ -13,19 +13,19 @@ import android.widget.TextView;
 import java.lang.reflect.Field;
 
 @SuppressLint("AppCompatCustomView")
-public class CustomEditText extends EditText {
+public class HelperCustomEditText extends EditText {
 
-    public CustomEditText(Context context) {
+    public HelperCustomEditText(Context context) {
         super(context);
         init();
     }
 
-    public CustomEditText(Context context, AttributeSet attrs) {
+    public HelperCustomEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public CustomEditText(Context context, AttributeSet attrs, int defStyle) {
+    public HelperCustomEditText(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
     }

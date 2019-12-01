@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.singularitycoder.folkdatabase.R;
-import com.singularitycoder.folkdatabase.helper.Helper;
+import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
@@ -50,10 +50,10 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 ////                TextDrawable drawable = TextDrawable.builder().beginConfig().width(60).height(60).endConfig().buildRound(startingLetter, R.color.colorAccent);
 //                contactsViewHolder.imgProfileImage.setImageDrawable(drawable);
 //            } else {
-//                Helper.glideProfileImage(context, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
+//                HelperGeneral.glideProfileImage(context, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
 //            }
 
-            Helper.glideProfileImage(context, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
+            HelperGeneral.glideProfileImage(context, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
             contactsViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();
                 databaseActivity.showQuickInfoDialog(context, contactItem.getFirstName(), contactItem.getStrProfileImage(), contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail());

@@ -54,11 +54,10 @@ import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-import com.mikhaellopez.circularimageview.CircularImageView;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.AuthUserItem;
 import com.singularitycoder.folkdatabase.auth.MainActivity;
-import com.singularitycoder.folkdatabase.helper.Helper;
+import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.database.AllUsersItem;
 import com.singularitycoder.folkdatabase.database.ContactItem;
 import com.singularitycoder.folkdatabase.database.FolkGuideItem;
@@ -179,7 +178,7 @@ public class ProfileActivity extends AppCompatActivity {
         conLayProfileActions = findViewById(R.id.con_lay_profile_action_icons);
 
         if (("AUTHUSER").equals(profileKey)) {
-            Helper.glideProfileImage(this, authUserItem.getProfileImageUrl(), ivProfileImage);
+            HelperGeneral.glideProfileImage(this, authUserItem.getProfileImageUrl(), ivProfileImage);
             tvName.setText(authUserItem.getFirstName() + " " + authUserItem.getLastName());
             tvSubTitle.setText(authUserItem.getMemberType());
             profileActions(this, authUserItem.getPhone(), authUserItem.getPhone(), authUserItem.getEmail());
@@ -187,7 +186,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         if (("FOLKGUIDE").equals(profileKey)) {
-            Helper.glideProfileImage(this, folkGuideItem.getStrProfileImage(), ivProfileImage);
+            HelperGeneral.glideProfileImage(this, folkGuideItem.getStrProfileImage(), ivProfileImage);
             tvName.setText(folkGuideItem.getStrFirstName());
             tvSubTitle.setText("KC Experience: " + folkGuideItem.getStrKcExperience());
 //            profileActions(this, folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
@@ -196,7 +195,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         if (("CONTACT").equals(profileKey)) {
-            Helper.glideProfileImage(this, contactItem.getStrProfileImage(), ivProfileImage);
+            HelperGeneral.glideProfileImage(this, contactItem.getStrProfileImage(), ivProfileImage);
             tvName.setText(contactItem.getFirstName());
             tvSubTitle.setText(contactItem.getStrFolkGuide());
             profileActions(this, contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail());
@@ -204,7 +203,7 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         if (("ALLUSER").equals(profileKey)) {
-            Helper.glideProfileImage(this, allUsersItem.getStrProfileImage(), ivProfileImage);
+            HelperGeneral.glideProfileImage(this, allUsersItem.getStrProfileImage(), ivProfileImage);
             tvName.setText(allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName());
             tvSubTitle.setText(allUsersItem.getStrMemberType());
             profileActions(this, allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail());
@@ -243,7 +242,7 @@ public class ProfileActivity extends AppCompatActivity {
                 whatsAppIntent.setPackage("com.whatsapp");
                 startActivity(Intent.createChooser(whatsAppIntent, "Dummy Title"));
             } catch (PackageManager.NameNotFoundException e) {
-                new Helper().toast("WhatsApp not found. Install from playstore.", context, 1);
+                new HelperGeneral().toast("WhatsApp not found. Install from playstore.", context, 1);
                 Uri uri = Uri.parse("market://details?id=com.whatsapp");
                 Intent openPlayStore = new Intent(Intent.ACTION_VIEW, uri);
                 openPlayStore.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);

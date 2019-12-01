@@ -37,7 +37,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class ImageHelper extends AppCompatActivity {
+public class HelperImage extends AppCompatActivity {
 
     // Activity request codes
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
@@ -85,7 +85,7 @@ public class ImageHelper extends AppCompatActivity {
 
                         } else if (report.isAnyPermissionPermanentlyDenied()) {
                             showPermissionsAlert();
-                            showSettingsDialog(ImageHelper.this);
+                            showSettingsDialog(HelperImage.this);
                         }
                     }
 
@@ -120,7 +120,7 @@ public class ImageHelper extends AppCompatActivity {
                 .setMessage("Camera needs few permissions to work properly. Grant them in settings.")
                 .setPositiveButton("GOTO SETTINGS", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        openSettings(ImageHelper.this);
+                        openSettings(HelperImage.this);
                     }
                 })
                 .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -171,20 +171,20 @@ public class ImageHelper extends AppCompatActivity {
     // Creates and returns the image or video file before opening the camera
     public static File getOutputMediaFile(int type) {
         // External sdcard location
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), ImageHelper.GALLERY_DIRECTORY_NAME);
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), HelperImage.GALLERY_DIRECTORY_NAME);
         if (!mediaStorageDir.exists()) {        // Create the storage directory if it does not exist
             if (!mediaStorageDir.mkdirs()) {
-                Log.e(ImageHelper.GALLERY_DIRECTORY_NAME, "Oops! Failed create " + ImageHelper.GALLERY_DIRECTORY_NAME + " directory");
+                Log.e(HelperImage.GALLERY_DIRECTORY_NAME, "Oops! Failed create " + HelperImage.GALLERY_DIRECTORY_NAME + " directory");
                 return null;
             }
         }
 
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());      // Preparing media file naming convention adds timestamp
         File mediaFile;
-        if (type == ImageHelper.MEDIA_TYPE_IMAGE) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + "." + ImageHelper.IMAGE_EXTENSION);
-        } else if (type == ImageHelper.MEDIA_TYPE_VIDEO) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator + "VID_" + timeStamp + "." + ImageHelper.VIDEO_EXTENSION);
+        if (type == HelperImage.MEDIA_TYPE_IMAGE) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + "." + HelperImage.IMAGE_EXTENSION);
+        } else if (type == HelperImage.MEDIA_TYPE_VIDEO) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator + "VID_" + timeStamp + "." + HelperImage.VIDEO_EXTENSION);
         } else {
             return null;
         }

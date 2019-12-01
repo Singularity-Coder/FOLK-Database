@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -52,6 +53,7 @@ import com.singularitycoder.folkdatabase.R;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -59,14 +61,15 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
-public class Helper extends AppCompatActivity {
+public class HelperGeneral extends AppCompatActivity {
 
-    private static final String TAG = "Helper";
+    private static final String TAG = "HelperGeneral";
     private final static int FADE_DURATION = 550;
 
     // Different Toasts n Snackbars
@@ -79,10 +82,86 @@ public class Helper extends AppCompatActivity {
         super.onCreate(savedInstanceState);
     }
 
+    public static void progressDialog(Context context) {
+        ProgressDialog dialog;
+        dialog = new ProgressDialog(context);
+        dialog.setMessage("Loading...");
+    }
+
+    public static void dismissDialog(Context context) {
+        ProgressDialog dialog;
+        dialog = new ProgressDialog(context);
+        dialog.dismiss();
+    }
+
     public static boolean hasInternet(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         assert cm != null;
         return cm.getActiveNetworkInfo() != null;
+    }
+
+    public static String getCurrentTime() {
+        Date currentTime = Calendar.getInstance().getTime();
+//        String formatTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+        String formattedTime = sdf.format(currentTime);
+        return formattedTime;
+    }
+
+    public static boolean isThisTimeGreater(String currentTime, String EndTime) {
+        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+            Date time1 = sdf.parse(currentTime);
+            Date time2 = sdf.parse(EndTime);
+            if (time1 != null && time1.after(time2)) {
+                System.out.println("time1 is after time2");
+                return true;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static String getCurrentDate() {
+        Date c = Calendar.getInstance().getTime();
+        SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy");
+//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = df.format(c);
+        return formattedDate;
+    }
+
+    public static boolean isThisDateGreater(String currentDate, String EndDate) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date1 = sdf.parse(currentDate);
+            Date date2 = sdf.parse(EndDate);
+            if (date1 != null && date1.after(date2)) {
+                System.out.println("Date1 is after Date2");
+                return true;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static String convertDateFormat(String inputDate) {
+        if (inputDate != null) {
+            DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+            DateFormat outputFormat = new SimpleDateFormat("dd MMM yyyy");
+            Date date = null;
+            try {
+                date = inputFormat.parse(inputDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return outputFormat.format(Objects.requireNonNull(date));
+        } else {
+            return "";
+        }
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -184,7 +263,7 @@ public class Helper extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
-    public static void comingSoonDialog(Activity activity) {
+    public static void dialogComingSoon(Activity activity) {
         new AlertDialog.Builder(activity)
                 .setTitle("Coming Soon")
                 // Specifying a listener allows you to take an action before dismissing the dialog.

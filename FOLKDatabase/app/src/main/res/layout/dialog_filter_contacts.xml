@@ -103,7 +103,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <com.singularitycoder.folkdatabase.helper.CustomEditText
+                <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
                     android:id="@+id/et_dialog_location"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
@@ -133,7 +133,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <com.singularitycoder.folkdatabase.helper.CustomEditText
+                <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
                     android:id="@+id/et_dialog_dob_month"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"

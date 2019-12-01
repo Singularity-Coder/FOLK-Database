@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.singularitycoder.folkdatabase.R;
-import com.singularitycoder.folkdatabase.helper.Helper;
+import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class AllUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         if (holder != null) {
             AllUsersViewHolder allUsersViewHolder = (AllUsersViewHolder) holder;
-            Helper.glideProfileImage(context, allUsersItem.getStrProfileImage(), allUsersViewHolder.imgProfileImage);
+            HelperGeneral.glideProfileImage(context, allUsersItem.getStrProfileImage(), allUsersViewHolder.imgProfileImage);
             String fullName = allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName();
             allUsersViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();

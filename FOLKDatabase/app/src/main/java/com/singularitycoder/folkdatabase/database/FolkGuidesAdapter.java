@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.singularitycoder.folkdatabase.R;
-import com.singularitycoder.folkdatabase.helper.Helper;
+import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public class FolkGuidesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         if (holder != null) {
             FolkGuidesViewHolder folkGuidesViewHolder = (FolkGuidesViewHolder) holder;
-            Helper.glideProfileImage(context, folkGuideItem.getStrProfileImage(), folkGuidesViewHolder.imgProfileImage);
+            HelperGeneral.glideProfileImage(context, folkGuideItem.getStrProfileImage(), folkGuidesViewHolder.imgProfileImage);
             folkGuidesViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();
 //                databaseActivity.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());

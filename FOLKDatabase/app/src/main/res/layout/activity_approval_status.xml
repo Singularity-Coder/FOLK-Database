@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context=".database.ApprovalStatusActivity">
+    tools:context=".auth.AuthApprovalStatusActivity">
 
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"

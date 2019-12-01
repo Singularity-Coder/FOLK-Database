@@ -14,7 +14,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -49,10 +48,8 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -66,16 +63,14 @@ import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.MainActivity;
 import com.singularitycoder.folkdatabase.database.ContactItem;
 import com.singularitycoder.folkdatabase.database.DatabaseActivity;
-import com.singularitycoder.folkdatabase.database.NotificationAdapter;
-import com.singularitycoder.folkdatabase.helper.CustomEditText;
-import com.singularitycoder.folkdatabase.helper.Helper;
+import com.singularitycoder.folkdatabase.helper.HelperConstants;
+import com.singularitycoder.folkdatabase.helper.HelperCustomEditText;
+import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -114,9 +109,21 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setUpStatusBar();
         setContentView(R.layout.activity_home);
+        init();
+        authCheck();
+        initToolBar();
+        setUpRecyclerView();
+    }
 
+
+    private void init() {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        loadingBar = new ProgressDialog(this);
+    }
+
+
+    private void authCheck() {
         authListener = firebaseAuth -> {
             FirebaseUser user = firebaseAuth.getCurrentUser();
             if (user == null) {
@@ -125,11 +132,6 @@ public class HomeActivity extends AppCompatActivity {
                 Objects.requireNonNull(this).finish();
             }
         };
-
-        loadingBar = new ProgressDialog(this);
-
-        initToolBar();
-        setUpRecyclerView();
     }
 
 
@@ -178,7 +180,6 @@ public class HomeActivity extends AppCompatActivity {
 
         homeList = new ArrayList<>();
         SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-
         String imgUrl = sp.getString("profileImage", "");
         String fullName = sp.getString("firstName", "") + " " + sp.getString("lastName", "");
 
@@ -194,11 +195,11 @@ public class HomeActivity extends AppCompatActivity {
         homeAdapter.setHasStableIds(true);
         homeAdapter.setOnItemClickListener((view, position) -> {
             if (position == 0) {
-                Helper.comingSoonDialog(HomeActivity.this);
+                HelperGeneral.dialogComingSoon(HomeActivity.this);
             }
 
             if (position == 1) {
-                Helper.comingSoonDialog(HomeActivity.this);
+                HelperGeneral.dialogComingSoon(HomeActivity.this);
             }
 
             if (position == 2) {
@@ -207,23 +208,23 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             if (position == 3) {
-                Helper.comingSoonDialog(HomeActivity.this);
+//                HelperGeneral.dialogComingSoon(HomeActivity.this);
                 Fresco.initialize(this);
                 SimpleDraweeView draweeView = findViewById(R.id.img_fresco_full_image);
                 Uri uri = Uri.parse("https://raw.githubusercontent.com/facebook/fresco/master/docs/static/logo.png");
-                draweeView.setImageURI(uri);/
+                draweeView.setImageURI(uri);
             }
 
             if (position == 4) {
-                Helper.comingSoonDialog(HomeActivity.this);
+                HelperGeneral.dialogComingSoon(HomeActivity.this);
             }
 
             if (position == 5) {
-                Helper.comingSoonDialog(HomeActivity.this);
+                HelperGeneral.dialogComingSoon(HomeActivity.this);
             }
 
             if (position == 6) {
-                Helper.comingSoonDialog(HomeActivity.this);
+                HelperGeneral.dialogComingSoon(HomeActivity.this);
             }
         });
         recyclerView.setAdapter(homeAdapter);
@@ -511,9 +512,9 @@ public class HomeActivity extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         ImageView imgClose = dialog.findViewById(R.id.img_close);
-        CustomEditText etOldPassword = dialog.findViewById(R.id.et_old_password);
-        CustomEditText etNewPassword = dialog.findViewById(R.id.et_new_password);
-        CustomEditText etNewPasswordAgain = dialog.findViewById(R.id.et_new_password_again);
+        HelperCustomEditText etOldPassword = dialog.findViewById(R.id.et_old_password);
+        HelperCustomEditText etNewPassword = dialog.findViewById(R.id.et_new_password);
+        HelperCustomEditText etNewPasswordAgain = dialog.findViewById(R.id.et_new_password_again);
         Button btnReset = dialog.findViewById(R.id.btn_change_password);
 
         imgClose.setOnClickListener(view -> dialog.dismiss());
@@ -531,14 +532,14 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    private boolean hasValidInput(CustomEditText etOldPassword, CustomEditText etNewPassword, CustomEditText etNewPasswordAgain) {
+    private boolean hasValidInput(HelperCustomEditText etOldPassword, HelperCustomEditText etNewPassword, HelperCustomEditText etNewPasswordAgain) {
         if (valueOf(etOldPassword.getText()).trim().equals("")) {
             etOldPassword.setError("Password is Required!");
             etOldPassword.requestFocus();
             return false;
         }
 
-        if (!Helper.hasValidPassword(valueOf(etOldPassword.getText()).trim())) {
+        if (!HelperGeneral.hasValidPassword(valueOf(etOldPassword.getText()).trim())) {
             etOldPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
             etOldPassword.requestFocus();
             return false;
@@ -556,7 +557,7 @@ public class HomeActivity extends AppCompatActivity {
             return false;
         }
 
-        if (!Helper.hasValidPassword(valueOf(etNewPassword.getText()).trim())) {
+        if (!HelperGeneral.hasValidPassword(valueOf(etNewPassword.getText()).trim())) {
             etNewPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
             etNewPassword.requestFocus();
             return false;
@@ -568,7 +569,7 @@ public class HomeActivity extends AppCompatActivity {
             return false;
         }
 
-        if (!Helper.hasValidPassword(valueOf(etNewPasswordAgain.getText()).trim())) {
+        if (!HelperGeneral.hasValidPassword(valueOf(etNewPasswordAgain.getText()).trim())) {
             etNewPasswordAgain.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
             etNewPasswordAgain.requestFocus();
             return false;
@@ -588,7 +589,7 @@ public class HomeActivity extends AppCompatActivity {
     private String oldPassword() {
         FirebaseFirestore
                 .getInstance()
-                .collection("AllFolkPeople")
+                .collection(HelperConstants.AUTH_FOLK_PEOPLE)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override

@@ -1,4 +1,4 @@
-package com.singularitycoder.folkdatabase.database;
+package com.singularitycoder.folkdatabase.home;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.singularitycoder.folkdatabase.R;
+import com.singularitycoder.folkdatabase.database.ContactItem;
 
 import java.util.ArrayList;
 
