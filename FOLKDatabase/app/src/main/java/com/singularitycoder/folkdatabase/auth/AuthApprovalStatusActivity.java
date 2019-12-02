@@ -78,6 +78,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
 
 
     private void inits() {
+        helperSharedPreference = HelperSharedPreference.getInstance(this);
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         btnCallAuthority = findViewById(R.id.btn_call_authority);

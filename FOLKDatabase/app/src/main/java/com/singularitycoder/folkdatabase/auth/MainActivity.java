@@ -20,6 +20,10 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,6 +72,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -292,6 +299,7 @@ public class MainActivity extends AppCompatActivity {
         private Button btnLogin;
         private TextView tvForgotPassword;
         private TextView tvNotMember;
+        private TextView tvShowHidePassword;
         private ProgressDialog loadingBar;
         private FirebaseFirestore firestore;
         private FirebaseAuth firebaseAuth;
@@ -305,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
             if ((null) != getActivity()) {
                 init(view);
                 clickListeners();
+                showHidePassword();
             }
             return view;
         }
@@ -319,6 +328,7 @@ public class MainActivity extends AppCompatActivity {
             tvForgotPassword = view.findViewById(R.id.tv_login_forgot_password);
             btnLogin = view.findViewById(R.id.btn_login);
             tvNotMember = view.findViewById(R.id.tv_login_create_account);
+            tvShowHidePassword = view.findViewById(R.id.tv_show_password);
         }
 
 
@@ -346,6 +356,43 @@ public class MainActivity extends AppCompatActivity {
             });
 
             tvNotMember.setOnClickListener(view13 -> authTabLayout.getTabAt(0).select());
+        }
+
+
+        private void showHidePassword() {
+            etPassword.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if (!etPassword.getText().toString().equals("")) {
+                        tvShowHidePassword.setVisibility(View.VISIBLE);
+                    } else {
+                        tvShowHidePassword.setVisibility(View.GONE);
+                    }
+                }
+            });
+
+
+            tvShowHidePassword.setOnClickListener(view -> {
+                if (tvShowHidePassword.getText().toString().trim().equals("SHOW")) {
+                    Log.d(TAG, "showHidePassword: got hit 1");
+                    etPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    tvShowHidePassword.setText("HIDE");
+                } else {
+                    Log.d(TAG, "showHidePassword: got hit 2");
+                    etPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    tvShowHidePassword.setText("SHOW");
+                }
+            });
         }
 
 
@@ -463,6 +510,7 @@ public class MainActivity extends AppCompatActivity {
         private TextView tvMemberType;
         private TextView tvDirectAuthority;
         private TextView tvOpenGallery;
+        private TextView tvShowHidePassword;
         private HelperCustomEditText etDirectAuthority;
         private HelperCustomEditText etFolkGuideAbbr;
         private TextView etSignUpZone;
@@ -502,6 +550,7 @@ public class MainActivity extends AppCompatActivity {
                 init(view);
                 authCheck();
                 clickListeners();
+                showHidePassword();
             }
             return view;
         }
@@ -519,7 +568,7 @@ public class MainActivity extends AppCompatActivity {
             etLastName = view.findViewById(R.id.et_signup_last_name);
             etEmail = view.findViewById(R.id.et_signup_email);
             etPhone = view.findViewById(R.id.et_signup_phone);
-            etPassword = view.findViewById(R.id.et_login_password);
+            etPassword = view.findViewById(R.id.et_signup_password);
             etFolkGuideAbbr = view.findViewById(R.id.et_signup_folk_guide);
             btnCreateAccount = view.findViewById(R.id.btn_create_account);
             ivOpenGallery = view.findViewById(R.id.iv_open_gallery);
@@ -528,6 +577,7 @@ public class MainActivity extends AppCompatActivity {
             tvSignUpMemberType = view.findViewById(R.id.et_member_type);
             etDepartment = view.findViewById(R.id.et_signup_department);
             etKcExperience = view.findViewById(R.id.et_signup_kc_experience);
+            tvShowHidePassword = view.findViewById(R.id.tv_show_password);
         }
 
 
@@ -537,6 +587,9 @@ public class MainActivity extends AppCompatActivity {
                 // if shared pref value is not null n if true or false
                 HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
                 String signUpStatus = helperSharedPreference.getSignupStatus();
+
+                startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                Objects.requireNonNull(getActivity()).finish();
 
                 if (null != signUpStatus) {
                     if (("false").equals(signUpStatus)) {
@@ -650,6 +703,43 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } else {
                     Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+
+        private void showHidePassword() {
+            etPassword.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if (!etPassword.getText().toString().equals("")) {
+                        tvShowHidePassword.setVisibility(View.VISIBLE);
+                    } else {
+                        tvShowHidePassword.setVisibility(View.GONE);
+                    }
+                }
+            });
+
+
+            tvShowHidePassword.setOnClickListener(view -> {
+                if (tvShowHidePassword.getText().toString().trim().equals("SHOW")) {
+                    Log.d(TAG, "showHidePassword: got hit 1");
+                    etPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    tvShowHidePassword.setText("HIDE");
+                } else {
+                    Log.d(TAG, "showHidePassword: got hit 2");
+                    etPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    tvShowHidePassword.setText("SHOW");
                 }
             });
         }
@@ -1101,7 +1191,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
             // Collection name is "AuthUserItem". U can create a new collection this way
-            firestore.collection(HelperConstants.AUTH_FOLK_GUIDE_APPROVALS)
+            firestore.collection(HelperConstants.AUTH_FOLK_GUIDES).document(docId).collection(HelperConstants.AUTH_FOLK_GUIDE_APPROVALS)
                     .add(authUserApprovalItem)
                     .addOnSuccessListener(documentReference1 -> {
                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
@@ -1148,7 +1238,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
             // Collection name is "AuthUserItem". U can create a new collection this way
-            firestore.collection(HelperConstants.AUTH_FOLK_TEAM_LEAD_APPROVALS)
+            firestore.collection(HelperConstants.AUTH_FOLK_TEAM_LEADS).document(docId).collection(HelperConstants.AUTH_FOLK_TEAM_LEAD_APPROVALS)
                     .add(authUserApprovalItem)
                     .addOnSuccessListener(documentReference1 -> {
                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
@@ -1225,6 +1315,20 @@ public class MainActivity extends AppCompatActivity {
             dialog.show();
         }
 
+
+        private byte[] getBytes(InputStream inputStream) throws IOException {
+            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+
+            int len = 0;
+            while ((len = inputStream.read(buffer)) != -1) {
+                byteBuffer.write(buffer, 0, len);
+            }
+            return byteBuffer.toByteArray();
+        }
+
+
         @Override
         public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
             super.onActivityResult(requestCode, resultCode, data);
@@ -1277,30 +1381,6 @@ public class MainActivity extends AppCompatActivity {
 
                     bytesArray = new byte[(int) file.length()];
 
-
-//                    RandomAccessFile f = null;
-//                    try {
-//                        f = new RandomAccessFile(newImagePath, "r");
-//                    } catch (FileNotFoundException e) {
-//                        e.printStackTrace();
-//                    }
-//                    byte[] bytes = new byte[0];
-//                    try {
-//                        bytes = new byte[(int) f.length()];
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    try {
-//                        f.read(bytes);
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    try {
-//                        f.close();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-
                     System.out.println("bytesArray 1: " + Arrays.toString(bytesArray));
                     System.out.println("file size: " + (int) file.length() / (1024 * 1024) + " mb");
                     fileSize = (int) file.length() / (1024 * 1024);
@@ -1308,6 +1388,28 @@ public class MainActivity extends AppCompatActivity {
                     if ((null) != getActivity())
                         Toast.makeText(getActivity(), "File Path is Empty", Toast.LENGTH_SHORT).show();
                 }
+
+
+                // Get byte data - but not byte Array
+                byte[] byteData = new byte[0];
+                InputStream iStream = null;
+                try {
+                    iStream = Objects.requireNonNull(getActivity()).getContentResolver().openInputStream(Uri.fromFile(new File(newImagePath)));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    byteData = getBytes(Objects.requireNonNull(iStream));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        iStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
 
                 if (fileSize <= 5.0) {
 

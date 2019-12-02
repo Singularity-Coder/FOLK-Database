@@ -503,7 +503,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_phone" />
 
             <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
-                android:id="@+id/et_login_password"
+                android:id="@+id/et_signup_password"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
@@ -518,6 +518,7 @@
                 android:maxLength="60"
                 android:maxLines="1"
                 android:nestedScrollingEnabled="true"
+                android:paddingEnd="70dp"
                 android:scrollHorizontally="true"
                 android:singleLine="true"
                 android:textColor="@color/colorBlack"
@@ -525,6 +526,27 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_login_password" />
+
+            <TextView
+                android:id="@+id/tv_show_password"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:ellipsize="end"
+                android:gravity="center_horizontal"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:maxLines="2"
+                android:paddingTop="15dp"
+                android:paddingEnd="15dp"
+                android:paddingBottom="15dp"
+                android:text="SHOW"
+                android:textColor="@color/colorAccent"
+                android:textSize="14sp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/et_signup_password"
+                app:layout_constraintEnd_toEndOf="@+id/et_signup_password"
+                app:layout_constraintTop_toTopOf="@+id/et_signup_password" />
 
             <TextView
                 android:id="@+id/tv_signup_terms"
@@ -545,7 +567,7 @@
                 app:layout_constraintBottom_toTopOf="@+id/btn_create_account"
                 app:layout_constraintEnd_toEndOf="@+id/et_signup_email"
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
-                app:layout_constraintTop_toBottomOf="@+id/et_login_password" />
+                app:layout_constraintTop_toBottomOf="@+id/et_signup_password" />
 
             <Button
                 android:id="@+id/btn_create_account"

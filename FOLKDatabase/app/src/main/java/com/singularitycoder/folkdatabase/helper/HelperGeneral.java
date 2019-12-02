@@ -327,23 +327,12 @@ public class HelperGeneral extends AppCompatActivity {
         dialogName.show();
     }
 
-    /**
-     * Get activity instance from desired context.
-     */
-    public static Activity getActivity(Context context) {
-        if (context == null) return null;
-        if (context instanceof Activity) return (Activity) context;
-        if (context instanceof ContextWrapper)
-            return getActivity(((ContextWrapper) context).getBaseContext());
-        return null;
-    }
-
-
+    // Get activity instance from any context.
     public static Activity giveMeActivity(Context context) {
         if (context == null) return null;
         if (context instanceof Activity) return (Activity) context;
         if (context instanceof ContextWrapper)
-            return getActivity(((ContextWrapper) context).getBaseContext());
+            return giveMeActivity(((ContextWrapper) context).getBaseContext());
         return null;
     }
 

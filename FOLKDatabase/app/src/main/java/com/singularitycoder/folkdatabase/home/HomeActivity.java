@@ -527,7 +527,6 @@ public class HomeActivity extends AppCompatActivity {
                 AsyncTask.execute(() -> changePassword(valueOf(etNewPassword.getText()).trim()));
             }
         });
-
         dialog.show();
     }
 
