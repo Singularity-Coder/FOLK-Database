@@ -49,6 +49,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -319,13 +320,14 @@ public class DatabaseActivity extends AppCompatActivity {
         private ArrayList<ContactItem> contactList;
         private RecyclerView recyclerView;
         private ContactsAdapter contactsAdapter;
-        private ProgressBar progressBar;
+        //        private ProgressBar progressBar;
         private ProgressDialog loadingBar;
         private ContactItem personItemModel;
         private SwipeRefreshLayout swipeRefreshLayout;
         private TextView noInternetText;
         private TextView tvListCount;
         private String strOldPassword;
+        private ShimmerFrameLayout shimmerFrameLayout;
 
         public ContactFragment() {
         }
@@ -353,12 +355,17 @@ public class DatabaseActivity extends AppCompatActivity {
 
 
         private void init(View view) {
-            Fresco.initialize(Objects.requireNonNull(getActivity()));
+            if (null != getActivity()) {
+                Fresco.initialize(Objects.requireNonNull(getActivity()));
+            }
             recyclerView = view.findViewById(R.id.recycler_person);
-            progressBar = view.findViewById(R.id.progress_circular);
+//            progressBar = view.findViewById(R.id.progress_circular);
             noInternetText = view.findViewById(R.id.tv_no_internet);
             tvListCount = view.findViewById(R.id.tv_list_count);
-            loadingBar = new ProgressDialog(getActivity());
+            shimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
+            if (null != getActivity()) {
+                loadingBar = new ProgressDialog(getActivity());
+            }
             swipeRefreshLayout = view.findViewById(R.id.refresh_layout);
         }
 
@@ -366,8 +373,10 @@ public class DatabaseActivity extends AppCompatActivity {
         private void setRefreshLayout() {
             swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
             swipeRefreshLayout.setOnRefreshListener(() -> {
-                progressBar.setVisibility(View.VISIBLE);
-                getData(getActivity());
+                shimmerFrameLayout.setVisibility(View.VISIBLE);
+                if (null != getActivity()) {
+                    getData(getActivity());
+                }
             });
         }
 
@@ -383,38 +392,40 @@ public class DatabaseActivity extends AppCompatActivity {
             } else {
                 noInternetText.setVisibility(View.VISIBLE);
                 swipeRefreshLayout.setRefreshing(false);
-                progressBar.setVisibility(View.GONE);
+                shimmerFrameLayout.setVisibility(View.GONE);
             }
         }
 
 
         private void setUpRecyclerView() {
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getBaseContext());
-            recyclerView.setLayoutManager(linearLayoutManager);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setItemViewCacheSize(20);
-            recyclerView.setDrawingCacheEnabled(true);
-            recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-            contactList = new ArrayList<>();
-            contactsAdapter = new ContactsAdapter(getContext(), contactList);
-            contactsAdapter.setHasStableIds(true);
-            contactsAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
-                    Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
-                    // Start activity
-                    ContactItem contactItem = contactList.get(position);
-                    Intent contactIntent = new Intent(getContext(), ProfileActivity.class);
-                    contactIntent.putExtra("profileKey", "CONTACT");
-                    contactIntent.putExtra("contactItem", contactItem);
-                    startActivity(contactIntent);
-                }
-            });
-            recyclerView.setAdapter(contactsAdapter);
+            if (null != getActivity()) {
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getBaseContext());
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setItemViewCacheSize(20);
+                recyclerView.setDrawingCacheEnabled(true);
+                recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+                contactList = new ArrayList<>();
+                contactsAdapter = new ContactsAdapter(getContext(), contactList);
+                contactsAdapter.setHasStableIds(true);
+                contactsAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
+                        // Start activity
+                        ContactItem contactItem = contactList.get(position);
+                        Intent contactIntent = new Intent(getContext(), ProfileActivity.class);
+                        contactIntent.putExtra("profileKey", "CONTACT");
+                        contactIntent.putExtra("contactItem", contactItem);
+                        startActivity(contactIntent);
+                    }
+                });
+                recyclerView.setAdapter(contactsAdapter);
+            }
         }
 
 
-        class ReadContactsAsync extends AsyncTask<String, Integer, String>  {
+        class ReadContactsAsync extends AsyncTask<String, Integer, String> {
 
             @Override
             protected void onPreExecute() {
@@ -443,7 +454,7 @@ public class DatabaseActivity extends AppCompatActivity {
         private void readContactsData() {
             FirebaseFirestore.getInstance().collection(HelperConstants.FOLK_MEMBERS).get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
-                        progressBar.setVisibility(View.GONE);
+                        shimmerFrameLayout.setVisibility(View.GONE);
                         if (!queryDocumentSnapshots.isEmpty()) {
                             List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
                             Log.d(TAG, "docList: " + docList);
@@ -476,8 +487,8 @@ public class DatabaseActivity extends AppCompatActivity {
                                         personItemModel.setStrBirthday(docSnap.getString("dob"));
                                     }
 
-                                    personItemModel.setStrLocation(docSnap.getString("stay_map"));
-                                    personItemModel.setStrRecidencyInterest(valueOf(docSnap.getString("recidency_interest")));
+                                    personItemModel.setStrLocation(docSnap.getString("city"));
+                                    personItemModel.setStrRecidencyInterest(valueOf(docSnap.getString("folk_residency_interest")));
                                     personItemModel.setStrPhone(valueOf(docSnap.getString("mobile")));
                                     personItemModel.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
                                     personItemModel.setStrEmail(valueOf(docSnap.getString("email")));
@@ -522,7 +533,9 @@ public class DatabaseActivity extends AppCompatActivity {
 
                     filteredContactsList.add(contact);
                     Log.d(TAG, "birthday list: " + filteredContactsList);
-                    Toast.makeText(getActivity(), "got a match", Toast.LENGTH_SHORT).show();
+                    if (null != getActivity()) {
+                        Toast.makeText(getActivity(), "got a match", Toast.LENGTH_SHORT).show();
+                    }
 
                     // send notification that many number of times as the lsit loops
                 }
@@ -564,7 +577,9 @@ public class DatabaseActivity extends AppCompatActivity {
                 case R.id.action_contact_search:
                     return true;
                 case R.id.action__contact_filter:
-                    contactFilterDialog(getActivity());
+                    if (null != getActivity()) {
+                        contactFilterDialog(getActivity());
+                    }
                     return true;
             }
             return super.onOptionsItemSelected(item);
@@ -751,23 +766,25 @@ public class DatabaseActivity extends AppCompatActivity {
 
 
         private void residencyInterest(TextView tvResidencyInterest) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
-            builder.setTitle("Interested in Recidency?");
-            String[] selectArray = {"YES", "NO"};
-            builder.setItems(selectArray, (dialog, which) -> {
-                switch (which) {
-                    case 0:
-                        tvResidencyInterest.setText("YES");
-                        Log.d(TAG, "Recidency Interest 1: " + valueOf(tvResidencyInterest.getText()));
-                        break;
-                    case 1:
-                        tvResidencyInterest.setText("NO");
-                        Log.d(TAG, "Recidency Interest 2: " + valueOf(tvResidencyInterest.getText()));
-                        break;
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
+            if (null != getActivity()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
+                builder.setTitle("Interested in Recidency?");
+                String[] selectArray = {"YES", "NO"};
+                builder.setItems(selectArray, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            tvResidencyInterest.setText("YES");
+                            Log.d(TAG, "Recidency Interest 1: " + valueOf(tvResidencyInterest.getText()));
+                            break;
+                        case 1:
+                            tvResidencyInterest.setText("NO");
+                            Log.d(TAG, "Recidency Interest 2: " + valueOf(tvResidencyInterest.getText()));
+                            break;
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
         }
 
 
@@ -875,11 +892,12 @@ public class DatabaseActivity extends AppCompatActivity {
         private RecyclerView recyclerView;
         private FolkGuidesAdapter folkGuidesAdapter;
         private FolkGuideItem folkGuideItem;
-        private ProgressBar progressBar;
+        //        private ProgressBar progressBar;
         private ProgressDialog loadingBar;
         private SwipeRefreshLayout swipeRefreshLayout;
         private TextView noInternetText;
         private TextView tvListCount;
+        private ShimmerFrameLayout shimmerFrameLayout;
 
         public FolkGuidesFragment() {
         }
@@ -893,50 +911,62 @@ public class DatabaseActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_person, container, false);
-
-            recyclerView = view.findViewById(R.id.recycler_person);
-            progressBar = view.findViewById(R.id.progress_circular);
-            noInternetText = view.findViewById(R.id.tv_no_internet);
-            tvListCount = view.findViewById(R.id.tv_list_count);
-
-            loadingBar = new ProgressDialog(getActivity());
-
-            swipeRefreshLayout = view.findViewById(R.id.refresh_layout);
-            swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
-            swipeRefreshLayout.setOnRefreshListener(() -> {
-                progressBar.setVisibility(View.VISIBLE);
+            if (null != getActivity()) {
+                init(view);
+                setRefreshLayout();
                 getData(getActivity());
-            });
-
-            getData(getActivity());
-            setUpRecyclerView();
-
+                setUpRecyclerView();
+            }
             return view;
         }
 
-        private void setUpRecyclerView() {
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(Objects.requireNonNull(getActivity()).getBaseContext());
-            recyclerView.setLayoutManager(linearLayoutManager);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setItemViewCacheSize(20);
-            recyclerView.setDrawingCacheEnabled(true);
-            recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+        private void init(View view) {
+            recyclerView = view.findViewById(R.id.recycler_person);
+//            progressBar = view.findViewById(R.id.progress_circular);
+            noInternetText = view.findViewById(R.id.tv_no_internet);
+            tvListCount = view.findViewById(R.id.tv_list_count);
+            shimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
+            if (null != getActivity()) {
+                loadingBar = new ProgressDialog(getActivity());
+            }
+            swipeRefreshLayout = view.findViewById(R.id.refresh_layout);
+        }
 
-            folkGuidesList = new ArrayList<>();
-
-            folkGuidesAdapter = new FolkGuidesAdapter(getContext(), folkGuidesList);
-            folkGuidesAdapter.setHasStableIds(true);
-            folkGuidesAdapter.setOnItemClickListener(new FolkGuidesAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
-                    Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
-                    // Start activity
-                    Intent adminIntent = new Intent(getContext(), ProfileActivity.class);
-                    adminIntent.putExtra("openAdmin", "ADMIN");
-                    startActivity(adminIntent);
+        private void setRefreshLayout() {
+            swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                shimmerFrameLayout.setVisibility(View.VISIBLE);
+                if (null != getActivity()) {
+                    getData(getActivity());
                 }
             });
-            recyclerView.setAdapter(folkGuidesAdapter);
+        }
+
+        private void setUpRecyclerView() {
+            if (null != getActivity()) {
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(Objects.requireNonNull(getActivity()).getBaseContext());
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setItemViewCacheSize(20);
+                recyclerView.setDrawingCacheEnabled(true);
+                recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
+                folkGuidesList = new ArrayList<>();
+
+                folkGuidesAdapter = new FolkGuidesAdapter(getContext(), folkGuidesList);
+                folkGuidesAdapter.setHasStableIds(true);
+                folkGuidesAdapter.setOnItemClickListener(new FolkGuidesAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
+                        // Start activity
+                        Intent adminIntent = new Intent(getContext(), ProfileActivity.class);
+                        adminIntent.putExtra("openAdmin", "ADMIN");
+                        startActivity(adminIntent);
+                    }
+                });
+                recyclerView.setAdapter(folkGuidesAdapter);
+            }
         }
 
         private void getData(final Context context) {
@@ -950,7 +980,7 @@ public class DatabaseActivity extends AppCompatActivity {
             } else {
                 noInternetText.setVisibility(View.VISIBLE);
                 swipeRefreshLayout.setRefreshing(false);
-                progressBar.setVisibility(View.GONE);
+                shimmerFrameLayout.setVisibility(View.GONE);
             }
         }
 
@@ -959,7 +989,7 @@ public class DatabaseActivity extends AppCompatActivity {
             if (null != getActivity()) {
                 FirebaseFirestore.getInstance().collection(HelperConstants.FOLK_GUIDES).get()
                         .addOnSuccessListener(queryDocumentSnapshots -> {
-                            progressBar.setVisibility(View.GONE);
+                            shimmerFrameLayout.setVisibility(View.GONE);
                             if (!queryDocumentSnapshots.isEmpty()) {
                                 List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
                                 Log.d(TAG, "docList: " + docList);
@@ -1086,50 +1116,61 @@ public class DatabaseActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_person, container, false);
+            init(view);
+            setRefreshLayout();
+            if (null != getActivity()) {
+                getData(getActivity());
+            }
+            setUpRecyclerView();
+            return view;
+        }
 
+        private void init(View view) {
             recyclerView = view.findViewById(R.id.recycler_person);
             progressBar = view.findViewById(R.id.progress_circular);
             noInternetText = view.findViewById(R.id.tv_no_internet);
             tvListCount = view.findViewById(R.id.tv_list_count);
-
-            loadingBar = new ProgressDialog(getActivity());
-
+            if (null != getActivity()) {
+                loadingBar = new ProgressDialog(getActivity());
+            }
             swipeRefreshLayout = view.findViewById(R.id.refresh_layout);
+        }
+
+        private void setRefreshLayout() {
             swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
             swipeRefreshLayout.setOnRefreshListener(() -> {
                 progressBar.setVisibility(View.VISIBLE);
-                getData(getActivity());
+                if (null != getActivity()) {
+                    getData(getActivity());
+                }
             });
-
-            getData(getActivity());
-            setUpRecyclerView();
-
-            return view;
         }
 
         private void setUpRecyclerView() {
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(Objects.requireNonNull(getActivity()).getBaseContext());
-            recyclerView.setLayoutManager(linearLayoutManager);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setItemViewCacheSize(20);
-            recyclerView.setDrawingCacheEnabled(true);
-            recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+            if (null != getActivity()) {
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(Objects.requireNonNull(getActivity()).getBaseContext());
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setItemViewCacheSize(20);
+                recyclerView.setDrawingCacheEnabled(true);
+                recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
-            allUsersList = new ArrayList<>();
+                allUsersList = new ArrayList<>();
 
-            allUsersAdapter = new AllUsersAdapter(getContext(), allUsersList);
-            allUsersAdapter.setHasStableIds(true);
-            allUsersAdapter.setOnItemClickListener(new AllUsersAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
-                    Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
-                    // Start activity
-                    Intent adminIntent = new Intent(getContext(), ProfileActivity.class);
-                    adminIntent.putExtra("openAdmin", "ADMIN");
-                    startActivity(adminIntent);
-                }
-            });
-            recyclerView.setAdapter(allUsersAdapter);
+                allUsersAdapter = new AllUsersAdapter(getContext(), allUsersList);
+                allUsersAdapter.setHasStableIds(true);
+                allUsersAdapter.setOnItemClickListener(new AllUsersAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
+                        // Start activity
+                        Intent adminIntent = new Intent(getContext(), ProfileActivity.class);
+                        adminIntent.putExtra("openAdmin", "ADMIN");
+                        startActivity(adminIntent);
+                    }
+                });
+                recyclerView.setAdapter(allUsersAdapter);
+            }
         }
 
         private void getData(final Context context) {
@@ -1176,10 +1217,16 @@ public class DatabaseActivity extends AppCompatActivity {
                                 tvListCount.setText(allUsersList.size() + " Registered Users");
                             }
                             allUsersAdapter.notifyDataSetChanged();
-                            Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
+                            if (null != getActivity()) {
+                                Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     })
-                    .addOnFailureListener(e -> Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> {
+                        if (null != getActivity()) {
+                            Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
         }
 
 

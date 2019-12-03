@@ -322,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
         private void init(View view) {
             firebaseAuth = FirebaseAuth.getInstance();
             firestore = FirebaseFirestore.getInstance();
-            loadingBar = new ProgressDialog(getActivity());
+            if ((null) != getActivity()) loadingBar = new ProgressDialog(getActivity());
             etEmail = view.findViewById(R.id.et_login_email);
             etPassword = view.findViewById(R.id.et_login_password);
             tvForgotPassword = view.findViewById(R.id.tv_login_forgot_password);
@@ -334,7 +334,9 @@ public class MainActivity extends AppCompatActivity {
 
         private void clickListeners() {
             tvForgotPassword.setOnClickListener(view12 -> {
-                dialogForgotPassword(Objects.requireNonNull(getActivity()));
+                if ((null) != getActivity()) {
+                    dialogForgotPassword(Objects.requireNonNull(getActivity()));
+                }
             });
 
             btnLogin.setOnClickListener(view1 -> {
@@ -351,7 +353,9 @@ public class MainActivity extends AppCompatActivity {
                         AsyncTask.execute(() -> loginUser(email, password));
                     }
                 } else {
-                    Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
+                    if ((null) != getActivity()) {
+                        Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
 
@@ -429,21 +433,26 @@ public class MainActivity extends AppCompatActivity {
 
         // Login using Firebase Auth
         private void loginUser(String email, String password) {
-            loadingBar.show();
-            loadingBar.setMessage("Please wait, while we are checking the credentials!");
-            loadingBar.setCanceledOnTouchOutside(false);
-            firebaseAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(Objects.requireNonNull(getActivity()), task -> {
-                        loadingBar.dismiss();
-                        if (task.isSuccessful()) {
-                            Intent intent = new Intent(getActivity(), HomeActivity.class);
-                            startActivity(intent);
-                            Objects.requireNonNull(getActivity()).finish();
-                        } else {
-                            // Error
-                            Toast.makeText(getActivity(), "Failed to login. Please try again", Toast.LENGTH_LONG).show();
-                        }
-                    });
+            if ((null) != getActivity()) {
+                loadingBar.show();
+                loadingBar.setMessage("Please wait, while we are checking the credentials!");
+                loadingBar.setCanceledOnTouchOutside(false);
+                firebaseAuth.signInWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(Objects.requireNonNull(getActivity()), task -> {
+                            loadingBar.dismiss();
+                            if (task.isSuccessful()) {
+                                if ((null) != getActivity()) {
+                                    Intent intent = new Intent(getActivity(), HomeActivity.class);
+                                    startActivity(intent);
+                                    Objects.requireNonNull(getActivity()).finish();
+                                }
+                            } else {
+                                if ((null) != getActivity()) {
+                                    Toast.makeText(getActivity(), "Failed to login. Please try again", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+            }
         }
 
 
@@ -485,22 +494,28 @@ public class MainActivity extends AppCompatActivity {
 
 
         private void resetPassword(String email) {
-            getActivity().runOnUiThread(() -> {
-                loadingBar.show();
-                loadingBar.setMessage("Please wait...");
-                loadingBar.setCanceledOnTouchOutside(false);
-            });
+            if (null != getActivity()) {
+                getActivity().runOnUiThread(() -> {
+                    loadingBar.show();
+                    loadingBar.setMessage("Please wait...");
+                    loadingBar.setCanceledOnTouchOutside(false);
+                });
+            }
             firebaseAuth.sendPasswordResetEmail(email)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            if ((null) != getActivity())
+                            if ((null) != getActivity()) {
                                 Toast.makeText(getActivity(), "We have sent you instructions to reset your password!", Toast.LENGTH_SHORT).show();
+                            }
                         } else {
-                            if ((null) != getActivity())
+                            if ((null) != getActivity()) {
                                 Toast.makeText(getActivity(), "Failed to send reset email!", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
-            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+            if ((null) != getActivity()) {
+                getActivity().runOnUiThread(() -> loadingBar.dismiss());
+            }
         }
     }
 
@@ -559,7 +574,7 @@ public class MainActivity extends AppCompatActivity {
         private void init(View view) {
             firebaseAuth = FirebaseAuth.getInstance();
             firestore = FirebaseFirestore.getInstance();
-            loadingBar = new ProgressDialog(getActivity());
+            if ((null) != getActivity()) loadingBar = new ProgressDialog(getActivity());
             tvTermsPrivacy = view.findViewById(R.id.tv_signup_terms);
             etSignUpZone = view.findViewById(R.id.et_signup_zone_type);
             tvDirectAuthority = view.findViewById(R.id.tv_signup_direct_authority);
@@ -585,19 +600,26 @@ public class MainActivity extends AppCompatActivity {
             if (firebaseAuth.getCurrentUser() != null) {
                 // check if key is false. If ture then send to main activity
                 // if shared pref value is not null n if true or false
-                HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
-                String signUpStatus = helperSharedPreference.getSignupStatus();
-
-                startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
-                Objects.requireNonNull(getActivity()).finish();
-
-                if (null != signUpStatus) {
-                    if (("false").equals(signUpStatus)) {
+                if (null != getActivity()) {
+                    HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
+                    String signUpStatus = helperSharedPreference.getSignupStatus();
+                    if (null != getActivity()) {
                         startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
                         Objects.requireNonNull(getActivity()).finish();
-                    } else {
-                        startActivity(new Intent(getActivity(), HomeActivity.class));
-                        Objects.requireNonNull(getActivity()).finish();
+                    }
+
+                    if (null != signUpStatus) {
+                        if (("false").equals(signUpStatus)) {
+                            if (null != getActivity()) {
+                                startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                                Objects.requireNonNull(getActivity()).finish();
+                            }
+                        } else {
+                            if (null != getActivity()) {
+                                startActivity(new Intent(getActivity(), HomeActivity.class));
+                                Objects.requireNonNull(getActivity()).finish();
+                            }
+                        }
                     }
                 }
             }
@@ -606,45 +628,54 @@ public class MainActivity extends AppCompatActivity {
 
         private void clickListeners() {
             ivOpenGallery.setOnClickListener(view14 -> {
-                Dexter.withActivity(getActivity())
-                        .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        .withListener(new MultiplePermissionsListener() {
-                            @Override
-                            public void onPermissionsChecked(MultiplePermissionsReport report) {
-                                if (report.areAllPermissionsGranted()) {
-                                    showImagePickerOptions();
+                if (null != getActivity()) {
+                    Dexter.withActivity(getActivity())
+                            .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            .withListener(new MultiplePermissionsListener() {
+                                @Override
+                                public void onPermissionsChecked(MultiplePermissionsReport report) {
+                                    if (report.areAllPermissionsGranted()) {
+                                        showImagePickerOptions();
+                                    }
+                                    if (report.isAnyPermissionPermanentlyDenied()) {
+                                        if (null != getActivity()) {
+                                            showSettingsDialog(getActivity());
+                                        }
+                                    }
                                 }
-                                if (report.isAnyPermissionPermanentlyDenied()) {
-                                    showSettingsDialog(getActivity());
-                                }
-                            }
 
-                            @Override
-                            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                                token.continuePermissionRequest();
-                            }
-                        }).check();
+                                @Override
+                                public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                                    token.continuePermissionRequest();
+                                }
+                            }).check();
+                }
             });
 
-            tvOpenGallery.setOnClickListener(view15 -> {
-                Dexter.withActivity(getActivity())
-                        .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        .withListener(new MultiplePermissionsListener() {
-                            @Override
-                            public void onPermissionsChecked(MultiplePermissionsReport report) {
-                                if (report.areAllPermissionsGranted()) {
-                                    showImagePickerOptions();
-                                }
-                                if (report.isAnyPermissionPermanentlyDenied()) {
-                                    showSettingsDialog(getActivity());
-                                }
-                            }
 
-                            @Override
-                            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                                token.continuePermissionRequest();
-                            }
-                        }).check();
+            tvOpenGallery.setOnClickListener(view15 -> {
+                if (null != getActivity()) {
+                    Dexter.withActivity(getActivity())
+                            .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            .withListener(new MultiplePermissionsListener() {
+                                @Override
+                                public void onPermissionsChecked(MultiplePermissionsReport report) {
+                                    if (report.areAllPermissionsGranted()) {
+                                        showImagePickerOptions();
+                                    }
+                                    if (report.isAnyPermissionPermanentlyDenied()) {
+                                        if (null != getActivity()) {
+                                            showSettingsDialog(getActivity());
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                                    token.continuePermissionRequest();
+                                }
+                            }).check();
+                }
             });
 
             tvSignUpMemberType.setOnClickListener(view16 -> dialogSignUpMemberType());
@@ -702,7 +733,9 @@ public class MainActivity extends AppCompatActivity {
                         });
                     }
                 } else {
-                    Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
+                    if (null != getActivity()) {
+                        Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }
@@ -874,26 +907,45 @@ public class MainActivity extends AppCompatActivity {
 
 
         private void createAccount(String zone, String memberType, String directAuthority, String folkGuideAbbr, String department, String kcExperience, String firstName, String lastName, String email, String phone, String password, String creationTimeStamp) {
-            getActivity().runOnUiThread(() -> loadingBar.show());
+            if (null != getActivity()) {
+                getActivity().runOnUiThread(() -> {
+                    loadingBar.show();
+                    loadingBar.setMessage("Creating Firebase Auth Account...");
+                });
+            }
             //create user
-            firebaseAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(Objects.requireNonNull(getActivity()), task -> {
-                        Toast.makeText(getActivity(), "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
-                        if (task.isSuccessful()) {
-                            // 2 If success then store image in storeage, on success of storage create firestore credentials
-                            uploadProfileImage(imageUriArray, imageExtensionStringArray, imageNameStringArray, zone, memberType, directAuthority, folkGuideAbbr, department, kcExperience, firstName, lastName, email, phone, password, creationTimeStamp);
-                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
-                        } else {
-                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
-                            if (task.getException() instanceof FirebaseAuthUserCollisionException) {
-                                Toast.makeText(getActivity(), "Email already exists! Login or use different Email!", Toast.LENGTH_SHORT).show();
-                                etEmail.setError("Email already exists! Login or use different Email!");
-                            } else {
-                                Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            if (null != getActivity()) {
+                firebaseAuth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(Objects.requireNonNull(getActivity()), task -> {
+                            if (null != getActivity()) {
+                                Toast.makeText(getActivity(), "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
                             }
-                            Toast.makeText(getActivity(), "Authentication failed." + task.getException(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                            if (task.isSuccessful()) {
+                                // 2 If success then store image in storeage, on success of storage create firestore credentials
+                                uploadProfileImage(imageUriArray, imageExtensionStringArray, imageNameStringArray, zone, memberType, directAuthority, folkGuideAbbr, department, kcExperience, firstName, lastName, email, phone, password, creationTimeStamp);
+                                if (null != getActivity()) {
+                                    getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                }
+                            } else {
+                                if (null != getActivity()) {
+                                    getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                }
+                                if (task.getException() instanceof FirebaseAuthUserCollisionException) {
+                                    if (null != getActivity()) {
+                                        Toast.makeText(getActivity(), "Email already exists! Login or use different Email!", Toast.LENGTH_SHORT).show();
+                                    }
+                                    etEmail.setError("Email already exists! Login or use different Email!");
+                                } else {
+                                    if (null != getActivity()) {
+                                        Toast.makeText(getActivity(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                                if (null != getActivity()) {
+                                    Toast.makeText(getActivity(), "Authentication failed." + task.getException(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            }
         }
 
 
@@ -915,11 +967,15 @@ public class MainActivity extends AppCompatActivity {
                 String creationTimeStamp) {
 
             // if adding in storage is successful then add the entry of the url in Firestore
-            final ProgressDialog progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setMessage("Please Wait");
-            progressDialog.setCanceledOnTouchOutside(false);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
+            if (null != getActivity()) {
+                getActivity().runOnUiThread(() -> {
+                    loadingBar.show();
+                    loadingBar.setMessage("Uploading Profile Image...");
+                    loadingBar.setCanceledOnTouchOutside(false);
+                    loadingBar.setCancelable(false);
+                    loadingBar.show();
+                });
+            }
 
             for (int i = 0; i < imgUriArray.size(); i++) {
                 final int finalI = i;
@@ -939,8 +995,9 @@ public class MainActivity extends AppCompatActivity {
                                             .child(imgUriArray.get(finalI).getImageName())
                                             .getDownloadUrl()
                                             .addOnCompleteListener(task1 -> {
-
-                                                progressDialog.setMessage("Uploading");
+                                                if (null != getActivity()) {
+                                                    getActivity().runOnUiThread(() -> loadingBar.setMessage("Uploading"));
+                                                }
                                                 if (task1.isSuccessful()) {
 
                                                     // 3. Create user using Firestore DB image storage, get Profile image uri from storage
@@ -961,19 +1018,24 @@ public class MainActivity extends AppCompatActivity {
                                                             creationTimeStamp);
 
                                                     Log.d(TAG, "task data: " + valueOf(task1.getResult()));
-                                                    progressDialog.dismiss();
-
+                                                    if (null != getActivity()) {
+                                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                                    }
                                                 } else {
                                                     FirebaseStorage.getInstance().getReference()
                                                             .child(HelperConstants.FOLK_PROFILE_IMAGES_PATH)
                                                             .child(imageUriArray.get(finalI).getImageName())
                                                             .delete();
-                                                    Toast.makeText(getActivity(), "Couldn't upload Image", Toast.LENGTH_SHORT).show();
-                                                    progressDialog.dismiss();
+                                                    if (null != getActivity()) {
+                                                        Toast.makeText(getActivity(), "Couldn't upload Image", Toast.LENGTH_SHORT).show();
+                                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                                    }
                                                 }
                                             });
                                 } else {
-                                    Toast.makeText(getActivity(), "Some Error. Couldn't Uplaod", Toast.LENGTH_SHORT).show();
+                                    if (null != getActivity()) {
+                                        Toast.makeText(getActivity(), "Some Error. Couldn't Uplaod", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             });
                 }
@@ -1002,6 +1064,11 @@ public class MainActivity extends AppCompatActivity {
                 String profileImage,
                 String signUpStatus,
                 String creationTimeStamp) {
+
+            getActivity().runOnUiThread(() -> {
+                loadingBar.show();
+                loadingBar.setMessage("Setting Firestore Values...");
+            });
 
             // AuthUserItem obj
             AuthUserItem authUserItem = new AuthUserItem(
@@ -1064,7 +1131,9 @@ public class MainActivity extends AppCompatActivity {
                                     .add(authUserItem1)
                                     .addOnSuccessListener(documentReference13 -> {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference13.getId());
-                                        Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                        if (null != getActivity()) {
+                                            Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                        }
                                         // Create another collection for FolkGuideApprovals -> to Team Leads
                                         authUserItem1.setDocId(documentReference13.getId());
                                         btnCreateAccount.setEnabled(false);
@@ -1072,8 +1141,10 @@ public class MainActivity extends AppCompatActivity {
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.w(TAG, "Error adding document", e);
-                                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
-                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                        if (null != getActivity()) {
+                                            Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                        }
                                     });
                         }
 
@@ -1102,7 +1173,9 @@ public class MainActivity extends AppCompatActivity {
                                     .add(authUserItem1)
                                     .addOnSuccessListener(documentReference12 -> {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference12.getId());
-                                        Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                        if (null != getActivity()) {
+                                            Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                        }
                                         // Collection for Team Lead approvals -> to Zonal Heads
                                         authUserItem1.setDocId(documentReference12.getId());
                                         btnCreateAccount.setEnabled(false);
@@ -1110,8 +1183,10 @@ public class MainActivity extends AppCompatActivity {
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.w(TAG, "Error adding document", e);
-                                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
-                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                        if (null != getActivity()) {
+                                            Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                        }
                                     });
                         }
 
@@ -1140,24 +1215,30 @@ public class MainActivity extends AppCompatActivity {
                                     .add(authUserItem1)
                                     .addOnSuccessListener(documentReference1 -> {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
-                                        Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                                        authUserItem1.setDocId(documentReference1.getId());
-                                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
-                                        Objects.requireNonNull(getActivity()).finish();
-                                        btnCreateAccount.setEnabled(false);
-                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                        if (null != getActivity()) {
+                                            Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                            authUserItem1.setDocId(documentReference1.getId());
+                                            startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                                            Objects.requireNonNull(getActivity()).finish();
+                                            btnCreateAccount.setEnabled(false);
+                                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                        }
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.w(TAG, "Error adding document", e);
-                                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
-                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                        if (null != getActivity()) {
+                                            Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                        }
                                     });
                         }
                     })
                     .addOnFailureListener(e -> {
                         Log.w(TAG, "Error adding document", e);
-                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
-                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        if (null != getActivity()) {
+                            Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        }
                     });
         }
 
@@ -1195,16 +1276,20 @@ public class MainActivity extends AppCompatActivity {
                     .add(authUserApprovalItem)
                     .addOnSuccessListener(documentReference1 -> {
                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
-                        Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
-                        Objects.requireNonNull(getActivity()).finish();
-                        btnCreateAccount.setEnabled(false);
-                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        if (null != getActivity()) {
+                            Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                            Objects.requireNonNull(getActivity()).finish();
+                            btnCreateAccount.setEnabled(false);
+                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        }
                     })
                     .addOnFailureListener(e -> {
                         Log.w(TAG, "Error adding document", e);
-                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
-                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        if (null != getActivity()) {
+                            Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        }
                     });
         }
 
@@ -1242,42 +1327,48 @@ public class MainActivity extends AppCompatActivity {
                     .add(authUserApprovalItem)
                     .addOnSuccessListener(documentReference1 -> {
                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
-                        Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
-                        Objects.requireNonNull(getActivity()).finish();
-                        btnCreateAccount.setEnabled(false);
-                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        if (null != getActivity()) {
+                            Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                            Objects.requireNonNull(getActivity()).finish();
+                            btnCreateAccount.setEnabled(false);
+                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        }
                     })
                     .addOnFailureListener(e -> {
                         Log.w(TAG, "Error adding document", e);
-                        Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
-                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        if (null != getActivity()) {
+                            Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        }
                     });
         }
 
 
         private void dialogSignUpMemberType() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
-            builder.setTitle("I am a");
-            String[] selectArray = {"FOLK Guide", "Team Lead", "Zonal Head"};
-            builder.setItems(selectArray, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case 0:
-                            tvSignUpMemberType.setText("FOLK Guide");
-                            break;
-                        case 1:
-                            tvSignUpMemberType.setText("Team Lead");
-                            break;
-                        case 2:
-                            tvSignUpMemberType.setText("Zonal Head");
-                            break;
+            if (null != getActivity()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
+                builder.setTitle("I am a");
+                String[] selectArray = {"FOLK Guide", "Team Lead", "Zonal Head"};
+                builder.setItems(selectArray, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                tvSignUpMemberType.setText("FOLK Guide");
+                                break;
+                            case 1:
+                                tvSignUpMemberType.setText("Team Lead");
+                                break;
+                            case 2:
+                                tvSignUpMemberType.setText("Zonal Head");
+                                break;
+                        }
                     }
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
         }
 
         private void showImagePickerOptions() {
@@ -1289,30 +1380,32 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private void dialogSignUpZone() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(Objects.requireNonNull(getActivity())));
-            builder.setTitle("Which Zone?");
-            String[] selectArray = {"Bengaluru South", "Bengaluru North", "Ahemadabad South", "Ahemadabad North"};
-            builder.setItems(selectArray, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    switch (which) {
-                        case 0:
-                            etSignUpZone.setText("Bengaluru South");
-                            break;
-                        case 1:
-                            etSignUpZone.setText("Bengaluru North");
-                            break;
-                        case 2:
-                            etSignUpZone.setText("Ahemadabad South");
-                            break;
-                        case 3:
-                            etSignUpZone.setText("Ahemadabad North");
-                            break;
+            if (null != getActivity()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(Objects.requireNonNull(getActivity())));
+                builder.setTitle("Which Zone?");
+                String[] selectArray = {"Bengaluru South", "Bengaluru North", "Ahemadabad South", "Ahemadabad North"};
+                builder.setItems(selectArray, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                etSignUpZone.setText("Bengaluru South");
+                                break;
+                            case 1:
+                                etSignUpZone.setText("Bengaluru North");
+                                break;
+                            case 2:
+                                etSignUpZone.setText("Ahemadabad South");
+                                break;
+                            case 3:
+                                etSignUpZone.setText("Ahemadabad North");
+                                break;
+                        }
                     }
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.show();
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
         }
 
 
@@ -1385,8 +1478,9 @@ public class MainActivity extends AppCompatActivity {
                     System.out.println("file size: " + (int) file.length() / (1024 * 1024) + " mb");
                     fileSize = (int) file.length() / (1024 * 1024);
                 } else {
-                    if ((null) != getActivity())
+                    if ((null) != getActivity()) {
                         Toast.makeText(getActivity(), "File Path is Empty", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
 
@@ -1394,7 +1488,9 @@ public class MainActivity extends AppCompatActivity {
                 byte[] byteData = new byte[0];
                 InputStream iStream = null;
                 try {
-                    iStream = Objects.requireNonNull(getActivity()).getContentResolver().openInputStream(Uri.fromFile(new File(newImagePath)));
+                    if (null != getActivity()) {
+                        iStream = Objects.requireNonNull(getActivity()).getContentResolver().openInputStream(Uri.fromFile(new File(newImagePath)));
+                    }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -1434,8 +1530,9 @@ public class MainActivity extends AppCompatActivity {
 
                     dialog.dismiss();
                 } else {
-                    if ((null) != getActivity())
+                    if ((null) != getActivity()) {
                         Toast.makeText(getActivity(), "Max file size is 5 MB only!", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         }
