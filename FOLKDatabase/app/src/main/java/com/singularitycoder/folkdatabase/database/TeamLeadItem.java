@@ -4,7 +4,7 @@ import com.google.firebase.firestore.Exclude;
 
 import java.io.Serializable;
 
-public class FolkGuideItem implements Serializable {
+public class TeamLeadItem implements Serializable {
 
     @Exclude
     private String id;
@@ -12,17 +12,17 @@ public class FolkGuideItem implements Serializable {
     private String strProfileImage;
     private String strFirstName;
     private String strLastName;
-    private String strFolkGuideAbbr;
+    private String strTeamLeadAbbr;
     private String strZone;
 
     private String strPhone;
     private String strWhatsApp;
     private String strEmail;
 
-    public FolkGuideItem() {
+    public TeamLeadItem() {
     }
 
-    public FolkGuideItem(String strProfileImage, String strFirstName, String strLastName) {
+    public TeamLeadItem(String strProfileImage, String strFirstName, String strLastName) {
         this.strProfileImage = strProfileImage;
         this.strFirstName = strFirstName;
         this.strLastName = strLastName;
@@ -84,12 +84,12 @@ public class FolkGuideItem implements Serializable {
         this.strEmail = strEmail;
     }
 
-    public String getStrFolkGuideAbbr() {
-        return strFolkGuideAbbr;
+    public String getstrTeamLeadAbbr() {
+        return strTeamLeadAbbr;
     }
 
-    public void setStrFolkGuideAbbr(String strFolkGuideAbbr) {
-        this.strFolkGuideAbbr = strFolkGuideAbbr;
+    public void setstrTeamLeadAbbr(String strTeamLeadAbbr) {
+        this.strTeamLeadAbbr = strTeamLeadAbbr;
     }
 
     public String getStrZone() {

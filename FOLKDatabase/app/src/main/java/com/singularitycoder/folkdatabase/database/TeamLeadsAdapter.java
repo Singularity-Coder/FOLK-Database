@@ -17,50 +17,49 @@ import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
 
-public class AllUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class TeamLeadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;
-    private ArrayList<AllUsersItem> allUsersList;
+    private ArrayList<TeamLeadItem> teamLeadsList;
     private OnItemClickListener clickListener;
 
-    public AllUsersAdapter() {
+    public TeamLeadsAdapter() {
     }
 
-    public AllUsersAdapter(Context context, ArrayList<AllUsersItem> allUsersList) {
+    public TeamLeadsAdapter(Context context, ArrayList<TeamLeadItem> adminList) {
         this.context = context;
-        this.allUsersList = allUsersList;
+        this.teamLeadsList = adminList;
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_person, parent, false);
-        return new AllUsersViewHolder(v);
+        return new TeamLeadsViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        AllUsersItem allUsersItem = allUsersList.get(position);
+        TeamLeadItem teamLeadItem = teamLeadsList.get(position);
 
-        if (holder != null) {
-            AllUsersViewHolder allUsersViewHolder = (AllUsersViewHolder) holder;
-            HelperGeneral.glideProfileImage(context, allUsersItem.getStrProfileImage(), allUsersViewHolder.imgProfileImage);
-            String fullName = allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName();
-            allUsersViewHolder.imgProfileImage.setOnClickListener(view -> {
+        if (null != holder) {
+            TeamLeadsViewHolder TeamLeadsViewHolder = (TeamLeadsViewHolder) holder;
+            HelperGeneral.glideProfileImage(context, teamLeadItem.getStrProfileImage(), TeamLeadsViewHolder.imgProfileImage);
+            TeamLeadsViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();
-                databaseActivity.showQuickInfoDialog(context, fullName, allUsersItem.getStrProfileImage(), allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail());
+                databaseActivity.showQuickInfoDialog(context, teamLeadItem.getStrFirstName(), teamLeadItem.getStrProfileImage(), teamLeadItem.getStrPhone(), teamLeadItem.getStrWhatsApp(), teamLeadItem.getStrEmail());
             });
 
-            allUsersViewHolder.tvName.setText(allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName());
-            allUsersViewHolder.tvSubTitle1.setText("Experience in KC: " + allUsersItem.getStrKcExperience() + " Years");
-            allUsersViewHolder.tvSubTitle2.setText("Member Type: " + allUsersItem.getStrMemberType());
+            TeamLeadsViewHolder.tvName.setText(teamLeadItem.getstrTeamLeadAbbr());
+            TeamLeadsViewHolder.tvSubTitle1.setText("Full Name: " + teamLeadItem.getStrFirstName());
+            TeamLeadsViewHolder.tvSubTitle2.setText("Zone: " + teamLeadItem.getStrZone());
         }
     }
 
 
     @Override
     public int getItemCount() {
-        return allUsersList.size();
+        return teamLeadsList.size();
     }
 
     @Override
@@ -68,18 +67,17 @@ public class AllUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         return position;
     }
 
-    public void filterList(ArrayList<AllUsersItem> list) {
-        this.allUsersList = list;
+    public void flterList(ArrayList<TeamLeadItem> list) {
+        this.teamLeadsList = list;
         notifyDataSetChanged();
     }
 
-
-    class AllUsersViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class TeamLeadsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         CircularImageView imgProfileImage;
         TextView tvName, tvSubTitle1, tvSubTitle2;
 
-        AllUsersViewHolder(@NonNull View itemView) {
+        public TeamLeadsViewHolder(@NonNull View itemView) {
             super(itemView);
 
             imgProfileImage = itemView.findViewById(R.id.img_profile_pic);
@@ -92,7 +90,12 @@ public class AllUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         @Override
         public void onClick(View view) {
-            clickListener.onItemClick(view, getAdapterPosition());
+//            clickListener.onItemClick(view, getAdapterPosition());
+            TeamLeadItem teamLeadItem = teamLeadsList.get(getAdapterPosition());
+            Intent intent = new Intent(context, ProfileActivity.class);
+            intent.putExtra("profileKey", "TEAMLEAD");
+            intent.putExtra("teamleadItem", teamLeadItem);
+            context.startActivity(intent);
         }
     }
 

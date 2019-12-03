@@ -28,7 +28,6 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,7 +47,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -56,6 +54,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.singularitycoder.folkdatabase.helper.HelperConstants;
 import com.singularitycoder.folkdatabase.helper.HelperCustomEditText;
+import com.singularitycoder.folkdatabase.helper.HelperFrescoImageViewer;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
@@ -242,8 +241,11 @@ public class DatabaseActivity extends AppCompatActivity {
         ImageView imgProfilePic = dialog.findViewById(R.id.img_profile_image);
         HelperGeneral.glideProfileImage(context, imageUrl, imgProfilePic);
         imgProfilePic.setOnClickListener(v -> {
-            SimpleDraweeView draweeView = findViewById(R.id.img_fresco_full_image);
-            draweeView.setImageURI(imageUrl);
+//            SimpleDraweeView draweeView = findViewById(R.id.img_fresco_full_image);
+//            draweeView.setImageURI(imageUrl);
+            Intent intent = new Intent(context, HelperFrescoImageViewer.class);
+            intent.putExtra("image_url", imageUrl);
+            context.startActivity(intent);
         });
 
         ImageView imgCall = dialog.findViewById(R.id.img_quick_call);
@@ -320,7 +322,6 @@ public class DatabaseActivity extends AppCompatActivity {
         private ArrayList<ContactItem> contactList;
         private RecyclerView recyclerView;
         private ContactsAdapter contactsAdapter;
-        //        private ProgressBar progressBar;
         private ProgressDialog loadingBar;
         private ContactItem personItemModel;
         private SwipeRefreshLayout swipeRefreshLayout;
@@ -414,10 +415,10 @@ public class DatabaseActivity extends AppCompatActivity {
                         Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
                         // Start activity
                         ContactItem contactItem = contactList.get(position);
-                        Intent contactIntent = new Intent(getContext(), ProfileActivity.class);
-                        contactIntent.putExtra("profileKey", "CONTACT");
-                        contactIntent.putExtra("contactItem", contactItem);
-                        startActivity(contactIntent);
+                        Intent intent = new Intent(getContext(), ProfileActivity.class);
+                        intent.putExtra("profileKey", "CONTACT");
+                        intent.putExtra("contactItem", contactItem);
+                        startActivity(intent);
                     }
                 });
                 recyclerView.setAdapter(contactsAdapter);
@@ -892,7 +893,6 @@ public class DatabaseActivity extends AppCompatActivity {
         private RecyclerView recyclerView;
         private FolkGuidesAdapter folkGuidesAdapter;
         private FolkGuideItem folkGuideItem;
-        //        private ProgressBar progressBar;
         private ProgressDialog loadingBar;
         private SwipeRefreshLayout swipeRefreshLayout;
         private TextView noInternetText;
@@ -922,7 +922,6 @@ public class DatabaseActivity extends AppCompatActivity {
 
         private void init(View view) {
             recyclerView = view.findViewById(R.id.recycler_person);
-//            progressBar = view.findViewById(R.id.progress_circular);
             noInternetText = view.findViewById(R.id.tv_no_internet);
             tvListCount = view.findViewById(R.id.tv_list_count);
             shimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
@@ -960,9 +959,11 @@ public class DatabaseActivity extends AppCompatActivity {
                     public void onItemClick(View view, int position) {
                         Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
                         // Start activity
-                        Intent adminIntent = new Intent(getContext(), ProfileActivity.class);
-                        adminIntent.putExtra("openAdmin", "ADMIN");
-                        startActivity(adminIntent);
+                        Intent intent = new Intent(getContext(), ProfileActivity.class);
+                        FolkGuideItem folkGuideItem = folkGuidesList.get(position);
+                        intent.putExtra("profileKey", "FOLKGUIDE");
+                        intent.putExtra("folkguideItem", folkGuideItem);
+                        startActivity(intent);
                     }
                 });
                 recyclerView.setAdapter(folkGuidesAdapter);
@@ -999,12 +1000,12 @@ public class DatabaseActivity extends AppCompatActivity {
                                     if (folkGuideItem != null) {
                                         Log.d(TAG, "personItem: " + folkGuideItem);
                                         folkGuideItem.setId(docSnap.getId());
-                                        folkGuideItem.setStrFirstName(docSnap.getString("Name"));
-                                        folkGuideItem.setStrKcExperience(docSnap.getString("Experience in KC(years)"));
-                                        folkGuideItem.setStrDepartment(docSnap.getString("Department"));
-                                        folkGuideItem.setStrPhone(docSnap.getString("mobile"));
-                                        folkGuideItem.setStrWhatsApp(docSnap.getString("whatsapp"));
-                                        folkGuideItem.setStrEmail(docSnap.getString("email"));
+                                        folkGuideItem.setStrFirstName(docSnap.getString(HelperConstants.KEY_FG_NAME));
+                                        folkGuideItem.setStrFolkGuideAbbr(docSnap.getString(HelperConstants.KEY_FG_ABBR));
+                                        folkGuideItem.setStrZone(docSnap.getString(HelperConstants.KEY_ZONE));
+                                        folkGuideItem.setStrPhone(docSnap.getString(HelperConstants.KEY_MOBILE_NUMBER));
+                                        folkGuideItem.setStrWhatsApp(docSnap.getString(HelperConstants.KEY_MOBILE_NUMBER));
+                                        folkGuideItem.setStrEmail(docSnap.getString(HelperConstants.KEY_EMAIL));
                                     }
                                     Log.d(TAG, "firedoc id: " + docSnap.getId());
                                     folkGuidesList.add(folkGuideItem);
@@ -1069,23 +1070,382 @@ public class DatabaseActivity extends AppCompatActivity {
             }
             folkGuidesAdapter.flterList(filterdUsers);
         }
-
-
     }
 
 
     ////////////////////////////////////////////////////// FRAGMENT 3
     public static class TeamLeadsFragment extends Fragment {
 
+        private static final String TAG = "TeamLeadsFragment";
+        private ArrayList<TeamLeadItem> teamLeadList;
+        private RecyclerView recyclerView;
+        private TeamLeadsAdapter teamLeadsAdapter;
+        private TeamLeadItem teamLeadItem;
+        private ProgressDialog loadingBar;
+        private SwipeRefreshLayout swipeRefreshLayout;
+        private TextView noInternetText;
+        private TextView tvListCount;
+        private ShimmerFrameLayout shimmerFrameLayout;
+
         public TeamLeadsFragment() {
         }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setHasOptionsMenu(true);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.fragment_person, container, false);
+            if (null != getActivity()) {
+                init(view);
+                setRefreshLayout();
+                getData(getActivity());
+                setUpRecyclerView();
+            }
+            return view;
+        }
+
+        private void init(View view) {
+            recyclerView = view.findViewById(R.id.recycler_person);
+            noInternetText = view.findViewById(R.id.tv_no_internet);
+            tvListCount = view.findViewById(R.id.tv_list_count);
+            shimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
+            if (null != getActivity()) {
+                loadingBar = new ProgressDialog(getActivity());
+            }
+            swipeRefreshLayout = view.findViewById(R.id.refresh_layout);
+        }
+
+        private void setRefreshLayout() {
+            swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                shimmerFrameLayout.setVisibility(View.VISIBLE);
+                if (null != getActivity()) {
+                    getData(getActivity());
+                }
+            });
+        }
+
+        private void setUpRecyclerView() {
+            if (null != getActivity()) {
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(Objects.requireNonNull(getActivity()).getBaseContext());
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setItemViewCacheSize(20);
+                recyclerView.setDrawingCacheEnabled(true);
+                recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
+                teamLeadList = new ArrayList<>();
+
+                teamLeadsAdapter = new TeamLeadsAdapter(getContext(), teamLeadList);
+                teamLeadsAdapter.setHasStableIds(true);
+                teamLeadsAdapter.setOnItemClickListener(new TeamLeadsAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
+                        // Start activity
+                        Intent intent = new Intent(getContext(), ProfileActivity.class);
+                        TeamLeadItem teamLeadItem = teamLeadList.get(position);
+                        intent.putExtra("profileKey", "TEAMLEAD");
+                        intent.putExtra("teamleadItem", teamLeadItem);
+                        startActivity(intent);
+                    }
+                });
+                recyclerView.setAdapter(teamLeadsAdapter);
+            }
+        }
+
+        private void getData(final Context context) {
+            if (hasInternet(context)) {
+                Log.d(TAG, "hit 1");
+                setUpRecyclerView();
+                AsyncTask.execute(this::readFolkGuidesData);
+                noInternetText.setVisibility(View.GONE);
+                swipeRefreshLayout.setRefreshing(false);
+                teamLeadsAdapter.notifyDataSetChanged();
+            } else {
+                noInternetText.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setRefreshing(false);
+                shimmerFrameLayout.setVisibility(View.GONE);
+            }
+        }
+
+        // READ
+        private void readFolkGuidesData() {
+            if (null != getActivity()) {
+                FirebaseFirestore.getInstance().collection(HelperConstants.TEAM_LEADS).get()
+                        .addOnSuccessListener(queryDocumentSnapshots -> {
+                            shimmerFrameLayout.setVisibility(View.GONE);
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                                Log.d(TAG, "docList: " + docList);
+
+                                for (DocumentSnapshot docSnap : docList) {
+                                    teamLeadItem = docSnap.toObject(TeamLeadItem.class);
+                                    if (teamLeadItem != null) {
+                                        Log.d(TAG, "personItem: " + teamLeadItem);
+                                        teamLeadItem.setId(docSnap.getId());
+                                        teamLeadItem.setStrFirstName(docSnap.getString(HelperConstants.KEY_FG_NAME));
+                                        teamLeadItem.setstrTeamLeadAbbr(docSnap.getString(HelperConstants.KEY_FG_ABBR));
+                                        teamLeadItem.setStrZone(docSnap.getString(HelperConstants.KEY_ZONE));
+                                        teamLeadItem.setStrPhone(docSnap.getString(HelperConstants.KEY_MOBILE_NUMBER));
+                                        teamLeadItem.setStrWhatsApp(docSnap.getString(HelperConstants.KEY_MOBILE_NUMBER));
+                                        teamLeadItem.setStrEmail(docSnap.getString(HelperConstants.KEY_EMAIL));
+                                    }
+                                    Log.d(TAG, "firedoc id: " + docSnap.getId());
+                                    teamLeadList.add(teamLeadItem);
+                                    tvListCount.setText(teamLeadList.size() + " Team Leads");
+                                }
+                                teamLeadsAdapter.notifyDataSetChanged();
+                                if (null != getActivity()) {
+                                    Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            if (null != getActivity()) {
+                                Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+        }
+
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            inflater.inflate(R.menu.menu_folk_guides, menu);
+
+            MenuItem searchItem = menu.findItem(R.id.action_folk_guide_search);
+            SearchView searchView = (SearchView) searchItem.getActionView();
+            searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            searchView.setQueryHint("Search Team Leads");
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    searchFolkGuides(newText);
+                    return false;
+                }
+            });
+
+            super.onCreateOptionsMenu(menu, inflater);
+        }
+
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_team_lead_search:
+                    return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+
+
+        private void searchFolkGuides(String text) {
+            ArrayList<TeamLeadItem> filterdUsers = new ArrayList<>();
+            for (TeamLeadItem teamLead : teamLeadList) {
+                if (teamLead.getStrFirstName().toLowerCase().trim().contains(text.toLowerCase())) {
+                    filterdUsers.add(teamLead);
+                }
+            }
+            teamLeadsAdapter.flterList(filterdUsers);
+        }
+
     }
 
 
     ////////////////////////////////////////////////////// FRAGMENT 4
     public static class ZonalHeadsFragment extends Fragment {
 
+        private static final String TAG = "ZonalHeadsFragment";
+        private ArrayList<ZonalHeadItem> zonalHeadsList;
+        private RecyclerView recyclerView;
+        private ZonalHeadsAdapter zonalHeadsAdapter;
+        private ZonalHeadItem zonalHeadItem;
+        private ProgressDialog loadingBar;
+        private SwipeRefreshLayout swipeRefreshLayout;
+        private TextView noInternetText;
+        private TextView tvListCount;
+        private ShimmerFrameLayout shimmerFrameLayout;
+
         public ZonalHeadsFragment() {
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setHasOptionsMenu(true);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.fragment_person, container, false);
+            init(view);
+            setRefreshLayout();
+            if (null != getActivity()) {
+                getData(getActivity());
+            }
+            setUpRecyclerView();
+            return view;
+        }
+
+        private void init(View view) {
+            recyclerView = view.findViewById(R.id.recycler_person);
+            shimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
+            noInternetText = view.findViewById(R.id.tv_no_internet);
+            tvListCount = view.findViewById(R.id.tv_list_count);
+            if (null != getActivity()) {
+                loadingBar = new ProgressDialog(getActivity());
+            }
+            swipeRefreshLayout = view.findViewById(R.id.refresh_layout);
+        }
+
+        private void setRefreshLayout() {
+            swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                shimmerFrameLayout.setVisibility(View.VISIBLE);
+                if (null != getActivity()) {
+                    getData(getActivity());
+                }
+            });
+        }
+
+        private void setUpRecyclerView() {
+            if (null != getActivity()) {
+                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(Objects.requireNonNull(getActivity()).getBaseContext());
+                recyclerView.setLayoutManager(linearLayoutManager);
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setItemViewCacheSize(20);
+                recyclerView.setDrawingCacheEnabled(true);
+                recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+
+                zonalHeadsList = new ArrayList<>();
+
+                zonalHeadsAdapter = new ZonalHeadsAdapter(getContext(), zonalHeadsList);
+                zonalHeadsAdapter.setHasStableIds(true);
+                zonalHeadsAdapter.setOnItemClickListener(new ZonalHeadsAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
+                        ZonalHeadItem zonalHeadItem = zonalHeadsList.get(position);
+                        Intent intent = new Intent(getActivity(), ProfileActivity.class);
+                        intent.putExtra("profileKey", "ZONALHEAD");
+                        intent.putExtra("zonalheadItem", zonalHeadItem);
+                        startActivity(intent);
+                    }
+                });
+                recyclerView.setAdapter(zonalHeadsAdapter);
+            }
+        }
+
+        private void getData(final Context context) {
+            if (hasInternet(context)) {
+                Log.d(TAG, "hit 1");
+                setUpRecyclerView();
+                AsyncTask.execute(this::readAllUsersData);
+                noInternetText.setVisibility(View.GONE);
+                swipeRefreshLayout.setRefreshing(false);
+                zonalHeadsAdapter.notifyDataSetChanged();
+            } else {
+                noInternetText.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setRefreshing(false);
+                shimmerFrameLayout.setVisibility(View.GONE);
+            }
+        }
+
+        // READ
+        private void readAllUsersData() {
+            FirebaseFirestore.getInstance().collection(HelperConstants.AUTH_FOLK_ZONAL_HEADS).get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        shimmerFrameLayout.setVisibility(View.GONE);
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                            Log.d(TAG, "docList: " + docList);
+
+                            for (DocumentSnapshot docSnap : docList) {
+                                zonalHeadItem = docSnap.toObject(ZonalHeadItem.class);
+                                if (zonalHeadItem != null) {
+                                    Log.d(TAG, "personItem: " + zonalHeadItem);
+                                    // catch null for every single field here only ...oooooooooooomg
+                                    zonalHeadItem.setId(docSnap.getId());
+                                    zonalHeadItem.setStrFirstName(docSnap.getString("firstName"));
+                                    zonalHeadItem.setStrLastName(docSnap.getString("lastName"));
+                                    zonalHeadItem.setStrKcExperience(docSnap.getString("kcExperience"));
+                                    zonalHeadItem.setStrMemberType(docSnap.getString("memberType"));
+                                    zonalHeadItem.setStrProfileImage(docSnap.getString("profileImageUrl"));
+                                    zonalHeadItem.setStrPhone(docSnap.getString("phone"));
+                                    zonalHeadItem.setStrWhatsApp(docSnap.getString("phone"));
+                                    zonalHeadItem.setStrEmail(docSnap.getString("email"));
+                                }
+                                Log.d(TAG, "firedoc id: " + docSnap.getId());
+                                zonalHeadsList.add(zonalHeadItem);
+                                tvListCount.setText(zonalHeadsList.size() + " Zonal Heads");
+                            }
+                            zonalHeadsAdapter.notifyDataSetChanged();
+                            if (null != getActivity()) {
+                                Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        if (null != getActivity()) {
+                            Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            inflater.inflate(R.menu.menu_all_users, menu);
+
+            MenuItem searchItem = menu.findItem(R.id.action_all_users_search);
+            SearchView searchView = (SearchView) searchItem.getActionView();
+            searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            searchView.setQueryHint("Search Zonal Heads");
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    searchAllUsers(newText);
+                    return false;
+                }
+            });
+
+            super.onCreateOptionsMenu(menu, inflater);
+        }
+
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_zonal_head_search:
+                    return true;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+
+
+        private void searchAllUsers(String text) {
+            ArrayList<ZonalHeadItem> filterdUsers = new ArrayList<>();
+            for (ZonalHeadItem zonalHead : zonalHeadsList) {
+                if (zonalHead.getStrFirstName().toLowerCase().trim().contains(text.toLowerCase())) {
+                    filterdUsers.add(zonalHead);
+                }
+            }
+            zonalHeadsAdapter.filterList(filterdUsers);
         }
     }
 
@@ -1098,11 +1458,11 @@ public class DatabaseActivity extends AppCompatActivity {
         private RecyclerView recyclerView;
         private AllUsersAdapter allUsersAdapter;
         private AllUsersItem allUsersItem;
-        private ProgressBar progressBar;
         private ProgressDialog loadingBar;
         private SwipeRefreshLayout swipeRefreshLayout;
         private TextView noInternetText;
         private TextView tvListCount;
+        private ShimmerFrameLayout shimmerFrameLayout;
 
         public AllUsersFragment() {
         }
@@ -1127,7 +1487,8 @@ public class DatabaseActivity extends AppCompatActivity {
 
         private void init(View view) {
             recyclerView = view.findViewById(R.id.recycler_person);
-            progressBar = view.findViewById(R.id.progress_circular);
+//            progressBar = view.findViewById(R.id.progress_circular);
+            shimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
             noInternetText = view.findViewById(R.id.tv_no_internet);
             tvListCount = view.findViewById(R.id.tv_list_count);
             if (null != getActivity()) {
@@ -1139,7 +1500,7 @@ public class DatabaseActivity extends AppCompatActivity {
         private void setRefreshLayout() {
             swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
             swipeRefreshLayout.setOnRefreshListener(() -> {
-                progressBar.setVisibility(View.VISIBLE);
+                shimmerFrameLayout.setVisibility(View.VISIBLE);
                 if (null != getActivity()) {
                     getData(getActivity());
                 }
@@ -1163,10 +1524,11 @@ public class DatabaseActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(View view, int position) {
                         Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
-                        // Start activity
-                        Intent adminIntent = new Intent(getContext(), ProfileActivity.class);
-                        adminIntent.putExtra("openAdmin", "ADMIN");
-                        startActivity(adminIntent);
+                        AllUsersItem allUsersItem = allUsersList.get(position);
+                        Intent intent = new Intent(getActivity(), ProfileActivity.class);
+                        intent.putExtra("profileKey", "ALLUSER");
+                        intent.putExtra("alluserItem", allUsersItem);
+                        startActivity(intent);
                     }
                 });
                 recyclerView.setAdapter(allUsersAdapter);
@@ -1184,7 +1546,7 @@ public class DatabaseActivity extends AppCompatActivity {
             } else {
                 noInternetText.setVisibility(View.VISIBLE);
                 swipeRefreshLayout.setRefreshing(false);
-                progressBar.setVisibility(View.GONE);
+                shimmerFrameLayout.setVisibility(View.GONE);
             }
         }
 
@@ -1192,7 +1554,7 @@ public class DatabaseActivity extends AppCompatActivity {
         private void readAllUsersData() {
             FirebaseFirestore.getInstance().collection(HelperConstants.AUTH_FOLK_PEOPLE).get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
-                        progressBar.setVisibility(View.GONE);
+                        shimmerFrameLayout.setVisibility(View.GONE);
                         if (!queryDocumentSnapshots.isEmpty()) {
                             List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
                             Log.d(TAG, "docList: " + docList);
@@ -1237,7 +1599,7 @@ public class DatabaseActivity extends AppCompatActivity {
             MenuItem searchItem = menu.findItem(R.id.action_all_users_search);
             SearchView searchView = (SearchView) searchItem.getActionView();
             searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
-            searchView.setQueryHint("Search Folk Guides");
+            searchView.setQueryHint("Search All Users");
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {

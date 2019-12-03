@@ -4,7 +4,7 @@ import com.google.firebase.firestore.Exclude;
 
 import java.io.Serializable;
 
-public class FolkGuideItem implements Serializable {
+public class ZonalHeadItem implements Serializable {
 
     @Exclude
     private String id;
@@ -12,20 +12,22 @@ public class FolkGuideItem implements Serializable {
     private String strProfileImage;
     private String strFirstName;
     private String strLastName;
-    private String strFolkGuideAbbr;
-    private String strZone;
+    private String strKcExperience;
+    private String strMemberType;
 
     private String strPhone;
     private String strWhatsApp;
     private String strEmail;
 
-    public FolkGuideItem() {
+    public ZonalHeadItem() {
     }
 
-    public FolkGuideItem(String strProfileImage, String strFirstName, String strLastName) {
+    public ZonalHeadItem(String strProfileImage, String strFirstName, String strLastName, String strKcExperience, String strMemberType) {
         this.strProfileImage = strProfileImage;
         this.strFirstName = strFirstName;
         this.strLastName = strLastName;
+        this.strKcExperience = strKcExperience;
+        this.strMemberType = strMemberType;
     }
 
     public String getId() {
@@ -60,6 +62,22 @@ public class FolkGuideItem implements Serializable {
         this.strLastName = strLastName;
     }
 
+    public String getStrKcExperience() {
+        return strKcExperience;
+    }
+
+    public void setStrKcExperience(String strKcExperience) {
+        this.strKcExperience = strKcExperience;
+    }
+
+    public String getStrMemberType() {
+        return strMemberType;
+    }
+
+    public void setStrMemberType(String strMemberType) {
+        this.strMemberType = strMemberType;
+    }
+
     public String getStrPhone() {
         return strPhone;
     }
@@ -82,21 +100,5 @@ public class FolkGuideItem implements Serializable {
 
     public void setStrEmail(String strEmail) {
         this.strEmail = strEmail;
-    }
-
-    public String getStrFolkGuideAbbr() {
-        return strFolkGuideAbbr;
-    }
-
-    public void setStrFolkGuideAbbr(String strFolkGuideAbbr) {
-        this.strFolkGuideAbbr = strFolkGuideAbbr;
-    }
-
-    public String getStrZone() {
-        return strZone;
-    }
-
-    public void setStrZone(String strZone) {
-        this.strZone = strZone;
     }
 }

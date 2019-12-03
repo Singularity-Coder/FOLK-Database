@@ -57,6 +57,9 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.AuthUserItem;
 import com.singularitycoder.folkdatabase.auth.MainActivity;
+import com.singularitycoder.folkdatabase.database.TeamLeadItem;
+import com.singularitycoder.folkdatabase.database.ZonalHeadItem;
+import com.singularitycoder.folkdatabase.helper.HelperFrescoImageViewer;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.database.AllUsersItem;
 import com.singularitycoder.folkdatabase.database.ContactItem;
@@ -84,7 +87,9 @@ public class ProfileActivity extends AppCompatActivity {
 
     private ContactItem contactItem;
     private FolkGuideItem folkGuideItem;
+    private TeamLeadItem teamLeadItem;
     private AllUsersItem allUsersItem;
+    private ZonalHeadItem zonalHeadItem;
     private AuthUserItem authUserItem;
 
     // Create a firebase auth object
@@ -138,9 +143,19 @@ public class ProfileActivity extends AppCompatActivity {
             folkGuideItem = (FolkGuideItem) intent.getSerializableExtra("folkguideItem");
         }
 
+        if (("TEAMLEAD").equals(profileKey)) {
+            // load registered folk guide data from firestore
+            teamLeadItem = (TeamLeadItem) intent.getSerializableExtra("teamleadItem");
+        }
+
         if (("CONTACT").equals(profileKey)) {
             // load contact data from firestore
             contactItem = (ContactItem) intent.getSerializableExtra("contactItem");
+        }
+
+        if (("ZONALHEAD").equals(profileKey)) {
+            // load contact data from firestore
+            zonalHeadItem = (ZonalHeadItem) intent.getSerializableExtra("zonalheadItem");
         }
 
         if (("ALLUSER").equals(profileKey)) {
@@ -179,6 +194,11 @@ public class ProfileActivity extends AppCompatActivity {
 
         if (("AUTHUSER").equals(profileKey)) {
             HelperGeneral.glideProfileImage(this, authUserItem.getProfileImageUrl(), ivProfileImage);
+            ivProfileImage.setOnClickListener(view -> {
+                Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
+                intent.putExtra("image_url", authUserItem.getProfileImageUrl());
+                startActivity(intent);
+            });
             tvName.setText(authUserItem.getFirstName() + " " + authUserItem.getLastName());
             tvSubTitle.setText(authUserItem.getMemberType());
             profileActions(this, authUserItem.getPhone(), authUserItem.getPhone(), authUserItem.getEmail());
@@ -187,23 +207,63 @@ public class ProfileActivity extends AppCompatActivity {
 
         if (("FOLKGUIDE").equals(profileKey)) {
             HelperGeneral.glideProfileImage(this, folkGuideItem.getStrProfileImage(), ivProfileImage);
-            tvName.setText(folkGuideItem.getStrFirstName());
-            tvSubTitle.setText("KC Experience: " + folkGuideItem.getStrKcExperience());
-//            profileActions(this, folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
-            profileActions(this, "9999999999", "9999999999", "email@email.com");
+            ivProfileImage.setOnClickListener(view -> {
+                Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
+                intent.putExtra("image_url", folkGuideItem.getStrProfileImage());
+                startActivity(intent);
+            });
+            tvName.setText(folkGuideItem.getStrFolkGuideAbbr());
+            tvSubTitle.setText("Full Name: " + folkGuideItem.getStrFirstName());
+            profileActions(this, folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
+            conLayProfileActions.setVisibility(View.VISIBLE);
+        }
+
+        if (("TEAMLEAD").equals(profileKey)) {
+            HelperGeneral.glideProfileImage(this, teamLeadItem.getStrProfileImage(), ivProfileImage);
+            ivProfileImage.setOnClickListener(view -> {
+                Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
+                intent.putExtra("image_url", teamLeadItem.getStrProfileImage());
+                startActivity(intent);
+            });
+            tvName.setText(teamLeadItem.getstrTeamLeadAbbr());
+            tvSubTitle.setText("Full Name: " + teamLeadItem.getStrFirstName());
+            profileActions(this, teamLeadItem.getStrPhone(), teamLeadItem.getStrWhatsApp(), teamLeadItem.getStrEmail());
             conLayProfileActions.setVisibility(View.VISIBLE);
         }
 
         if (("CONTACT").equals(profileKey)) {
             HelperGeneral.glideProfileImage(this, contactItem.getStrProfileImage(), ivProfileImage);
+            ivProfileImage.setOnClickListener(view -> {
+                Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
+                intent.putExtra("image_url", contactItem.getStrProfileImage());
+                startActivity(intent);
+            });
             tvName.setText(contactItem.getFirstName());
             tvSubTitle.setText(contactItem.getStrFolkGuide());
             profileActions(this, contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail());
             conLayProfileActions.setVisibility(View.VISIBLE);
         }
 
+        if (("ZONALHEAD").equals(profileKey)) {
+            HelperGeneral.glideProfileImage(this, zonalHeadItem.getStrProfileImage(), ivProfileImage);
+            ivProfileImage.setOnClickListener(view -> {
+                Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
+                intent.putExtra("image_url", zonalHeadItem.getStrProfileImage());
+                startActivity(intent);
+            });
+            tvName.setText(zonalHeadItem.getStrFirstName() + " " + zonalHeadItem.getStrLastName());
+            tvSubTitle.setText(zonalHeadItem.getStrMemberType());
+            profileActions(this, zonalHeadItem.getStrPhone(), zonalHeadItem.getStrWhatsApp(), zonalHeadItem.getStrEmail());
+            conLayProfileActions.setVisibility(View.VISIBLE);
+        }
+
         if (("ALLUSER").equals(profileKey)) {
             HelperGeneral.glideProfileImage(this, allUsersItem.getStrProfileImage(), ivProfileImage);
+            ivProfileImage.setOnClickListener(view -> {
+                Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
+                intent.putExtra("image_url", allUsersItem.getStrProfileImage());
+                startActivity(intent);
+            });
             tvName.setText(allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName());
             tvSubTitle.setText(allUsersItem.getStrMemberType());
             profileActions(this, allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail());
@@ -265,11 +325,19 @@ public class ProfileActivity extends AppCompatActivity {
             }
 
             if (("FOLKGUIDE").equals(profileKey)) {
-                shareProfile(folkGuideItem.getStrProfileImage(), ivProfileImage, folkGuideItem.getStrFirstName(), "KC Experience: " + folkGuideItem.getStrKcExperience());
+                shareProfile(folkGuideItem.getStrProfileImage(), ivProfileImage, folkGuideItem.getStrFirstName(), "Full Name: " + folkGuideItem.getStrFirstName());
+            }
+
+            if (("TEAMLEAD").equals(profileKey)) {
+                shareProfile(teamLeadItem.getStrProfileImage(), ivProfileImage, teamLeadItem.getStrFirstName(), "Full Name: " + teamLeadItem.getStrFirstName());
             }
 
             if (("CONTACT").equals(profileKey)) {
                 shareProfile(contactItem.getStrProfileImage(), ivProfileImage, contactItem.getFirstName(), "FOLK Guide: " + contactItem.getStrFolkGuide());
+            }
+
+            if (("ZONALHEAD").equals(profileKey)) {
+                shareProfile(zonalHeadItem.getStrProfileImage(), ivProfileImage, zonalHeadItem.getStrFirstName() + " " + zonalHeadItem.getStrLastName(), zonalHeadItem.getStrMemberType());
             }
 
             if (("ALLUSER").equals(profileKey)) {
@@ -450,13 +518,23 @@ public class ProfileActivity extends AppCompatActivity {
                         }
 
                         if (("FOLKGUIDE").equals(profileKey)) {
-                            getSupportActionBar().setTitle(folkGuideItem.getStrFirstName());
-                            Objects.requireNonNull(getSupportActionBar()).setSubtitle("KC Experience: " + folkGuideItem.getStrKcExperience());
+                            getSupportActionBar().setTitle(folkGuideItem.getStrFolkGuideAbbr());
+                            Objects.requireNonNull(getSupportActionBar()).setSubtitle(folkGuideItem.getStrFirstName());
+                        }
+
+                        if (("TEAMLEAD").equals(profileKey)) {
+                            getSupportActionBar().setTitle(teamLeadItem.getstrTeamLeadAbbr());
+                            Objects.requireNonNull(getSupportActionBar()).setSubtitle(teamLeadItem.getStrFirstName());
                         }
 
                         if (("CONTACT").equals(profileKey)) {
                             getSupportActionBar().setTitle(contactItem.getFirstName());
                             Objects.requireNonNull(getSupportActionBar()).setSubtitle(contactItem.getStrFolkGuide());
+                        }
+
+                        if (("ZONALHEAD").equals(profileKey)) {
+                            getSupportActionBar().setTitle(zonalHeadItem.getStrFirstName() + " " + zonalHeadItem.getStrLastName());
+                            Objects.requireNonNull(getSupportActionBar()).setSubtitle(zonalHeadItem.getStrMemberType());
                         }
 
                         if (("ALLUSER").equals(profileKey)) {

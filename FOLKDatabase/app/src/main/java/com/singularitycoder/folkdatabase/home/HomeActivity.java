@@ -87,7 +87,6 @@ public class HomeActivity extends AppCompatActivity {
     private HomeAdapter homeAdapter;
     private String strOldPassword;
     private ProgressDialog loadingBar;
-
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
 
@@ -208,11 +207,7 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             if (position == 3) {
-//                HelperGeneral.dialogComingSoon(HomeActivity.this);
-                Fresco.initialize(this);
-                SimpleDraweeView draweeView = findViewById(R.id.img_fresco_full_image);
-                Uri uri = Uri.parse("https://raw.githubusercontent.com/facebook/fresco/master/docs/static/logo.png");
-                draweeView.setImageURI(uri);
+                HelperGeneral.dialogComingSoon(HomeActivity.this);
             }
 
             if (position == 4) {

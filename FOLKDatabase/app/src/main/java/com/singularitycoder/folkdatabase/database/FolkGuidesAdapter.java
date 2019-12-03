@@ -42,18 +42,17 @@ public class FolkGuidesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         FolkGuideItem folkGuideItem = folkGuidesList.get(position);
 
-        if (holder != null) {
+        if (null != holder) {
             FolkGuidesViewHolder folkGuidesViewHolder = (FolkGuidesViewHolder) holder;
             HelperGeneral.glideProfileImage(context, folkGuideItem.getStrProfileImage(), folkGuidesViewHolder.imgProfileImage);
             folkGuidesViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();
-//                databaseActivity.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
-                databaseActivity.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), "9999999999", "9999999999", "email@email.com");
+                databaseActivity.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
             });
 
-            folkGuidesViewHolder.tvName.setText(folkGuideItem.getStrFirstName());
-            folkGuidesViewHolder.tvSubTitle1.setText("Experience in KC: " + folkGuideItem.getStrKcExperience() + " Years");
-            folkGuidesViewHolder.tvSubTitle2.setText("Department: " + folkGuideItem.getStrDepartment());
+            folkGuidesViewHolder.tvName.setText(folkGuideItem.getStrFolkGuideAbbr());
+            folkGuidesViewHolder.tvSubTitle1.setText("Full Name: " + folkGuideItem.getStrFirstName());
+            folkGuidesViewHolder.tvSubTitle2.setText("Zone: " + folkGuideItem.getStrZone());
         }
     }
 

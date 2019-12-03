@@ -23,6 +23,7 @@
         android:required="false" />
 
     <application
+        android:name=".MyApp"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -42,6 +43,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".helper.HelperFrescoImageViewer"
+            android:theme="@style/Theme.Transparent"/>
         <activity
             android:name=".helper.HelperWebViewActivity"
             android:screenOrientation="portrait" />
