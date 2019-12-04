@@ -921,11 +921,11 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(getActivity(), "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
                             }
                             if (task.isSuccessful()) {
-                                // 2 If success then store image in storeage, on success of storage create firestore credentials
-                                uploadProfileImage(imageUriArray, imageExtensionStringArray, imageNameStringArray, zone, memberType, directAuthority, folkGuideAbbr, department, kcExperience, firstName, lastName, email, phone, password, creationTimeStamp);
                                 if (null != getActivity()) {
                                     getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                 }
+                                // 2 If success then store image in storeage, on success of storage create firestore credentials
+                                uploadProfileImage(imageUriArray, imageExtensionStringArray, imageNameStringArray, zone, memberType, directAuthority, folkGuideAbbr, department, kcExperience, firstName, lastName, email, phone, password, creationTimeStamp);
                             } else {
                                 if (null != getActivity()) {
                                     getActivity().runOnUiThread(() -> loadingBar.dismiss());
@@ -969,6 +969,7 @@ public class MainActivity extends AppCompatActivity {
             // if adding in storage is successful then add the entry of the url in Firestore
             if (null != getActivity()) {
                 getActivity().runOnUiThread(() -> {
+                    loadingBar = new ProgressDialog(getActivity());
                     loadingBar.show();
                     loadingBar.setMessage("Uploading Profile Image...");
                     loadingBar.setCanceledOnTouchOutside(false);
@@ -999,7 +1000,9 @@ public class MainActivity extends AppCompatActivity {
                                                     getActivity().runOnUiThread(() -> loadingBar.setMessage("Uploading"));
                                                 }
                                                 if (task1.isSuccessful()) {
-
+                                                    if (null != getActivity()) {
+                                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                                    }
                                                     // 3. Create user using Firestore DB image storage, get Profile image uri from storage
                                                     createUserFirestore(
                                                             zone,
@@ -1018,9 +1021,6 @@ public class MainActivity extends AppCompatActivity {
                                                             creationTimeStamp);
 
                                                     Log.d(TAG, "task data: " + valueOf(task1.getResult()));
-                                                    if (null != getActivity()) {
-                                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
-                                                    }
                                                 } else {
                                                     FirebaseStorage.getInstance().getReference()
                                                             .child(HelperConstants.FOLK_PROFILE_IMAGES_PATH)
@@ -1066,8 +1066,12 @@ public class MainActivity extends AppCompatActivity {
                 String creationTimeStamp) {
 
             getActivity().runOnUiThread(() -> {
+                loadingBar = new ProgressDialog(getActivity());
                 loadingBar.show();
                 loadingBar.setMessage("Setting Firestore Values...");
+                loadingBar.setCanceledOnTouchOutside(false);
+                loadingBar.setCancelable(false);
+                loadingBar.show();
             });
 
             // AuthUserItem obj
@@ -1107,6 +1111,7 @@ public class MainActivity extends AppCompatActivity {
                     .addOnSuccessListener(documentReference -> {
 
                         if (("FOLK Guide").equals(memberType)) {
+                            Log.d(TAG, "createUserFirestore: got hittt 1");
                             // AuthUserItem obj
                             AuthUserItem authUserItem1 = new AuthUserItem(
                                     zone,
@@ -1133,6 +1138,7 @@ public class MainActivity extends AppCompatActivity {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference13.getId());
                                         if (null != getActivity()) {
                                             Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                         }
                                         // Create another collection for FolkGuideApprovals -> to Team Leads
                                         authUserItem1.setDocId(documentReference13.getId());
@@ -1149,6 +1155,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         if (("Team Lead").equals(memberType)) {
+                            Log.d(TAG, "createUserFirestore: got hittt 2");
                             // AuthUserItem obj
                             AuthUserItem authUserItem1 = new AuthUserItem(
                                     zone,
@@ -1175,6 +1182,7 @@ public class MainActivity extends AppCompatActivity {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference12.getId());
                                         if (null != getActivity()) {
                                             Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                         }
                                         // Collection for Team Lead approvals -> to Zonal Heads
                                         authUserItem1.setDocId(documentReference12.getId());
@@ -1191,6 +1199,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         if (("Zonal Head").equals(memberType)) {
+                            Log.d(TAG, "createUserFirestore: got hittt 3");
                             // AuthUserItem obj
                             AuthUserItem authUserItem1 = new AuthUserItem(
                                     zone,
@@ -1256,6 +1265,13 @@ public class MainActivity extends AppCompatActivity {
                 String redFlagStatus,
                 String approveRequestTimeStamp) {
 
+            loadingBar = new ProgressDialog(getActivity());
+            loadingBar.show();
+            loadingBar.setMessage("Setting Approval Values...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.setCancelable(false);
+            loadingBar.show();
+
             AuthUserApprovalItem authUserApprovalItem = new AuthUserApprovalItem(
                     docId,
                     zone,
@@ -1306,6 +1322,13 @@ public class MainActivity extends AppCompatActivity {
                 String signUpStatus,
                 String redFlagStatus,
                 String approveRequestTimeStamp) {
+
+            loadingBar = new ProgressDialog(getActivity());
+            loadingBar.show();
+            loadingBar.setMessage("Setting Approval Values...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.setCancelable(false);
+            loadingBar.show();
 
             AuthUserApprovalItem authUserApprovalItem = new AuthUserApprovalItem(
                     docId,

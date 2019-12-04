@@ -95,7 +95,6 @@ public class ProfileActivity extends AppCompatActivity {
     // Create a firebase auth object
     private FirebaseAuth mAuth;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -636,6 +635,8 @@ public class ProfileActivity extends AppCompatActivity {
     ///////////////////////////////////////////////////////////// FRAGMENT 1
     public static class AboutFragment extends Fragment {
 
+
+
         public AboutFragment() {
         }
 
@@ -749,6 +750,9 @@ public class ProfileActivity extends AppCompatActivity {
     ///////////////////////////////////////////////////////////// FRAGMENT 3
     public static class TalentFragment extends Fragment {
 
+        private TextView tvTalentText;
+
+
         public TalentFragment() {
         }
 
@@ -761,6 +765,19 @@ public class ProfileActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_profile_talent, container, false);
+
+            if (null != getActivity()) {
+                SharedPreferences sp = getActivity().getSharedPreferences("talentItem", Context.MODE_PRIVATE);
+                tvTalentText = view.findViewById(R.id.tv_talent_text);
+                tvTalentText.setText(
+                        "Can Cook: " + sp.getString("canCook", "") +
+                                "\n\nCooking Self Rating: " + sp.getString("cookingSelfRating", "") +
+                                "\n\nCan Cook South Indian: " + sp.getString("canCookSouthIndian", "") +
+                                "\n\nSports College Level: " + sp.getString("sportsCollegeLevel", "") +
+                                "\n\nSports District Level: " + sp.getString("sportsDistrictLevel", "") +
+                                "\n\nDisclose: " + sp.getString("disclose", "")
+                );
+            }
 
             return view;
         }

@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -60,6 +61,7 @@ import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,6 +71,7 @@ import static java.lang.String.valueOf;
 
 public class DatabaseActivity extends AppCompatActivity {
 
+    private static final String TAG = "DatabaseActivity";
     private Toolbar toolbar;
     private ViewPager viewPager;
     private TabLayout tabLayout;
@@ -83,6 +86,7 @@ public class DatabaseActivity extends AppCompatActivity {
         initToolBar();
         initViewPager();
         initTabLayout();
+//        hideTabs();
     }
 
 
@@ -178,6 +182,41 @@ public class DatabaseActivity extends AppCompatActivity {
             public void onTabReselected(TabLayout.Tab tab) {
             }
         });
+    }
+
+
+    private void hideTabs() {
+        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+        String memberType = sp.getString("memberType", "");
+        Log.d(TAG, "hideTabs: member type: " + memberType);
+
+        if (("Folk Guide").toLowerCase().equals(memberType.toLowerCase())) {
+            if (tabLayout.getTabCount() >= 1 && null != tabLayout && null != viewPager) {
+                viewPager.removeViewAt(1);
+                tabLayout.removeTabAt(1);
+                viewPager.removeViewAt(2);
+                tabLayout.removeTabAt(2);
+                viewPager.removeViewAt(3);
+                tabLayout.removeTabAt(3);
+                viewPager.removeViewAt(4);
+                tabLayout.removeTabAt(4);
+            }
+        }
+
+        if (("Team Lead").toLowerCase().equals(memberType.toLowerCase())) {
+            if (tabLayout.getTabCount() >= 1 && null != tabLayout && null != viewPager) {
+                viewPager.removeViewAt(2);
+                tabLayout.removeTabAt(2);
+                viewPager.removeViewAt(3);
+                tabLayout.removeTabAt(3);
+                viewPager.removeViewAt(4);
+                tabLayout.removeTabAt(4);
+            }
+        }
+
+        if (("Zonal Head").toLowerCase().equals(memberType.toLowerCase())) {
+
+        }
     }
 
 
@@ -464,45 +503,112 @@ public class DatabaseActivity extends AppCompatActivity {
                                 personItemModel = docSnap.toObject(ContactItem.class);
                                 if (personItemModel != null) {
                                     Log.d(TAG, "personItem: " + personItemModel);
-                                    personItemModel.setId(docSnap.getId());
-                                    personItemModel.setFirstName(docSnap.getString("name"));
 
-                                    if (("").equals(docSnap.getString("folk_guide")) || (null) == (docSnap.getString("folk_guide"))) {
-                                        personItemModel.setStrFolkGuide("No FOLK Guide");
-                                    } else {
-                                        personItemModel.setStrFolkGuide(docSnap.getString("folk_guide"));
+                                    if (!("").equals(valueOf(docSnap.getId()))) {
+                                        personItemModel.setId(docSnap.getId());
                                     }
 
-                                    personItemModel.setStrOccupation(docSnap.getString("occupation"));
+                                    if (!("").equals(valueOf(docSnap.getString("name")))) {
+                                        personItemModel.setFirstName(valueOf(docSnap.getString("name")));
+                                    }
 
-                                    if (("").equals(docSnap.getString("dob_month")) || (null) == (docSnap.getString("dob_month"))) {
+                                    if (("").equals(valueOf(docSnap.getString("folk_guide")))) {
+                                        personItemModel.setStrFolkGuide("No FOLK Guide");
+                                    } else {
+                                        personItemModel.setStrFolkGuide(valueOf(docSnap.getString("folk_guide")));
+                                    }
+
+                                    if (!("").equals(valueOf(docSnap.getString("occupation")))) {
+                                        personItemModel.setStrOccupation(docSnap.getString("occupation"));
+                                    }
+
+                                    if (("").equals(docSnap.getString("dob_month"))) {
                                         personItemModel.setStrDobMonth(docSnap.getString("0"));
                                     } else {
                                         personItemModel.setStrDobMonth(valueOf(docSnap.getString("dob_month")));
                                         Log.d(TAG, "dob month: " + docSnap.getString("dob_month"));
                                     }
 
-                                    if (("").equals(docSnap.getString("dob")) || (null) == (docSnap.getString("dob"))) {
+                                    if (("").equals(docSnap.getString("dob"))) {
                                         personItemModel.setStrBirthday("Missing Birthday");
                                     } else {
                                         personItemModel.setStrBirthday(docSnap.getString("dob"));
                                     }
 
-                                    personItemModel.setStrLocation(docSnap.getString("city"));
-                                    personItemModel.setStrRecidencyInterest(valueOf(docSnap.getString("folk_residency_interest")));
-                                    personItemModel.setStrPhone(valueOf(docSnap.getString("mobile")));
-                                    personItemModel.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
-                                    personItemModel.setStrEmail(valueOf(docSnap.getString("email")));
-                                    Log.d(TAG, "profile image: " + docSnap.getData());
-                                    Log.d(TAG, "profile image 2: " + docSnap.getData().get("docs"));
-                                    Log.d(TAG, "address: " + docSnap.getData().get("address"));
-                                    Object profileImages = docSnap.getData().get("docs");
-                                    Map<String, String> mapImage = (Map<String, String>) docSnap.getData().get("docs");
-                                    Log.d(TAG, "prof image map: " + mapImage);
-//                                        if (!("").equals(valueOf(mapImage.get("photo_url")))) {
-//                                            personItemModel.setImgProfileImage(valueOf(mapImage.get("photo_url")));
-//                                            Log.d(TAG, "onSuccess: img url: " + valueOf(mapImage.get("photo_url")));
+                                    if (!("").equals(docSnap.getString("city"))) {
+                                        personItemModel.setStrLocation(docSnap.getString("city"));
+                                    }
+
+                                    if (!("").equals(docSnap.getString("folk_residency_interest"))) {
+                                        personItemModel.setStrRecidencyInterest(valueOf(docSnap.getString("folk_residency_interest")));
+                                    }
+
+                                    if (!("").equals(docSnap.getString("mobile"))) {
+                                        personItemModel.setStrPhone(valueOf(docSnap.getString("mobile")));
+                                    }
+
+                                    if (!("").equals(docSnap.getString("mobile"))) {
+                                        personItemModel.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
+                                    }
+
+                                    if (!("").equals(valueOf(docSnap.getString("email")))) {
+                                        personItemModel.setStrEmail(valueOf(docSnap.getString("email")));
+                                    }
+
+                                    Map<String, Object> talent = (Map<String, Object>) docSnap.getData().get("talent");
+                                    Log.d(TAG, "readContactsData: talent map: " + talent);
+
+                                    // Cooking
+                                    Map<String, Object> cooking = (Map<String, Object>) talent.get("cooking");
+                                    if (!("").equals(valueOf(talent.get("disclose")))) {
+                                        personItemModel.setStrTalentDisclose(valueOf(talent.get("disclose")));
+                                    }
+
+                                    if (!("").equals(valueOf(cooking.get("can_cook_for")))) {
+                                        personItemModel.setStrCanCookFor(valueOf(cooking.get("can_cook_for")));
+                                    }
+
+                                    if (!("").equals(valueOf(cooking.get("cooking_self_rating")))) {
+                                        personItemModel.setStrSelfRating(valueOf(cooking.get("cooking_self_rating")));
+                                    }
+
+                                    Map<String, Object> cookingSkills = (Map<String, Object>) cooking.get("skills");
+
+                                    if (!("").equals(valueOf(cookingSkills.get("south_indian")))) {
+                                        personItemModel.setStrCanCookSouthIndian(valueOf(cookingSkills.get("south_indian")));
+                                    }
+
+                                    // Sports
+                                    Map<String, Object> sports = (Map<String, Object>) talent.get("sports_talent");
+                                    Map<String, Object> sportsParticipation = (Map<String, Object>) sports.get("participation");
+
+                                    if (!("").equals(valueOf(sportsParticipation.get("college_level")))) {
+                                        personItemModel.setStrCollegeLevel(valueOf(sportsParticipation.get("college_level")));
+                                    }
+
+                                    if (!("").equals(valueOf(sportsParticipation.get("college_level")))) {
+                                        personItemModel.setStrDistrictLevel(valueOf(sportsParticipation.get("college_level")));
+                                    }
+
+
+//                                    for (Map.Entry<String, Object> entry : talent.entrySet()) {
+//                                        Log.d(TAG, "Key: " + entry.getKey() + "\n Value: " + entry.getValue());
+//                                        Map<String, Object> cooking2 = (Map<String, Object>) entry;
+//                                        if (("disclose").equals(entry.getKey())) {
+//                                            personItemModel.setStrTalentDisclose(entry.getKey());
 //                                        }
+//
+//                                    }
+
+                                    // Send to Profile Talent
+                                    SharedPreferences sp = Objects.requireNonNull(getActivity()).getSharedPreferences("talentItem", Context.MODE_PRIVATE);
+                                    sp.edit().putString("canCook", valueOf(cooking.get("can_cook_for"))).apply();
+                                    sp.edit().putString("disclose", valueOf(talent.get("disclose"))).apply();
+                                    sp.edit().putString("cookingSelfRating", valueOf(cooking.get("cooking_self_rating"))).apply();
+                                    sp.edit().putString("canCookSouthIndian", valueOf(cookingSkills.get("south_indian"))).apply();
+                                    sp.edit().putString("sportsCollegeLevel", valueOf(sportsParticipation.get("college_level"))).apply();
+                                    sp.edit().putString("sportsDistrictLevel", valueOf(sportsParticipation.get("district_level"))).apply();
+
                                 }
                                 Log.d(TAG, "firedoc id: " + docSnap.getId());
                                 contactList.add(personItemModel);
@@ -618,6 +724,16 @@ public class DatabaseActivity extends AppCompatActivity {
             TextView tvResetContacts = dialog.findViewById(R.id.tv_dialog_reset);
             TextView tvFolkGuides = dialog.findViewById(R.id.tv_dialog_folk_guides);
             TextView tvRecidencyInterest = dialog.findViewById(R.id.tv_dialog_recidency_interest);
+//            TextView tvTalentName = dialog.findViewById(R.id.tv_talent_name);
+//            TextView tvTalentLevel = dialog.findViewById(R.id.tv_talent_level);
+
+            HelperCustomEditText etCanCookFor = dialog.findViewById(R.id.et_talent_can_cook_for);
+            HelperCustomEditText etCookingSelfRating = dialog.findViewById(R.id.tv_talent_cooking_self_rating);
+            HelperCustomEditText etSouthIndian = dialog.findViewById(R.id.tv_talent_south_indian);
+            HelperCustomEditText etDisclose = dialog.findViewById(R.id.tv_talent_disclose);
+            HelperCustomEditText etSportsCollegeLevel = dialog.findViewById(R.id.tv_talent_college_level);
+            HelperCustomEditText etSportsDirectLevel = dialog.findViewById(R.id.tv_talent_district_level);
+
             HelperCustomEditText etLocation = dialog.findViewById(R.id.et_dialog_location);
             HelperCustomEditText etDobMonth = dialog.findViewById(R.id.et_dialog_dob_month);
             Button btnApply = dialog.findViewById(R.id.btn_dialog_apply);
@@ -631,6 +747,118 @@ public class DatabaseActivity extends AppCompatActivity {
                 tvListCount.setText(valueOf(contactList.size()) + " Contacts");
                 dialog.dismiss();
             });
+
+
+            etCanCookFor.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    Log.d(TAG, "afterTextChanged: editable val: " + valueOf(editable));
+                    findCanCookForContacts(valueOf(editable));
+                }
+            });
+
+            etCookingSelfRating.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    Log.d(TAG, "afterTextChanged: editable val: " + valueOf(editable));
+                    findCookingSelfRatingContacts(valueOf(editable));
+                }
+            });
+
+            etSouthIndian.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    Log.d(TAG, "afterTextChanged: editable val: " + valueOf(editable));
+                    findCanCookSouthIndianContacts(valueOf(editable));
+                }
+            });
+
+            etDisclose.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    Log.d(TAG, "afterTextChanged: editable val: " + valueOf(editable));
+                    findTalentDiscloseContacts(valueOf(editable));
+                }
+            });
+
+
+            etSportsCollegeLevel.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    Log.d(TAG, "afterTextChanged: editable val: " + valueOf(editable));
+                    findSportsCollegeLevelContacts(valueOf(editable));
+                }
+            });
+
+
+            etSportsDirectLevel.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    Log.d(TAG, "afterTextChanged: editable val: " + valueOf(editable));
+                    findSportsDistrictLevelContacts(valueOf(editable));
+                }
+            });
+
 
             etDobMonth.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -687,7 +915,6 @@ public class DatabaseActivity extends AppCompatActivity {
                 }
             });
 
-
             tvFolkGuides.setOnClickListener(view -> {
                 folkGuideList(tvFolkGuides);
                 Log.d(TAG, "Folk guides value: " + valueOf(tvFolkGuides.getText()));
@@ -714,6 +941,90 @@ public class DatabaseActivity extends AppCompatActivity {
             btnApply.setOnClickListener(view -> dialog.dismiss());
 
             dialog.show();
+        }
+
+        private void findCanCookForContacts(String text) {
+            ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
+
+            for (ContactItem contact : contactList) {
+                if (text.toLowerCase().trim().contains(valueOf(contact.getStrCanCookFor()).toLowerCase().trim())) {
+                    filteredContactsList.add(contact);
+                    Log.d(TAG, "list: " + filteredContactsList);
+                }
+                contactsAdapter.flterList(filteredContactsList);
+                contactsAdapter.notifyDataSetChanged();
+                tvListCount.setText(filteredContactsList.size() + " Contacts");
+            }
+        }
+
+        private void findCookingSelfRatingContacts(String text) {
+            ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
+
+            for (ContactItem contact : contactList) {
+                if (text.toLowerCase().trim().contains(valueOf(contact.getStrSelfRating()).toLowerCase().trim())) {
+                    filteredContactsList.add(contact);
+                    Log.d(TAG, "list: " + filteredContactsList);
+                }
+                contactsAdapter.flterList(filteredContactsList);
+                contactsAdapter.notifyDataSetChanged();
+                tvListCount.setText(filteredContactsList.size() + " Contacts");
+            }
+        }
+
+        private void findCanCookSouthIndianContacts(String text) {
+            ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
+
+            for (ContactItem contact : contactList) {
+                if (text.toLowerCase().trim().contains(valueOf(contact.getStrCanCookSouthIndian()).toLowerCase().trim())) {
+                    filteredContactsList.add(contact);
+                    Log.d(TAG, "list: " + filteredContactsList);
+                }
+                contactsAdapter.flterList(filteredContactsList);
+                contactsAdapter.notifyDataSetChanged();
+                tvListCount.setText(filteredContactsList.size() + " Contacts");
+            }
+        }
+
+        private void findTalentDiscloseContacts(String text) {
+            ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
+
+            for (ContactItem contact : contactList) {
+                if (text.toLowerCase().trim().contains(valueOf(contact.getStrTalentDisclose()).toLowerCase().trim())) {
+                    filteredContactsList.add(contact);
+                    Log.d(TAG, "list: " + filteredContactsList);
+                }
+                contactsAdapter.flterList(filteredContactsList);
+                contactsAdapter.notifyDataSetChanged();
+                tvListCount.setText(filteredContactsList.size() + " Contacts");
+            }
+        }
+
+        private void findSportsCollegeLevelContacts(String text) {
+            ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
+
+            for (ContactItem contact : contactList) {
+                if (text.toLowerCase().trim().contains(valueOf(contact.getStrCollegeLevel()).toLowerCase().trim())) {
+                    filteredContactsList.add(contact);
+                    Log.d(TAG, "list: " + filteredContactsList);
+                }
+                contactsAdapter.flterList(filteredContactsList);
+                contactsAdapter.notifyDataSetChanged();
+                tvListCount.setText(filteredContactsList.size() + " Contacts");
+            }
+        }
+
+        private void findSportsDistrictLevelContacts(String text) {
+            ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
+
+            for (ContactItem contact : contactList) {
+                if (text.toLowerCase().trim().contains(valueOf(contact.getStrDistrictLevel()).toLowerCase().trim())) {
+                    filteredContactsList.add(contact);
+                    Log.d(TAG, "list: " + filteredContactsList);
+                }
+                contactsAdapter.flterList(filteredContactsList);
+                contactsAdapter.notifyDataSetChanged();
+                tvListCount.setText(filteredContactsList.size() + " Contacts");
+            }
         }
 
 
@@ -787,7 +1098,6 @@ public class DatabaseActivity extends AppCompatActivity {
                 dialog.show();
             }
         }
-
 
         private void findFolkGuideContacts(String text) {
             ArrayList<ContactItem> filteredContactsList = new ArrayList<>();

@@ -178,9 +178,11 @@ public class HomeActivity extends AppCompatActivity {
         recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
         homeList = new ArrayList<>();
+
         SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
         String imgUrl = sp.getString("profileImage", "");
         String fullName = sp.getString("firstName", "") + " " + sp.getString("lastName", "");
+        String memberType = sp.getString("memberType", "");
 
         homeList.add(new HomeItem(imgUrl, fullName));
         homeList.add(new HomeItem(R.drawable.ic_accomodation3, "Accomodation", ""));

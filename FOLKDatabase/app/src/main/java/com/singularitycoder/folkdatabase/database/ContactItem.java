@@ -33,7 +33,25 @@ public class ContactItem implements Serializable {
     private String imageName;
     private String imageExtension;
 
+    private String strCanCookFor;
+    private String strSelfRating;
+    private String strCanCookSouthIndian;
+    private String strTalentDisclose;
+    private String strCollegeLevel;
+    private String strDistrictLevel;
+
+
     public ContactItem() {
+    }
+
+    // Talent
+    public ContactItem(String strCanCookFor, String strSelfRating, String strCanCookSouthIndian, String strTalentDisclose, String strCollegeLevel, String strDistrictLevel) {
+        this.strCanCookFor = strCanCookFor;
+        this.strSelfRating = strSelfRating;
+        this.strCanCookSouthIndian = strCanCookSouthIndian;
+        this.strTalentDisclose = strTalentDisclose;
+        this.strCollegeLevel = strCollegeLevel;
+        this.strDistrictLevel = strDistrictLevel;
     }
 
     // Contact, Caller, Admin
@@ -235,5 +253,53 @@ public class ContactItem implements Serializable {
 
     public void setStrBirthday(String strBirthday) {
         this.strBirthday = strBirthday;
+    }
+
+    public String getStrCanCookFor() {
+        return strCanCookFor;
+    }
+
+    public void setStrCanCookFor(String strCanCookFor) {
+        this.strCanCookFor = strCanCookFor;
+    }
+
+    public String getStrSelfRating() {
+        return strSelfRating;
+    }
+
+    public void setStrSelfRating(String strSelfRating) {
+        this.strSelfRating = strSelfRating;
+    }
+
+    public String getStrCanCookSouthIndian() {
+        return strCanCookSouthIndian;
+    }
+
+    public void setStrCanCookSouthIndian(String strCanCookSouthIndian) {
+        this.strCanCookSouthIndian = strCanCookSouthIndian;
+    }
+
+    public String getStrTalentDisclose() {
+        return strTalentDisclose;
+    }
+
+    public void setStrTalentDisclose(String strTalentDisclose) {
+        this.strTalentDisclose = strTalentDisclose;
+    }
+
+    public String getStrCollegeLevel() {
+        return strCollegeLevel;
+    }
+
+    public void setStrCollegeLevel(String strCollegeLevel) {
+        this.strCollegeLevel = strCollegeLevel;
+    }
+
+    public String getStrDistrictLevel() {
+        return strDistrictLevel;
+    }
+
+    public void setStrDistrictLevel(String strDistrictLevel) {
+        this.strDistrictLevel = strDistrictLevel;
     }
 }
