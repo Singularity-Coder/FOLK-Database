@@ -492,7 +492,11 @@ public class DatabaseActivity extends AppCompatActivity {
 
         // READ
         private void readContactsData() {
-            FirebaseFirestore.getInstance().collection(HelperConstants.FOLK_MEMBERS).get()
+            if (null != getActivity()) {
+                SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
+                String folkGuideAbbr = sp.getString("folkGuideAbbr", "");
+
+            FirebaseFirestore.getInstance().collection(HelperConstants.FOLK_MEMBERS).whereEqualTo("folk_guide", folkGuideAbbr).get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         shimmerFrameLayout.setVisibility(View.GONE);
                         if (!queryDocumentSnapshots.isEmpty()) {
@@ -601,13 +605,13 @@ public class DatabaseActivity extends AppCompatActivity {
 //                                    }
 
                                     // Send to Profile Talent
-                                    SharedPreferences sp = Objects.requireNonNull(getActivity()).getSharedPreferences("talentItem", Context.MODE_PRIVATE);
-                                    sp.edit().putString("canCook", valueOf(cooking.get("can_cook_for"))).apply();
-                                    sp.edit().putString("disclose", valueOf(talent.get("disclose"))).apply();
-                                    sp.edit().putString("cookingSelfRating", valueOf(cooking.get("cooking_self_rating"))).apply();
-                                    sp.edit().putString("canCookSouthIndian", valueOf(cookingSkills.get("south_indian"))).apply();
-                                    sp.edit().putString("sportsCollegeLevel", valueOf(sportsParticipation.get("college_level"))).apply();
-                                    sp.edit().putString("sportsDistrictLevel", valueOf(sportsParticipation.get("district_level"))).apply();
+                                    SharedPreferences spTalent = Objects.requireNonNull(getActivity()).getSharedPreferences("talentItem", Context.MODE_PRIVATE);
+                                    spTalent.edit().putString("canCook", valueOf(cooking.get("can_cook_for"))).apply();
+                                    spTalent.edit().putString("disclose", valueOf(talent.get("disclose"))).apply();
+                                    spTalent.edit().putString("cookingSelfRating", valueOf(cooking.get("cooking_self_rating"))).apply();
+                                    spTalent.edit().putString("canCookSouthIndian", valueOf(cookingSkills.get("south_indian"))).apply();
+                                    spTalent.edit().putString("sportsCollegeLevel", valueOf(sportsParticipation.get("college_level"))).apply();
+                                    spTalent.edit().putString("sportsDistrictLevel", valueOf(sportsParticipation.get("district_level"))).apply();
 
                                 }
                                 Log.d(TAG, "firedoc id: " + docSnap.getId());
@@ -625,6 +629,7 @@ public class DatabaseActivity extends AppCompatActivity {
                             Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
                         }
                     });
+            }
         }
 
 
@@ -1733,7 +1738,6 @@ public class DatabaseActivity extends AppCompatActivity {
                     return false;
                 }
             });
-
             super.onCreateOptionsMenu(menu, inflater);
         }
 
@@ -1922,7 +1926,6 @@ public class DatabaseActivity extends AppCompatActivity {
                     return false;
                 }
             });
-
             super.onCreateOptionsMenu(menu, inflater);
         }
 

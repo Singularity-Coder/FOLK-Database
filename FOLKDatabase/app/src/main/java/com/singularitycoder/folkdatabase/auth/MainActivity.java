@@ -304,8 +304,10 @@ public class MainActivity extends AppCompatActivity {
         private FirebaseFirestore firestore;
         private FirebaseAuth firebaseAuth;
 
+
         public LoginFragment() {
         }
+
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -906,7 +908,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        private void createAccount(String zone, String memberType, String directAuthority, String folkGuideAbbr, String department, String kcExperience, String firstName, String lastName, String email, String phone, String password, String creationTimeStamp) {
+        private void createAccount(
+                String zone,
+                String memberType,
+                String directAuthority,
+                String folkGuideAbbr,
+                String department,
+                String kcExperience,
+                String firstName,
+                String lastName,
+                String email,
+                String phone,
+                String password,
+                String creationTimeStamp) {
+
             if (null != getActivity()) {
                 getActivity().runOnUiThread(() -> {
                     loadingBar.show();
@@ -925,7 +940,22 @@ public class MainActivity extends AppCompatActivity {
                                     getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                 }
                                 // 2 If success then store image in storeage, on success of storage create firestore credentials
-                                uploadProfileImage(imageUriArray, imageExtensionStringArray, imageNameStringArray, zone, memberType, directAuthority, folkGuideAbbr, department, kcExperience, firstName, lastName, email, phone, password, creationTimeStamp);
+                                uploadProfileImage(
+                                        imageUriArray,
+                                        imageExtensionStringArray,
+                                        imageNameStringArray,
+                                        zone,
+                                        memberType,
+                                        directAuthority,
+                                        folkGuideAbbr,
+                                        department,
+                                        kcExperience,
+                                        firstName,
+                                        lastName,
+                                        email,
+                                        phone,
+                                        password,
+                                        creationTimeStamp);
                             } else {
                                 if (null != getActivity()) {
                                     getActivity().runOnUiThread(() -> loadingBar.dismiss());
@@ -1394,6 +1424,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+
         private void showImagePickerOptions() {
             FilePickerBuilder.getInstance()
                     .setSelectedFiles(imageFilePathsStringArray)
@@ -1401,6 +1432,7 @@ public class MainActivity extends AppCompatActivity {
                     .setMaxCount(1)
                     .pickPhoto(this);
         }
+
 
         private void dialogSignUpZone() {
             if (null != getActivity()) {

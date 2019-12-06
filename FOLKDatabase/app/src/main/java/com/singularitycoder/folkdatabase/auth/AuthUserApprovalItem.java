@@ -7,7 +7,6 @@ public class AuthUserApprovalItem {
     @Exclude
     private String docId;
 
-
     private String zone;
     private String memberType;
     private String directAuthority;

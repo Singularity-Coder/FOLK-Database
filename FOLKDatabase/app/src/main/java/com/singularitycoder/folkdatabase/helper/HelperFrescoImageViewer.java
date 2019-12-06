@@ -111,6 +111,7 @@ public class HelperFrescoImageViewer extends Activity implements View.OnTouchLis
 //        baseLayout.setOnTouchListener(() -> onTouch(this));
     }
 
+
     private void resizeImage() {
         ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
                 .setResizeOptions(new ResizeOptions(50, 50))
@@ -121,6 +122,7 @@ public class HelperFrescoImageViewer extends Activity implements View.OnTouchLis
                         .setImageRequest(request)
                         .build());
     }
+
 
     public boolean onTouch(View view, MotionEvent event) {
 
