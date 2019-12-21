@@ -40,8 +40,8 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:alpha="0.5"
-                android:background="@android:color/black"
+                android:alpha="0.7"
+                android:background="@drawable/gradient_8"
                 android:fitsSystemWindows="true" />
 
             <TextView

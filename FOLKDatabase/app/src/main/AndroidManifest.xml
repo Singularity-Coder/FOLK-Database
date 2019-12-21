@@ -23,7 +23,7 @@
         android:required="false" />
 
     <application
-        android:name=".MyApp"
+        android:name=".helper.FolkDatabaseApp"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"

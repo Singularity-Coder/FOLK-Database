@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             app:tabIndicator="@drawable/bg_tab_indicator"
             app:tabIndicatorHeight="4dp"
-            app:tabMode="scrollable" />
+            app:tabMode="fixed" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

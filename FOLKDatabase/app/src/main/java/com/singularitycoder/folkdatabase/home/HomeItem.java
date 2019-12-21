@@ -11,15 +11,16 @@ public class HomeItem implements Serializable {
     private String strImageUrl;
     private String strUserName;
 
+    // Header
+    public HomeItem(String strImageUrl, String strUserName) {
+        this.strImageUrl = strImageUrl;
+        this.strUserName = strUserName;
+    }
+
     public HomeItem(int intHomeImage, String strHomeTitle, String strHomeCount) {
         this.intHomeImage = intHomeImage;
         this.strHomeTitle = strHomeTitle;
         this.strHomeCount = strHomeCount;
-    }
-
-    public HomeItem(String strImageUrl, String strUserName) {
-        this.strImageUrl = strImageUrl;
-        this.strUserName = strUserName;
     }
 
     public int getIntHomeImage() {

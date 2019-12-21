@@ -45,7 +45,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (holder != null) {
             ContactsViewHolder contactsViewHolder = (ContactsViewHolder) holder;
 //            if (contactsViewHolder.imgProfileImage.equals("") || contactsViewHolder.imgProfileImage.equals(null)) {
-//                String startingLetter = contactItem.getFirstName().substring(0, 1).toUpperCase();
+//                String startingLetter = contactItem.getFullName().substring(0, 1).toUpperCase();
 //                TextDrawable drawable = TextDrawable.builder().buildRound(startingLetter, R.color.colorAccent);
 ////                TextDrawable drawable = TextDrawable.builder().beginConfig().width(60).height(60).endConfig().buildRound(startingLetter, R.color.colorAccent);
 //                contactsViewHolder.imgProfileImage.setImageDrawable(drawable);

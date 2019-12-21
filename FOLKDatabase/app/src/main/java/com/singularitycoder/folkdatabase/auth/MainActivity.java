@@ -444,6 +444,11 @@ public class MainActivity extends AppCompatActivity {
                             loadingBar.dismiss();
                             if (task.isSuccessful()) {
                                 if ((null) != getActivity()) {
+                                    // get data of document with the email id
+                                    // pass that data through serializable intent or
+                                    // store it in shared prefs
+                                    // or get the doc id and load the details in the home page live
+
                                     Intent intent = new Intent(getActivity(), HomeActivity.class);
                                     startActivity(intent);
                                     Objects.requireNonNull(getActivity()).finish();
@@ -529,15 +534,14 @@ public class MainActivity extends AppCompatActivity {
         private TextView tvOpenGallery;
         private TextView tvShowHidePassword;
         private HelperCustomEditText etDirectAuthority;
-        private HelperCustomEditText etFolkGuideAbbr;
+        private HelperCustomEditText etShortName;
         private TextView etSignUpZone;
-        private HelperCustomEditText etFirstName;
-        private HelperCustomEditText etLastName;
+        private HelperCustomEditText etFullName;
         private HelperCustomEditText etEmail;
+        private HelperCustomEditText etGmail;
         private HelperCustomEditText etPhone;
         private HelperCustomEditText etPassword;
-        private HelperCustomEditText etDepartment;
-        private HelperCustomEditText etKcExperience;
+        private TextView tvHkmJoiningDate;
         private Button btnCreateAccount;
         private TextView tvSignUpMemberType;
         private ImageView ivOpenGallery;
@@ -576,24 +580,24 @@ public class MainActivity extends AppCompatActivity {
         private void init(View view) {
             firebaseAuth = FirebaseAuth.getInstance();
             firestore = FirebaseFirestore.getInstance();
+            Log.d(TAG, "init: firebase instance: " + firestore + " auth: " + firebaseAuth);
             if ((null) != getActivity()) loadingBar = new ProgressDialog(getActivity());
             tvTermsPrivacy = view.findViewById(R.id.tv_signup_terms);
             etSignUpZone = view.findViewById(R.id.et_signup_zone_type);
             tvDirectAuthority = view.findViewById(R.id.tv_signup_direct_authority);
             etDirectAuthority = view.findViewById(R.id.et_signup_direct_authority);
-            etFirstName = view.findViewById(R.id.et_signup_first_name);
-            etLastName = view.findViewById(R.id.et_signup_last_name);
+            etFullName = view.findViewById(R.id.et_signup_first_name);
             etEmail = view.findViewById(R.id.et_signup_email);
+            etGmail = view.findViewById(R.id.et_signup_gmail);
             etPhone = view.findViewById(R.id.et_signup_phone);
             etPassword = view.findViewById(R.id.et_signup_password);
-            etFolkGuideAbbr = view.findViewById(R.id.et_signup_folk_guide);
+            etShortName = view.findViewById(R.id.et_signup_short_name);
             btnCreateAccount = view.findViewById(R.id.btn_create_account);
             ivOpenGallery = view.findViewById(R.id.iv_open_gallery);
             ivSetProfileImage = view.findViewById(R.id.iv_set_profile_image);
             tvOpenGallery = view.findViewById(R.id.tv_open_gallery);
             tvSignUpMemberType = view.findViewById(R.id.et_member_type);
-            etDepartment = view.findViewById(R.id.et_signup_department);
-            etKcExperience = view.findViewById(R.id.et_signup_kc_experience);
+            tvHkmJoiningDate = view.findViewById(R.id.tv_signup_hkm_joining_date_picker);
             tvShowHidePassword = view.findViewById(R.id.tv_show_password);
         }
 
@@ -602,6 +606,9 @@ public class MainActivity extends AppCompatActivity {
             if (firebaseAuth.getCurrentUser() != null) {
                 // check if key is false. If ture then send to main activity
                 // if shared pref value is not null n if true or false
+
+                Log.d(TAG, "authCheck: isAuthing");
+                
                 if (null != getActivity()) {
                     HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
                     String signUpStatus = helperSharedPreference.getSignupStatus();
@@ -686,18 +693,19 @@ public class MainActivity extends AppCompatActivity {
 
             etSignUpZone.setOnClickListener(view12 -> dialogSignUpZone());
 
+            tvHkmJoiningDate.setOnClickListener(view -> HelperGeneral.showDatePicker(tvHkmJoiningDate, getActivity()));
+
             btnCreateAccount.setOnClickListener(view13 -> {
                 if (HelperGeneral.hasInternet(Objects.requireNonNull(getContext()))) {
                     if (hasValidInput(
                             etSignUpZone,
                             tvSignUpMemberType,
                             etDirectAuthority,
-                            etFolkGuideAbbr,
-                            etDepartment,
-                            etKcExperience,
-                            etFirstName,
-                            etLastName,
+                            etShortName,
+                            tvHkmJoiningDate,
+                            etFullName,
                             etEmail,
+                            etGmail,
                             etPhone,
                             etPassword)) {
 
@@ -708,12 +716,11 @@ public class MainActivity extends AppCompatActivity {
                         String zone = valueOf(etSignUpZone.getText());
                         String memberType = valueOf(tvSignUpMemberType.getText());
                         String directAuthority = valueOf(etDirectAuthority.getText());
-                        String folkGuideAbbr = valueOf(etFolkGuideAbbr.getText()).trim();
-                        String department = valueOf(etDepartment.getText()).trim();
-                        String kcExperience = valueOf(etKcExperience.getText()).trim();
-                        String firstName = valueOf(etFirstName.getText());
-                        String lastName = valueOf(etLastName.getText());
+                        String folkGuideAbbr = valueOf(etShortName.getText()).trim();
+                        String kcExperience = valueOf(tvHkmJoiningDate.getText()).trim();
+                        String firstName = valueOf(etFullName.getText());
                         String email = valueOf(etEmail.getText()).trim();
+                        String gmail = valueOf(etGmail.getText()).trim();
                         String phone = valueOf(etPhone.getText()).trim();
                         String password = valueOf(etPassword.getText());
 
@@ -724,11 +731,10 @@ public class MainActivity extends AppCompatActivity {
                                     memberType,
                                     directAuthority,
                                     folkGuideAbbr,
-                                    department,
                                     kcExperience,
                                     firstName,
-                                    lastName,
                                     email,
+                                    gmail,
                                     phone,
                                     password,
                                     HelperGeneral.currentDateTime());
@@ -800,24 +806,22 @@ public class MainActivity extends AppCompatActivity {
                 TextView etSignUpZone,
                 TextView tvSignUpMemberType,
                 HelperCustomEditText etDirectAuthority,
-                HelperCustomEditText etFolkGuideAbbr,
-                HelperCustomEditText etDepartment,
-                HelperCustomEditText etKcExperience,
+                HelperCustomEditText etShortName,
+                TextView etHkmJoiningDate,
                 HelperCustomEditText etFirstName,
-                HelperCustomEditText etLastName,
                 HelperCustomEditText etEmail,
+                HelperCustomEditText etGmail,
                 HelperCustomEditText etPhone,
                 HelperCustomEditText etPassword) {
 
             String zone = valueOf(etSignUpZone.getText());
             String memberType = valueOf(tvSignUpMemberType.getText());
             String directAuthority = valueOf(etDirectAuthority.getText());
-            String folkGuideAbbr = valueOf(etFolkGuideAbbr.getText()).trim();
-            String department = valueOf(etDepartment.getText()).trim();
-            String kcExperience = valueOf(etKcExperience.getText()).trim();
+            String folkGuideAbbr = valueOf(etShortName.getText()).trim();
+            String kcExperience = valueOf(etHkmJoiningDate.getText()).trim();
             String firstName = valueOf(etFirstName.getText());
-            String lastName = valueOf(etLastName.getText());
             String email = valueOf(etEmail.getText()).trim();
+            String gmail = valueOf(etGmail.getText()).trim();
             String phone = valueOf(etPhone.getText()).trim();
             String password = valueOf(etPassword.getText());
 
@@ -840,20 +844,14 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (folkGuideAbbr.equals("")) {
-                etFolkGuideAbbr.setError("FOLK Guide is Required!");
-                etFolkGuideAbbr.requestFocus();
-                return false;
-            }
-
-            if (department.equals("")) {
-                etDepartment.setError("Department is Required!");
-                etDepartment.requestFocus();
+                etShortName.setError("FOLK Guide is Required!");
+                etShortName.requestFocus();
                 return false;
             }
 
             if (kcExperience.equals("")) {
-                etKcExperience.setError("KC Experience is Required!");
-                etKcExperience.requestFocus();
+                etHkmJoiningDate.setError("KC Experience is Required!");
+                etHkmJoiningDate.requestFocus();
                 return false;
             }
 
@@ -863,15 +861,15 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
 
-            if (lastName.equals("")) {
-                etLastName.setError("Last Name is Required!");
-                etLastName.requestFocus();
-                return false;
-            }
-
             if (email.equals("")) {
                 etEmail.setError("Email is Required!");
                 etEmail.requestFocus();
+                return false;
+            }
+
+            if (gmail.equals("")) {
+                etGmail.setError("Gmail is Required!");
+                etGmail.requestFocus();
                 return false;
             }
 
@@ -913,11 +911,10 @@ public class MainActivity extends AppCompatActivity {
                 String memberType,
                 String directAuthority,
                 String folkGuideAbbr,
-                String department,
                 String kcExperience,
                 String firstName,
-                String lastName,
                 String email,
+                String gmail,
                 String phone,
                 String password,
                 String creationTimeStamp) {
@@ -928,8 +925,10 @@ public class MainActivity extends AppCompatActivity {
                     loadingBar.setMessage("Creating Firebase Auth Account...");
                 });
             }
+
             //create user
             if (null != getActivity()) {
+
                 firebaseAuth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(Objects.requireNonNull(getActivity()), task -> {
                             if (null != getActivity()) {
@@ -940,23 +939,43 @@ public class MainActivity extends AppCompatActivity {
                                     getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                 }
                                 // 2 If success then store image in storeage, on success of storage create firestore credentials
-                                uploadProfileImage(
-                                        imageUriArray,
-                                        imageExtensionStringArray,
-                                        imageNameStringArray,
-                                        zone,
-                                        memberType,
-                                        directAuthority,
-                                        folkGuideAbbr,
-                                        department,
-                                        kcExperience,
-                                        firstName,
-                                        lastName,
-                                        email,
-                                        phone,
-                                        password,
-                                        creationTimeStamp);
+                                // If profile pic exists
+                                if (imageUriArray.size() != 0) {
+                                    uploadProfileImage(
+                                            imageUriArray,
+                                            imageExtensionStringArray,
+                                            imageNameStringArray,
+                                            zone,
+                                            memberType,
+                                            directAuthority,
+                                            folkGuideAbbr,
+                                            kcExperience,
+                                            firstName,
+                                            email,
+                                            gmail,
+                                            phone,
+                                            password,
+                                            creationTimeStamp);
+                                } else {
+                                    // If profile pic does not exist
+                                    // 3. Create user using Firestore DB image storage, get Profile image uri from storage
+                                    createUserFirestore(
+                                            zone,
+                                            memberType,
+                                            directAuthority,
+                                            folkGuideAbbr,
+                                            kcExperience,
+                                            firstName,
+                                            email,
+                                            gmail,
+                                            phone,
+                                            password,
+                                            "",
+                                            "false",
+                                            creationTimeStamp);
+                                }
                             } else {
+
                                 if (null != getActivity()) {
                                     getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                 }
@@ -987,11 +1006,10 @@ public class MainActivity extends AppCompatActivity {
                 String memberType,
                 String directAuthority,
                 String folkGuideAbbr,
-                String department,
                 String kcExperience,
                 String firstName,
-                String lastName,
                 String email,
+                String gmail,
                 String phone,
                 String password,
                 String creationTimeStamp) {
@@ -1039,11 +1057,10 @@ public class MainActivity extends AppCompatActivity {
                                                             memberType,
                                                             directAuthority,
                                                             folkGuideAbbr,
-                                                            department,
                                                             kcExperience,
                                                             firstName,
-                                                            lastName,
                                                             email,
+                                                            gmail,
                                                             phone,
                                                             password,
                                                             valueOf(task1.getResult()),
@@ -1084,11 +1101,10 @@ public class MainActivity extends AppCompatActivity {
                 String memberType,
                 String directAuthority,
                 String folkGuideAbbr,
-                String department,
                 String kcExperience,
                 String firstName,
-                String lastName,
                 String email,
+                String gmail,
                 String phone,
                 String password,
                 String profileImage,
@@ -1110,12 +1126,11 @@ public class MainActivity extends AppCompatActivity {
                     memberType,
                     directAuthority,
                     folkGuideAbbr,
-                    department,
                     kcExperience,
                     firstName,
-                    lastName,
                     phone,
                     email,
+                    gmail,
                     password,
                     profileImage,
                     signUpStatus,
@@ -1126,13 +1141,13 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences sp = Objects.requireNonNull(getActivity()).getSharedPreferences("authItem", Context.MODE_PRIVATE);
                 sp.edit().putString("profileImage", profileImage).apply();
                 sp.edit().putString("firstName", firstName).apply();
-                sp.edit().putString("lastName", lastName).apply();
                 sp.edit().putString("memberType", memberType).apply();
                 sp.edit().putString("phone", phone).apply();
                 sp.edit().putString("email", email).apply();
+                sp.edit().putString("gmail", gmail).apply();
                 sp.edit().putString("folkGuideAbbr", folkGuideAbbr).apply();
+                sp.edit().putString("zone", zone).apply();
             }
-
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
             // Collection name is "AuthUserItem". U can create a new collection this way
@@ -1148,12 +1163,11 @@ public class MainActivity extends AppCompatActivity {
                                     memberType,
                                     directAuthority,
                                     folkGuideAbbr,
-                                    department,
                                     kcExperience,
                                     firstName,
-                                    lastName,
                                     phone,
                                     email,
+                                    gmail,
                                     password,
                                     profileImage,
                                     signUpStatus,
@@ -1173,7 +1187,7 @@ public class MainActivity extends AppCompatActivity {
                                         // Create another collection for FolkGuideApprovals -> to Team Leads
                                         authUserItem1.setDocId(documentReference13.getId());
                                         btnCreateAccount.setEnabled(false);
-                                        approveFolkGuides(documentReference13.getId(), zone, memberType, directAuthority, folkGuideAbbr, firstName, lastName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
+                                        approveFolkGuides(documentReference13.getId(), zone, memberType, directAuthority, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.w(TAG, "Error adding document", e);
@@ -1185,19 +1199,17 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         if (("Team Lead").equals(memberType)) {
-                            Log.d(TAG, "createUserFirestore: got hittt 2");
                             // AuthUserItem obj
                             AuthUserItem authUserItem1 = new AuthUserItem(
                                     zone,
                                     memberType,
                                     directAuthority,
                                     folkGuideAbbr,
-                                    department,
                                     kcExperience,
                                     firstName,
-                                    lastName,
                                     phone,
                                     email,
+                                    gmail,
                                     password,
                                     profileImage,
                                     signUpStatus,
@@ -1217,7 +1229,7 @@ public class MainActivity extends AppCompatActivity {
                                         // Collection for Team Lead approvals -> to Zonal Heads
                                         authUserItem1.setDocId(documentReference12.getId());
                                         btnCreateAccount.setEnabled(false);
-                                        approveTeamLeads(documentReference12.getId(), zone, memberType, directAuthority, folkGuideAbbr, firstName, lastName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
+                                        approveTeamLeads(documentReference12.getId(), zone, memberType, directAuthority, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.w(TAG, "Error adding document", e);
@@ -1229,19 +1241,17 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         if (("Zonal Head").equals(memberType)) {
-                            Log.d(TAG, "createUserFirestore: got hittt 3");
                             // AuthUserItem obj
                             AuthUserItem authUserItem1 = new AuthUserItem(
                                     zone,
                                     memberType,
                                     directAuthority,
                                     folkGuideAbbr,
-                                    department,
                                     kcExperience,
                                     firstName,
-                                    lastName,
                                     phone,
                                     email,
+                                    gmail,
                                     password,
                                     profileImage,
                                     signUpStatus,
@@ -1289,7 +1299,6 @@ public class MainActivity extends AppCompatActivity {
                 String directAuthority,
                 String folkGuideAbbr,
                 String firstName,
-                String lastName,
                 String profileImage,
                 String signUpStatus,
                 String redFlagStatus,
@@ -1309,7 +1318,6 @@ public class MainActivity extends AppCompatActivity {
                     directAuthority,
                     folkGuideAbbr,
                     firstName,
-                    lastName,
                     profileImage,
                     signUpStatus,
                     redFlagStatus,
@@ -1347,7 +1355,6 @@ public class MainActivity extends AppCompatActivity {
                 String directAuthority,
                 String folkGuideAbbr,
                 String firstName,
-                String lastName,
                 String profileImage,
                 String signUpStatus,
                 String redFlagStatus,
@@ -1367,7 +1374,6 @@ public class MainActivity extends AppCompatActivity {
                     directAuthority,
                     folkGuideAbbr,
                     firstName,
-                    lastName,
                     profileImage,
                     signUpStatus,
                     redFlagStatus,
@@ -1438,22 +1444,19 @@ public class MainActivity extends AppCompatActivity {
             if (null != getActivity()) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(Objects.requireNonNull(getActivity())));
                 builder.setTitle("Which Zone?");
-                String[] selectArray = {"Bengaluru South", "Bengaluru North", "Ahemadabad South", "Ahemadabad North"};
+                String[] selectArray = {"ISKCON BANGALORE", "ISKCON MYSORE", "ISKCON AHEMDABAD"};
                 builder.setItems(selectArray, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                             case 0:
-                                etSignUpZone.setText("Bengaluru South");
+                                etSignUpZone.setText("ISKCON BANGALORE");
                                 break;
                             case 1:
-                                etSignUpZone.setText("Bengaluru North");
+                                etSignUpZone.setText("ISKCON MYSORE");
                                 break;
                             case 2:
-                                etSignUpZone.setText("Ahemadabad South");
-                                break;
-                            case 3:
-                                etSignUpZone.setText("Ahemadabad North");
+                                etSignUpZone.setText("ISKCON AHEMDABAD");
                                 break;
                         }
                     }

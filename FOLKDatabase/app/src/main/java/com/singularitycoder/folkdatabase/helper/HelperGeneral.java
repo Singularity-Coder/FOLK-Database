@@ -201,7 +201,7 @@ public class HelperGeneral extends AppCompatActivity {
         return outputDate + " at " + outputTime;
     }
 
-    public void showDatePicker(final TextView datefield, Context context) {
+    public static void showDatePicker(final TextView datefield, Context context) {
 // Get Current Date
         final Calendar c = Calendar.getInstance();
         int mYear = c.get(Calendar.YEAR);
@@ -228,7 +228,7 @@ public class HelperGeneral extends AppCompatActivity {
                 mDay).show();
     }
 
-    public void showTimePicker(final TextView timeField) {
+    public static void showTimePicker(final TextView timeField, Activity activity) {
 // Get Current Time
         final Calendar c = Calendar.getInstance();
         int mHour = c.get(Calendar.HOUR_OF_DAY);
@@ -236,7 +236,7 @@ public class HelperGeneral extends AppCompatActivity {
 
         // Launch Time Picker Dialog
         new TimePickerDialog(
-                this,
+                activity,
                 (view, hourOfDay, minute) -> {
 //                        txtTime.setText(hourOfDay + ":" + minute);
                     c.set(Calendar.HOUR_OF_DAY, hourOfDay);

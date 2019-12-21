@@ -47,6 +47,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -61,7 +62,6 @@ import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -76,17 +76,27 @@ public class DatabaseActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private TabLayout tabLayout;
     private FloatingActionButton fab1;
-
+    private ViewPagerAdapter viewPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setUpStatusBar();
         setContentView(R.layout.activity_database);
+        inits();
         initToolBar();
-        initViewPager();
+//        initViewPager();
+//        setupViewPager(viewPager);
+        showHideTabs();
         initTabLayout();
-//        hideTabs();
+    }
+
+    private void inits() {
+        toolbar = findViewById(R.id.toolbar_home);
+        fab1 = findViewById(R.id.floating_button);
+        viewPager = findViewById(R.id.viewpager_home);
+        tabLayout = findViewById(R.id.tabs_home);
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
     }
 
 
@@ -104,7 +114,6 @@ public class DatabaseActivity extends AppCompatActivity {
 
 
     private void initToolBar() {
-        toolbar = findViewById(R.id.toolbar_home);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("FOLK Database");
@@ -120,9 +129,6 @@ public class DatabaseActivity extends AppCompatActivity {
         final int ZONAL_HEADS = 3;
         final int ALL_USERS = 4;
 
-        fab1 = findViewById(R.id.floating_button);
-        viewPager = findViewById(R.id.viewpager_home);
-        setupViewPager(viewPager);
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -142,12 +148,12 @@ public class DatabaseActivity extends AppCompatActivity {
                     case TEAM_LEADS:
                         fab1.hide();
                         break;
-                    case ZONAL_HEADS:
-                        fab1.hide();
-                        break;
-                    case ALL_USERS:
-                        fab1.hide();
-                        break;
+//                    case ZONAL_HEADS:
+//                        fab1.hide();
+//                        break;
+//                    case ALL_USERS:
+//                        fab1.hide();
+//                        break;
                 }
             }
         });
@@ -155,7 +161,6 @@ public class DatabaseActivity extends AppCompatActivity {
 
 
     private void initTabLayout() {
-        tabLayout = findViewById(R.id.tabs_home);
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -163,13 +168,13 @@ public class DatabaseActivity extends AppCompatActivity {
                 viewPager.setCurrentItem(tab.getPosition());
                 switch (tab.getPosition()) {
                     case 0:
-                        new HelperGeneral().toast("1", getApplicationContext(), 0);
+//                        new HelperGeneral().toast("1", getApplicationContext(), 0);
                         break;
                     case 1:
-                        new HelperGeneral().toast("2", getApplicationContext(), 0);
+//                        new HelperGeneral().toast("2", getApplicationContext(), 0);
                         break;
                     case 2:
-                        new HelperGeneral().toast("3", getApplicationContext(), 0);
+//                        new HelperGeneral().toast("3", getApplicationContext(), 0);
                         break;
                 }
             }
@@ -185,49 +190,48 @@ public class DatabaseActivity extends AppCompatActivity {
     }
 
 
-    private void hideTabs() {
+    private void showHideTabs() {
         SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
         String memberType = sp.getString("memberType", "");
         Log.d(TAG, "hideTabs: member type: " + memberType);
 
         if (("Folk Guide").toLowerCase().equals(memberType.toLowerCase())) {
-            if (tabLayout.getTabCount() >= 1 && null != tabLayout && null != viewPager) {
-                viewPager.removeViewAt(1);
-                tabLayout.removeTabAt(1);
-                viewPager.removeViewAt(2);
-                tabLayout.removeTabAt(2);
-                viewPager.removeViewAt(3);
-                tabLayout.removeTabAt(3);
-                viewPager.removeViewAt(4);
-                tabLayout.removeTabAt(4);
-            }
+//            if (tabLayout.getTabCount() >= 1 && null != tabLayout && null != viewPager) {
+//                viewPager.removeViewAt(0);
+//                tabLayout.removeTabAt(1);
+//                viewPager.removeView();
+//            }
+            viewPagerAdapter.addFrag(new ContactFragment(), "CONTACTS");
+            viewPager.setAdapter(viewPagerAdapter);
         }
 
         if (("Team Lead").toLowerCase().equals(memberType.toLowerCase())) {
-            if (tabLayout.getTabCount() >= 1 && null != tabLayout && null != viewPager) {
-                viewPager.removeViewAt(2);
-                tabLayout.removeTabAt(2);
-                viewPager.removeViewAt(3);
-                tabLayout.removeTabAt(3);
-                viewPager.removeViewAt(4);
-                tabLayout.removeTabAt(4);
-            }
+//            if (tabLayout.getTabCount() >= 1 && null != tabLayout && null != viewPager) {
+//                viewPager.removeViewAt(2);
+//                tabLayout.removeTabAt(2);
+//            }
+            viewPagerAdapter.addFrag(new ContactFragment(), "CONTACTS");
+            viewPagerAdapter.addFrag(new FolkGuidesFragment(), "FOLK GUIDES");
+            viewPager.setAdapter(viewPagerAdapter);
         }
 
         if (("Zonal Head").toLowerCase().equals(memberType.toLowerCase())) {
-
+            viewPagerAdapter.addFrag(new ContactFragment(), "CONTACTS");
+            viewPagerAdapter.addFrag(new FolkGuidesFragment(), "FOLK GUIDES");
+            viewPagerAdapter.addFrag(new TeamLeadsFragment(), "TEAM LEADS");
+            viewPager.setAdapter(viewPagerAdapter);
         }
     }
 
 
     private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new ContactFragment(), "CONTACTS");
-        adapter.addFrag(new FolkGuidesFragment(), "FOLK GUIDES");
-        adapter.addFrag(new TeamLeadsFragment(), "TEAM LEADS");
-        adapter.addFrag(new ZonalHeadsFragment(), "ZONAL HEADS");
-        adapter.addFrag(new AllUsersFragment(), "ALL USERS");
-        viewPager.setAdapter(adapter);
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPagerAdapter.addFrag(new ContactFragment(), "CONTACTS");
+        viewPagerAdapter.addFrag(new FolkGuidesFragment(), "FOLK GUIDES");
+        viewPagerAdapter.addFrag(new TeamLeadsFragment(), "TEAM LEADS");
+//        adapter.addFrag(new ZonalHeadsFragment(), "ZONAL HEADS");
+//        adapter.addFrag(new AllUsersFragment(), "ALL USERS");
+        viewPager.setAdapter(viewPagerAdapter);
     }
 
 
@@ -368,6 +372,8 @@ public class DatabaseActivity extends AppCompatActivity {
         private TextView tvListCount;
         private String strOldPassword;
         private ShimmerFrameLayout shimmerFrameLayout;
+        private LottieAnimationView noFeedImage;
+        private TextView noFeedText;
 
         public ContactFragment() {
         }
@@ -401,6 +407,13 @@ public class DatabaseActivity extends AppCompatActivity {
             recyclerView = view.findViewById(R.id.recycler_person);
 //            progressBar = view.findViewById(R.id.progress_circular);
             noInternetText = view.findViewById(R.id.tv_no_internet);
+
+            noFeedText = view.findViewById(R.id.tv_no_feed_text);
+            noFeedImage = view.findViewById(R.id.img_no_feed_lottie_image);
+
+            noFeedImage.setAnimation(R.raw.empty_box);
+            noFeedImage.playAnimation();
+
             tvListCount = view.findViewById(R.id.tv_list_count);
             shimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
             if (null != getActivity()) {
@@ -495,8 +508,14 @@ public class DatabaseActivity extends AppCompatActivity {
             if (null != getActivity()) {
                 SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
                 String folkGuideAbbr = sp.getString("folkGuideAbbr", "");
+                String zone = sp.getString("zone", "");
 
-            FirebaseFirestore.getInstance().collection(HelperConstants.FOLK_MEMBERS).whereEqualTo("folk_guide", folkGuideAbbr).get()
+            FirebaseFirestore.getInstance()
+                    .collection(HelperConstants.FOLK_MEMBERS)
+                    .whereEqualTo("folk_guide", folkGuideAbbr)
+                    .whereEqualTo("zone", zone)
+                    .get()
+//            FirebaseFirestore.getInstance().collection(HelperConstants.FOLK_MEMBERS).get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         shimmerFrameLayout.setVisibility(View.GONE);
                         if (!queryDocumentSnapshots.isEmpty()) {
@@ -562,37 +581,37 @@ public class DatabaseActivity extends AppCompatActivity {
                                     Map<String, Object> talent = (Map<String, Object>) docSnap.getData().get("talent");
                                     Log.d(TAG, "readContactsData: talent map: " + talent);
 
-                                    // Cooking
-                                    Map<String, Object> cooking = (Map<String, Object>) talent.get("cooking");
-                                    if (!("").equals(valueOf(talent.get("disclose")))) {
-                                        personItemModel.setStrTalentDisclose(valueOf(talent.get("disclose")));
-                                    }
-
-                                    if (!("").equals(valueOf(cooking.get("can_cook_for")))) {
-                                        personItemModel.setStrCanCookFor(valueOf(cooking.get("can_cook_for")));
-                                    }
-
-                                    if (!("").equals(valueOf(cooking.get("cooking_self_rating")))) {
-                                        personItemModel.setStrSelfRating(valueOf(cooking.get("cooking_self_rating")));
-                                    }
-
-                                    Map<String, Object> cookingSkills = (Map<String, Object>) cooking.get("skills");
-
-                                    if (!("").equals(valueOf(cookingSkills.get("south_indian")))) {
-                                        personItemModel.setStrCanCookSouthIndian(valueOf(cookingSkills.get("south_indian")));
-                                    }
-
-                                    // Sports
-                                    Map<String, Object> sports = (Map<String, Object>) talent.get("sports_talent");
-                                    Map<String, Object> sportsParticipation = (Map<String, Object>) sports.get("participation");
-
-                                    if (!("").equals(valueOf(sportsParticipation.get("college_level")))) {
-                                        personItemModel.setStrCollegeLevel(valueOf(sportsParticipation.get("college_level")));
-                                    }
-
-                                    if (!("").equals(valueOf(sportsParticipation.get("college_level")))) {
-                                        personItemModel.setStrDistrictLevel(valueOf(sportsParticipation.get("college_level")));
-                                    }
+//                                    // Cooking
+//                                    Map<String, Object> cooking = (Map<String, Object>) talent.get("cooking");
+//                                    if (!("").equals(valueOf(talent.get("disclose")))) {
+//                                        personItemModel.setStrTalentDisclose(valueOf(talent.get("disclose")));
+//                                    }
+//
+//                                    if (!("").equals(valueOf(Objects.requireNonNull(cooking).get("can_cook_for")))) {
+//                                        personItemModel.setStrCanCookFor(valueOf(cooking.get("can_cook_for")));
+//                                    }
+// 
+//                                    if (!("").equals(valueOf(cooking.get("cooking_self_rating")))) {
+//                                        personItemModel.setStrSelfRating(valueOf(cooking.get("cooking_self_rating")));
+//                                    }
+//
+//                                    Map<String, Object> cookingSkills = (Map<String, Object>) cooking.get("skills");
+//
+//                                    if (!("").equals(valueOf(cookingSkills.get("south_indian")))) {
+//                                        personItemModel.setStrCanCookSouthIndian(valueOf(cookingSkills.get("south_indian")));
+//                                    }
+//
+//                                    // Sports
+//                                    Map<String, Object> sports = (Map<String, Object>) talent.get("sports_talent");
+//                                    Map<String, Object> sportsParticipation = (Map<String, Object>) sports.get("participation");
+//
+//                                    if (!("").equals(valueOf(sportsParticipation.get("college_level")))) {
+//                                        personItemModel.setStrCollegeLevel(valueOf(sportsParticipation.get("college_level")));
+//                                    }
+//
+//                                    if (!("").equals(valueOf(sportsParticipation.get("college_level")))) {
+//                                        personItemModel.setStrDistrictLevel(valueOf(sportsParticipation.get("college_level")));
+//                                    }
 
 
 //                                    for (Map.Entry<String, Object> entry : talent.entrySet()) {
@@ -604,14 +623,14 @@ public class DatabaseActivity extends AppCompatActivity {
 //
 //                                    }
 
-                                    // Send to Profile Talent
-                                    SharedPreferences spTalent = Objects.requireNonNull(getActivity()).getSharedPreferences("talentItem", Context.MODE_PRIVATE);
-                                    spTalent.edit().putString("canCook", valueOf(cooking.get("can_cook_for"))).apply();
-                                    spTalent.edit().putString("disclose", valueOf(talent.get("disclose"))).apply();
-                                    spTalent.edit().putString("cookingSelfRating", valueOf(cooking.get("cooking_self_rating"))).apply();
-                                    spTalent.edit().putString("canCookSouthIndian", valueOf(cookingSkills.get("south_indian"))).apply();
-                                    spTalent.edit().putString("sportsCollegeLevel", valueOf(sportsParticipation.get("college_level"))).apply();
-                                    spTalent.edit().putString("sportsDistrictLevel", valueOf(sportsParticipation.get("district_level"))).apply();
+//                                    // Send to Profile Talent
+//                                    SharedPreferences spTalent = Objects.requireNonNull(getActivity()).getSharedPreferences("talentItem", Context.MODE_PRIVATE);
+//                                    spTalent.edit().putString("canCook", valueOf(cooking.get("can_cook_for"))).apply();
+//                                    spTalent.edit().putString("disclose", valueOf(talent.get("disclose"))).apply();
+//                                    spTalent.edit().putString("cookingSelfRating", valueOf(cooking.get("cooking_self_rating"))).apply();
+//                                    spTalent.edit().putString("canCookSouthIndian", valueOf(cookingSkills.get("south_indian"))).apply();
+//                                    spTalent.edit().putString("sportsCollegeLevel", valueOf(sportsParticipation.get("college_level"))).apply();
+//                                    spTalent.edit().putString("sportsDistrictLevel", valueOf(sportsParticipation.get("district_level"))).apply();
 
                                 }
                                 Log.d(TAG, "firedoc id: " + docSnap.getId());
@@ -622,12 +641,22 @@ public class DatabaseActivity extends AppCompatActivity {
                             if (null != getActivity()) {
                                 Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
                             }
+
+                            if (contactList.size() == 0) {
+                                noFeedImage.setVisibility(View.VISIBLE);
+                                noFeedText.setVisibility(View.VISIBLE);
+                            } else {
+                                noFeedImage.setVisibility(View.GONE);
+                                noFeedText.setVisibility(View.GONE);
+                            }
                         }
                     })
                     .addOnFailureListener(e -> {
                         if (null != getActivity()) {
                             Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
                         }
+                        noFeedImage.setVisibility(View.VISIBLE);
+                        noFeedText.setVisibility(View.VISIBLE);
                     });
             }
         }
@@ -1213,6 +1242,8 @@ public class DatabaseActivity extends AppCompatActivity {
         private TextView noInternetText;
         private TextView tvListCount;
         private ShimmerFrameLayout shimmerFrameLayout;
+        private LottieAnimationView noFeedImage;
+        private TextView noFeedText;
 
         public FolkGuidesFragment() {
         }
@@ -1238,6 +1269,13 @@ public class DatabaseActivity extends AppCompatActivity {
         private void init(View view) {
             recyclerView = view.findViewById(R.id.recycler_person);
             noInternetText = view.findViewById(R.id.tv_no_internet);
+
+            noFeedText = view.findViewById(R.id.tv_no_feed_text);
+            noFeedImage = view.findViewById(R.id.img_no_feed_lottie_image);
+
+            noFeedImage.setAnimation(R.raw.empty_box);
+            noFeedImage.playAnimation();
+
             tvListCount = view.findViewById(R.id.tv_list_count);
             shimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
             if (null != getActivity()) {
@@ -1303,7 +1341,13 @@ public class DatabaseActivity extends AppCompatActivity {
         // READ
         private void readFolkGuidesData() {
             if (null != getActivity()) {
-                FirebaseFirestore.getInstance().collection(HelperConstants.FOLK_GUIDES).get()
+                SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
+                String zone = sp.getString("zone", "");
+
+                FirebaseFirestore.getInstance()
+                        .collection(HelperConstants.AUTH_FOLK_GUIDES)
+                        .whereEqualTo("zone", zone)
+                        .get()
                         .addOnSuccessListener(queryDocumentSnapshots -> {
                             shimmerFrameLayout.setVisibility(View.GONE);
                             if (!queryDocumentSnapshots.isEmpty()) {
@@ -1331,11 +1375,20 @@ public class DatabaseActivity extends AppCompatActivity {
                                     Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
                                 }
                             }
+                            if (folkGuidesList.size() == 0) {
+                                noFeedImage.setVisibility(View.VISIBLE);
+                                noFeedText.setVisibility(View.VISIBLE);
+                            } else {
+                                noFeedImage.setVisibility(View.GONE);
+                                noFeedText.setVisibility(View.GONE);
+                            }
                         })
                         .addOnFailureListener(e -> {
                             if (null != getActivity()) {
                                 Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
                             }
+                            noFeedImage.setVisibility(View.VISIBLE);
+                            noFeedText.setVisibility(View.VISIBLE);
                         });
             }
         }
@@ -1401,6 +1454,8 @@ public class DatabaseActivity extends AppCompatActivity {
         private TextView noInternetText;
         private TextView tvListCount;
         private ShimmerFrameLayout shimmerFrameLayout;
+        private LottieAnimationView noFeedImage;
+        private TextView noFeedText;
 
         public TeamLeadsFragment() {
         }
@@ -1426,6 +1481,13 @@ public class DatabaseActivity extends AppCompatActivity {
         private void init(View view) {
             recyclerView = view.findViewById(R.id.recycler_person);
             noInternetText = view.findViewById(R.id.tv_no_internet);
+
+            noFeedText = view.findViewById(R.id.tv_no_feed_text);
+            noFeedImage = view.findViewById(R.id.img_no_feed_lottie_image);
+
+            noFeedImage.setAnimation(R.raw.empty_box);
+            noFeedImage.playAnimation();
+
             tvListCount = view.findViewById(R.id.tv_list_count);
             shimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
             if (null != getActivity()) {
@@ -1491,7 +1553,13 @@ public class DatabaseActivity extends AppCompatActivity {
         // READ
         private void readFolkGuidesData() {
             if (null != getActivity()) {
-                FirebaseFirestore.getInstance().collection(HelperConstants.TEAM_LEADS).get()
+                SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
+                String zone = sp.getString("zone", "");
+
+                FirebaseFirestore.getInstance()
+                        .collection(HelperConstants.AUTH_FOLK_TEAM_LEADS)
+                        .whereEqualTo("zone", zone)
+                        .get()
                         .addOnSuccessListener(queryDocumentSnapshots -> {
                             shimmerFrameLayout.setVisibility(View.GONE);
                             if (!queryDocumentSnapshots.isEmpty()) {
@@ -1519,11 +1587,20 @@ public class DatabaseActivity extends AppCompatActivity {
                                     Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
                                 }
                             }
+                            if (teamLeadList.size() == 0) {
+                                noFeedImage.setVisibility(View.VISIBLE);
+                                noFeedText.setVisibility(View.VISIBLE);
+                            } else {
+                                noFeedImage.setVisibility(View.GONE);
+                                noFeedText.setVisibility(View.GONE);
+                            }
                         })
                         .addOnFailureListener(e -> {
                             if (null != getActivity()) {
                                 Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
                             }
+                            noFeedImage.setVisibility(View.VISIBLE);
+                            noFeedText.setVisibility(View.VISIBLE);
                         });
             }
         }
@@ -1590,6 +1667,8 @@ public class DatabaseActivity extends AppCompatActivity {
         private TextView noInternetText;
         private TextView tvListCount;
         private ShimmerFrameLayout shimmerFrameLayout;
+        private LottieAnimationView noFeedImage;
+        private TextView noFeedText;
 
         public ZonalHeadsFragment() {
         }
@@ -1616,6 +1695,13 @@ public class DatabaseActivity extends AppCompatActivity {
             recyclerView = view.findViewById(R.id.recycler_person);
             shimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
             noInternetText = view.findViewById(R.id.tv_no_internet);
+
+            noFeedText = view.findViewById(R.id.tv_no_feed_text);
+            noFeedImage = view.findViewById(R.id.img_no_feed_lottie_image);
+
+            noFeedImage.setAnimation(R.raw.empty_box);
+            noFeedImage.playAnimation();
+
             tvListCount = view.findViewById(R.id.tv_list_count);
             if (null != getActivity()) {
                 loadingBar = new ProgressDialog(getActivity());
@@ -1665,7 +1751,7 @@ public class DatabaseActivity extends AppCompatActivity {
             if (hasInternet(context)) {
                 Log.d(TAG, "hit 1");
                 setUpRecyclerView();
-                AsyncTask.execute(this::readAllUsersData);
+                AsyncTask.execute(this::readZonalHeadsData);
                 noInternetText.setVisibility(View.GONE);
                 swipeRefreshLayout.setRefreshing(false);
                 zonalHeadsAdapter.notifyDataSetChanged();
@@ -1677,8 +1763,14 @@ public class DatabaseActivity extends AppCompatActivity {
         }
 
         // READ
-        private void readAllUsersData() {
-            FirebaseFirestore.getInstance().collection(HelperConstants.AUTH_FOLK_ZONAL_HEADS).get()
+        private void readZonalHeadsData() {
+            SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
+            String zone = sp.getString("zone", "");
+
+            FirebaseFirestore.getInstance()
+                    .collection(HelperConstants.AUTH_FOLK_ZONAL_HEADS)
+                    .whereEqualTo("zone", zone)
+                    .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         shimmerFrameLayout.setVisibility(View.GONE);
                         if (!queryDocumentSnapshots.isEmpty()) {
@@ -1709,11 +1801,20 @@ public class DatabaseActivity extends AppCompatActivity {
                                 Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
                             }
                         }
+                        if (zonalHeadsList.size() == 0) {
+                            noFeedImage.setVisibility(View.VISIBLE);
+                            noFeedText.setVisibility(View.VISIBLE);
+                        } else {
+                            noFeedImage.setVisibility(View.GONE);
+                            noFeedText.setVisibility(View.GONE);
+                        }
                     })
                     .addOnFailureListener(e -> {
                         if (null != getActivity()) {
                             Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
                         }
+                        noFeedImage.setVisibility(View.VISIBLE);
+                        noFeedText.setVisibility(View.VISIBLE);
                     });
         }
 
@@ -1777,6 +1878,8 @@ public class DatabaseActivity extends AppCompatActivity {
         private TextView noInternetText;
         private TextView tvListCount;
         private ShimmerFrameLayout shimmerFrameLayout;
+        private LottieAnimationView noFeedImage;
+        private TextView noFeedText;
 
         public AllUsersFragment() {
         }
@@ -1804,6 +1907,13 @@ public class DatabaseActivity extends AppCompatActivity {
 //            progressBar = view.findViewById(R.id.progress_circular);
             shimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
             noInternetText = view.findViewById(R.id.tv_no_internet);
+
+            noFeedText = view.findViewById(R.id.tv_no_feed_text);
+            noFeedImage = view.findViewById(R.id.img_no_feed_lottie_image);
+
+            noFeedImage.setAnimation(R.raw.empty_box);
+            noFeedImage.playAnimation();
+
             tvListCount = view.findViewById(R.id.tv_list_count);
             if (null != getActivity()) {
                 loadingBar = new ProgressDialog(getActivity());
@@ -1866,7 +1976,13 @@ public class DatabaseActivity extends AppCompatActivity {
 
         // READ
         private void readAllUsersData() {
-            FirebaseFirestore.getInstance().collection(HelperConstants.AUTH_FOLK_PEOPLE).get()
+            SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
+            String zone = sp.getString("zone", "");
+
+            FirebaseFirestore.getInstance()
+                    .collection(HelperConstants.AUTH_FOLK_PEOPLE)
+                    .whereEqualTo("zone", zone)
+                    .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         shimmerFrameLayout.setVisibility(View.GONE);
                         if (!queryDocumentSnapshots.isEmpty()) {
@@ -1897,11 +2013,20 @@ public class DatabaseActivity extends AppCompatActivity {
                                 Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
                             }
                         }
+                        if (allUsersList.size() == 0) {
+                            noFeedImage.setVisibility(View.VISIBLE);
+                            noFeedText.setVisibility(View.VISIBLE);
+                        } else {
+                            noFeedImage.setVisibility(View.GONE);
+                            noFeedText.setVisibility(View.GONE);
+                        }
                     })
                     .addOnFailureListener(e -> {
                         if (null != getActivity()) {
                             Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
                         }
+                        noFeedImage.setVisibility(View.VISIBLE);
+                        noFeedText.setVisibility(View.VISIBLE);
                     });
         }
 

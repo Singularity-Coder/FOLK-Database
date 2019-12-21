@@ -52,7 +52,7 @@ dependencies {
     implementation 'com.karumi:dexter:5.0.0'
 
     // Firebase
-    implementation 'com.google.firebase:firebase-firestore:21.3.0'
+    implementation 'com.google.firebase:firebase-firestore:21.3.1'
     implementation "com.google.firebase:firebase-auth:19.2.0"
     implementation 'com.google.firebase:firebase-core:17.2.1'
     implementation 'com.google.firebase:firebase-analytics:17.2.1'
@@ -73,4 +73,11 @@ dependencies {
     implementation 'com.facebook.fresco:animated-gif:2.0.0'
     implementation 'com.facebook.fresco:animated-webp:2.0.0'
     implementation 'com.facebook.fresco:webpsupport:2.0.0'
+
+    // Leak Canary - shows memory leaks
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.2'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.6.2'
+
+    // Lottie
+    implementation 'com.airbnb.android:lottie:3.0.0'
 }

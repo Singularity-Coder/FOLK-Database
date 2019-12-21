@@ -3,17 +3,15 @@ package com.singularitycoder.folkdatabase.helper;
 public class HelperConstants {
 
     // Firebase Firestore Auth Collections
-    public static final String AUTH_FOLK_PEOPLE = "AllFolkPeople";
-    public static final String AUTH_FOLK_GUIDES = "AllFolkGuides";
-    public static final String AUTH_FOLK_TEAM_LEADS = "AllTeamLeads";
-    public static final String AUTH_FOLK_ZONAL_HEADS = "AllZonalHeads";
-    public static final String AUTH_FOLK_GUIDE_APPROVALS = "AllFolkGuideApprovals";
-    public static final String AUTH_FOLK_TEAM_LEAD_APPROVALS = "AllTeamLeadApprovals";
+    public static final String AUTH_FOLK_PEOPLE = "FolkPeople";
+    public static final String AUTH_FOLK_GUIDES = "FolkGuides";
+    public static final String AUTH_FOLK_TEAM_LEADS = "TeamLeads";
+    public static final String AUTH_FOLK_ZONAL_HEADS = "ZonalHeads";
+    public static final String AUTH_FOLK_GUIDE_APPROVALS = "FolkGuideApprovals";
+    public static final String AUTH_FOLK_TEAM_LEAD_APPROVALS = "TeamLeadApprovals";
 
     // Firebase Firestore Main Collections
-    public static final String FOLK_MEMBERS = "FolkMembers";
-    public static final String FOLK_GUIDES = "FOLKGuides";
-    public static final String TEAM_LEADS = "TeamLeads";
+    public static final String FOLK_MEMBERS = "Profile";
 
     // Firebase Storage
     public static final String FOLK_PROFILE_IMAGES_PATH = "ProfileImages/";
@@ -42,4 +40,7 @@ public class HelperConstants {
     public static final String KEY_AUTH_PROFILE_IMAGE = "profileImageUrl";
     public static final String KEY_AUTH_SIGNUP_STATUS = "signUpStatus";
     public static final String KEY_AUTH_ZONE = "zone";
+
+
+    // email, fg, fg_name, gmail, mobile_number, team_lead, telegram_group_id, zone
 }

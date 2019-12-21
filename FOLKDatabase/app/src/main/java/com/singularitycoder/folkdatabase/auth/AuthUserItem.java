@@ -10,13 +10,12 @@ public class AuthUserItem {
     private String zone;
     private String memberType;
     private String directAuthority;
-    private String folkGuideAbbr;
-    private String department;
-    private String kcExperience;
-    private String firstName;
-    private String lastName;
+    private String shortName;
+    private String hkmJoiningDate;
+    private String fullName;
     private String phone;
     private String email;
+    private String gmail;
     private String password;
     private String profileImageUrl;
     private String signUpStatus;
@@ -25,17 +24,16 @@ public class AuthUserItem {
     public AuthUserItem() {
     }
 
-    public AuthUserItem(String zone, String memberType, String directAuthority, String folkGuideAbbr, String department, String kcExperience, String firstName, String lastName, String phone, String email, String password, String profileImageUrl, String signUpStatus, String creationTimeStamp) {
+    public AuthUserItem(String zone, String memberType, String directAuthority, String shortName, String hkmJoiningDate, String fullName, String phone, String email, String gmail, String password, String profileImageUrl, String signUpStatus, String creationTimeStamp) {
         this.zone = zone;
         this.memberType = memberType;
         this.directAuthority = directAuthority;
-        this.folkGuideAbbr = folkGuideAbbr;
-        this.department = department;
-        this.kcExperience = kcExperience;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.shortName = shortName;
+        this.hkmJoiningDate = hkmJoiningDate;
+        this.fullName = fullName;
         this.phone = phone;
         this.email = email;
+        this.gmail = gmail;
         this.password = password;
         this.profileImageUrl = profileImageUrl;
         this.signUpStatus = signUpStatus;
@@ -54,24 +52,16 @@ public class AuthUserItem {
         return directAuthority;
     }
 
-    public String getFolkGuideAbbr() {
-        return folkGuideAbbr;
+    public String getShortName() {
+        return shortName;
     }
 
-    public String getDepartment() {
-        return department;
+    public String getHkmJoiningDate() {
+        return hkmJoiningDate;
     }
 
-    public String getKcExperience() {
-        return kcExperience;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
+    public String getFullName() {
+        return fullName;
     }
 
     public String getPhone() {
@@ -80,6 +70,10 @@ public class AuthUserItem {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getGmail() {
+        return gmail;
     }
 
     public String getPassword() {
@@ -105,5 +99,4 @@ public class AuthUserItem {
     public void setDocId(String docId) {
         this.docId = docId;
     }
-
 }

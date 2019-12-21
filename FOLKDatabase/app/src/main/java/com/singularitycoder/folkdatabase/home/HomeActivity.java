@@ -191,6 +191,7 @@ public class HomeActivity extends AppCompatActivity {
         homeList.add(new HomeItem(R.drawable.ic_service3, "Service", ""));
         homeList.add(new HomeItem(R.drawable.ic_payments3, "Payments", ""));
         homeList.add(new HomeItem(R.drawable.ic_prasadum3, "Prasadum Coupon", ""));
+        homeList.add(new HomeItem(R.drawable.ic_widgets_black_24dp, "Tools", ""));
 
         homeAdapter = new HomeAdapter(homeList, this);
         homeAdapter.setHasStableIds(true);
@@ -204,8 +205,7 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             if (position == 2) {
-                Intent intent = new Intent(getApplicationContext(), DatabaseActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(getApplicationContext(), DatabaseActivity.class));
             }
 
             if (position == 3) {
@@ -221,6 +221,10 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             if (position == 6) {
+                HelperGeneral.dialogComingSoon(HomeActivity.this);
+            }
+
+            if (position == 7) {
                 HelperGeneral.dialogComingSoon(HomeActivity.this);
             }
         });
@@ -257,19 +261,13 @@ public class HomeActivity extends AppCompatActivity {
                 builder.setTitle("Are you sure?");
                 builder.setMessage("You cannot undo this!");
 
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        AsyncTask.execute(() -> deleteAccount());
-                        dialog.dismiss();
-                    }
+                builder.setPositiveButton("Yes", (dialog, which) -> {
+                    AsyncTask.execute(() -> deleteAccount());
+                    dialog.dismiss();
                 });
 
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
+                builder.setNegativeButton("No", (dialog, which) -> {
+                    dialog.dismiss();
                 });
 
                 AlertDialog alertDialog = builder.create();
@@ -463,11 +461,8 @@ public class HomeActivity extends AppCompatActivity {
         // Show all birthday's in the notifications
 
         ImageView imgCloseBtn = dialog.findViewById(R.id.img_dialog_close);
-        imgCloseBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
+        imgCloseBtn.setOnClickListener(view -> {
+            dialog.dismiss();
         });
 
         ArrayList<ContactItem> notificationList = new ArrayList<>();

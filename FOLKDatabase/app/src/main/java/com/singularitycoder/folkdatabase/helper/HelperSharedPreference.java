@@ -57,6 +57,5 @@ public class HelperSharedPreference {
 
     public String getSignupStatus() {
         return sharedPref.getString(KEY_SIGNUP_STATUS, "");
-
     }
 }

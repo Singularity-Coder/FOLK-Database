@@ -12,20 +12,18 @@ public class AuthUserApprovalItem {
     private String directAuthority;
     private String folkGuideAbbr;
     private String firstName;
-    private String lastName;
     private String profileImageUrl;
     private String signUpStatus;
     private String redFlagStatus;
     private String approveRequestTimeStamp;
 
-    public AuthUserApprovalItem(String docId, String zone, String memberType, String directAuthority, String folkGuideAbbr, String firstName, String lastName, String profileImageUrl, String signUpStatus, String redFlagStatus, String approveRequestTimeStamp) {
+    public AuthUserApprovalItem(String docId, String zone, String memberType, String directAuthority, String folkGuideAbbr, String firstName, String profileImageUrl, String signUpStatus, String redFlagStatus, String approveRequestTimeStamp) {
         this.docId = docId;
         this.zone = zone;
         this.memberType = memberType;
         this.directAuthority = directAuthority;
         this.folkGuideAbbr = folkGuideAbbr;
         this.firstName = firstName;
-        this.lastName = lastName;
         this.profileImageUrl = profileImageUrl;
         this.signUpStatus = signUpStatus;
         this.redFlagStatus = redFlagStatus;
@@ -58,10 +56,6 @@ public class AuthUserApprovalItem {
 
     public String getFirstName() {
         return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
     }
 
     public String getProfileImageUrl() {

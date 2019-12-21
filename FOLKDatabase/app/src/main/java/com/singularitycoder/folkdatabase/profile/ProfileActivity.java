@@ -125,11 +125,10 @@ public class ProfileActivity extends AppCompatActivity {
                     "",
                     "",
                     "",
-                    "",
-                    sp.getString("firstName", ""),
-                    sp.getString("lastName", ""),
+                    sp.getString("fullName", ""),
                     sp.getString("phone", ""),
                     sp.getString("email", ""),
+                    sp.getString("gmail", ""),
                     "",
                     sp.getString("profileImage", ""),
                     "",
@@ -198,7 +197,7 @@ public class ProfileActivity extends AppCompatActivity {
                 intent.putExtra("image_url", authUserItem.getProfileImageUrl());
                 startActivity(intent);
             });
-            tvName.setText(authUserItem.getFirstName() + " " + authUserItem.getLastName());
+            tvName.setText(authUserItem.getFullName());
             tvSubTitle.setText(authUserItem.getMemberType());
             profileActions(this, authUserItem.getPhone(), authUserItem.getPhone(), authUserItem.getEmail());
             conLayProfileActions.setVisibility(View.GONE);
@@ -320,19 +319,19 @@ public class ProfileActivity extends AppCompatActivity {
         ImageView imgShare = findViewById(R.id.img_share);
         imgShare.setOnClickListener(v -> {
             if (("AUTHUSER").equals(profileKey)) {
-                shareProfile(authUserItem.getProfileImageUrl(), ivProfileImage, authUserItem.getFirstName() + " " + authUserItem.getLastName(), authUserItem.getMemberType());
+                shareProfile(authUserItem.getProfileImageUrl(), ivProfileImage, authUserItem.getFullName(), authUserItem.getMemberType());
             }
 
             if (("FOLKGUIDE").equals(profileKey)) {
-                shareProfile(folkGuideItem.getStrProfileImage(), ivProfileImage, folkGuideItem.getStrFirstName(), "Full Name: " + folkGuideItem.getStrFirstName());
+                shareProfile(folkGuideItem.getStrProfileImage(), ivProfileImage, folkGuideItem.getStrFirstName(), folkGuideItem.getStrFirstName());
             }
 
             if (("TEAMLEAD").equals(profileKey)) {
-                shareProfile(teamLeadItem.getStrProfileImage(), ivProfileImage, teamLeadItem.getStrFirstName(), "Full Name: " + teamLeadItem.getStrFirstName());
+                shareProfile(teamLeadItem.getStrProfileImage(), ivProfileImage, teamLeadItem.getStrFirstName(), teamLeadItem.getStrFirstName());
             }
 
             if (("CONTACT").equals(profileKey)) {
-                shareProfile(contactItem.getStrProfileImage(), ivProfileImage, contactItem.getFirstName(), "FOLK Guide: " + contactItem.getStrFolkGuide());
+                shareProfile(contactItem.getStrProfileImage(), ivProfileImage, contactItem.getFirstName(), contactItem.getStrFolkGuide());
             }
 
             if (("ZONALHEAD").equals(profileKey)) {
@@ -512,7 +511,7 @@ public class ProfileActivity extends AppCompatActivity {
                 if (scrollRange + verticalOffset == 0) {
                     if (getSupportActionBar() != null) {
                         if (("AUTHUSER").equals(profileKey)) {
-                            getSupportActionBar().setTitle(authUserItem.getFirstName() + " " + authUserItem.getLastName());
+                            getSupportActionBar().setTitle(authUserItem.getFullName());
                             Objects.requireNonNull(getSupportActionBar()).setSubtitle(authUserItem.getMemberType());
                         }
 

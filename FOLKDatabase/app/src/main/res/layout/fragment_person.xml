@@ -74,4 +74,32 @@
             android:paddingBottom="15dp" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/img_no_feed_lottie_image"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true" />
+
+    <TextView
+        android:id="@+id/tv_no_feed_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="40dp"
+        android:letterSpacing="0.15"
+        android:text="Nothing to show :("
+        android:textAlignment="center"
+        android:textColor="@color/colorBlack"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/img_no_feed_lottie_image" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
