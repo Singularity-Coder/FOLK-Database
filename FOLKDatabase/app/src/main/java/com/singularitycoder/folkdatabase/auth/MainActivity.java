@@ -1459,47 +1459,51 @@ public class MainActivity extends AppCompatActivity {
             call.enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                    getActivity().runOnUiThread(() -> {
-                        Log.d(TAG, "onResponse: hit 1");
-                        Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
-                        Log.d("Raw Response: ", valueOf(response.raw()));
-                        Log.d("Real Response: ", String.valueOf(response.body()));
-                        Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
+                    if (null != getActivity()) {
+                        getActivity().runOnUiThread(() -> {
+                            Log.d(TAG, "onResponse: hit 1");
+                            Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
+                            Log.d("Raw Response: ", valueOf(response.raw()));
+                            Log.d("Real Response: ", String.valueOf(response.body()));
+                            Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
 
-                        if (response.isSuccessful()) {
-                            if (response.body() != null) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(response.body());
-                                    Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
+                            if (response.isSuccessful()) {
+                                if (response.body() != null) {
+                                    try {
+                                        JSONObject jsonObject = new JSONObject(response.body());
+                                        Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
 
-                                    if (jsonObject.getString("status").equals("Success")) {
-                                        JSONArray jsonArray = jsonObject.getJSONArray("List of Zones");
-                                        zones = new String[jsonArray.length()];
-                                        for (int i = 0; i < jsonArray.length(); i++) {
-                                            zones[i] = valueOf(jsonArray.get(i));
-                                            System.out.println("zones: " + valueOf(jsonArray.get(i)));
+                                        if (jsonObject.getString("status").equals("Success")) {
+                                            JSONArray jsonArray = jsonObject.getJSONArray("List of Zones");
+                                            zones = new String[jsonArray.length()];
+                                            for (int i = 0; i < jsonArray.length(); i++) {
+                                                zones[i] = valueOf(jsonArray.get(i));
+                                                System.out.println("zones: " + valueOf(jsonArray.get(i)));
+                                            }
                                         }
-                                    }
 
-                                    if (jsonObject.getString("status").equals("Failure")) {
-                                        HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                        if (jsonObject.getString("status").equals("Failure")) {
+                                            HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
                                 }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                    getActivity().runOnUiThread(() -> {
-                        Log.d(TAG, "onResponse: hit 2");
-                        Log.d(TAG, "onFailure: " + t.getMessage());
-                        Log.d(TAG, "onFailure: " + call.toString());
-                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
-                    });
+                    if (null != getActivity()) {
+                        getActivity().runOnUiThread(() -> {
+                            Log.d(TAG, "onResponse: hit 2");
+                            Log.d(TAG, "onFailure: " + t.getMessage());
+                            Log.d(TAG, "onFailure: " + call.toString());
+                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
+                        });
+                    }
                 }
             });
         }
@@ -1511,42 +1515,46 @@ public class MainActivity extends AppCompatActivity {
             call.enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                    getActivity().runOnUiThread(() -> {
-                        Log.d(TAG, "onResponse: hit 1");
-                        Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
-                        Log.d("Raw Response: ", valueOf(response.raw()));
-                        Log.d("Real Response: ", String.valueOf(response.body()));
-                        Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
+                    if (null != getActivity()) {
+                        getActivity().runOnUiThread(() -> {
+                            Log.d(TAG, "onResponse: hit 1");
+                            Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
+                            Log.d("Raw Response: ", valueOf(response.raw()));
+                            Log.d("Real Response: ", String.valueOf(response.body()));
+                            Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
 
-                        if (response.isSuccessful()) {
-                            if (response.body() != null) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(response.body());
-                                    Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
+                            if (response.isSuccessful()) {
+                                if (response.body() != null) {
+                                    try {
+                                        JSONObject jsonObject = new JSONObject(response.body());
+                                        Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
 
-                                    if (jsonObject.getString("status").equals("Success")) {
-                                        HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                        if (jsonObject.getString("status").equals("Success")) {
+                                            HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                        }
+
+                                        if (jsonObject.getString("status").equals("Failure")) {
+                                            HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
                                     }
-
-                                    if (jsonObject.getString("status").equals("Failure")) {
-                                        HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
                                 }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                    getActivity().runOnUiThread(() -> {
-                        Log.d(TAG, "onResponse: hit 2");
-                        Log.d(TAG, "onFailure: " + t.getMessage());
-                        Log.d(TAG, "onFailure: " + call.toString());
-                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
-                    });
+                    if (null != getActivity()) {
+                        getActivity().runOnUiThread(() -> {
+                            Log.d(TAG, "onResponse: hit 2");
+                            Log.d(TAG, "onFailure: " + t.getMessage());
+                            Log.d(TAG, "onFailure: " + call.toString());
+                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
+                        });
+                    }
                 }
             });
         }
@@ -1560,52 +1568,56 @@ public class MainActivity extends AppCompatActivity {
                 call.enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                        getActivity().runOnUiThread(() -> {
-                            Log.d(TAG, "onResponse: hit 1");
-                            Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
-                            Log.d("Raw Response: ", valueOf(response.raw()));
-                            Log.d("Real Response: ", valueOf(response.body()));
-                            Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
+                        if (null != getActivity()) {
+                            getActivity().runOnUiThread(() -> {
+                                Log.d(TAG, "onResponse: hit 1");
+                                Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
+                                Log.d("Raw Response: ", valueOf(response.raw()));
+                                Log.d("Real Response: ", valueOf(response.body()));
+                                Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
 
-                            if (response.isSuccessful()) {
-                                if (response.body() != null) {
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(response.body());
-                                        Log.d(TAG, "onResponse: h0");
-                                        Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
+                                if (response.isSuccessful()) {
+                                    if (response.body() != null) {
+                                        try {
+                                            JSONObject jsonObject = new JSONObject(response.body());
+                                            Log.d(TAG, "onResponse: h0");
+                                            Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
 
-                                        if (jsonObject.getString("status").equals("Success")) {
-                                            Log.d(TAG, "onResponse: h1");
-                                            // show progress
-                                            JSONArray jsonArray = jsonObject.getJSONArray("TeamLeads");
-                                            zones = new String[jsonArray.length()];
-                                            for (int i = 0; i < jsonArray.length(); i++) {
-                                                teamLeads[i] = valueOf(jsonArray.get(i));
-                                                System.out.println("TeamLeads: " + valueOf(jsonArray.get(i)));
+                                            if (jsonObject.getString("status").equals("Success")) {
+                                                Log.d(TAG, "onResponse: h1");
+                                                // show progress
+                                                JSONArray jsonArray = jsonObject.getJSONArray("TeamLeads");
+                                                zones = new String[jsonArray.length()];
+                                                for (int i = 0; i < jsonArray.length(); i++) {
+                                                    teamLeads[i] = valueOf(jsonArray.get(i));
+                                                    System.out.println("TeamLeads: " + valueOf(jsonArray.get(i)));
+                                                }
+                                                dialogSignUpAuthorities();
                                             }
-                                            dialogSignUpAuthorities();
-                                        }
 
-                                        if (jsonObject.getString("status").equals("Failure")) {
-                                            Log.d(TAG, "onResponse: h2");
-                                            HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                            if (jsonObject.getString("status").equals("Failure")) {
+                                                Log.d(TAG, "onResponse: h2");
+                                                HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                            }
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
                                         }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
                                     }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
 
                     @Override
                     public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                        getActivity().runOnUiThread(() -> {
-                            Log.d(TAG, "onResponse: hit 2");
-                            Log.d(TAG, "onFailure: " + t.getMessage());
-                            Log.d(TAG, "onFailure: " + call.toString());
-                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
-                        });
+                        if (null != getActivity()) {
+                            getActivity().runOnUiThread(() -> {
+                                Log.d(TAG, "onResponse: hit 2");
+                                Log.d(TAG, "onFailure: " + t.getMessage());
+                                Log.d(TAG, "onFailure: " + call.toString());
+                                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
+                            });
+                        }
                     }
                 });
             }

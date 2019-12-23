@@ -203,7 +203,7 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             if (position == 2) {
-                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
+                startActivity(new Intent(HomeActivity.this, DatabaseActivity.class));
             }
 
             if (position == 3) {
