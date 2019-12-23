@@ -46,8 +46,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -197,35 +195,35 @@ public class HomeActivity extends AppCompatActivity {
         homeAdapter.setHasStableIds(true);
         homeAdapter.setOnItemClickListener((view, position) -> {
             if (position == 0) {
-                HelperGeneral.dialogComingSoon(HomeActivity.this);
+                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
             }
 
             if (position == 1) {
-                HelperGeneral.dialogComingSoon(HomeActivity.this);
+                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
             }
 
             if (position == 2) {
-                startActivity(new Intent(getApplicationContext(), DatabaseActivity.class));
+                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
             }
 
             if (position == 3) {
-                HelperGeneral.dialogComingSoon(HomeActivity.this);
+                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
             }
 
             if (position == 4) {
-                HelperGeneral.dialogComingSoon(HomeActivity.this);
+                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
             }
 
             if (position == 5) {
-                HelperGeneral.dialogComingSoon(HomeActivity.this);
+                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
             }
 
             if (position == 6) {
-                HelperGeneral.dialogComingSoon(HomeActivity.this);
+                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
             }
 
             if (position == 7) {
-                HelperGeneral.dialogComingSoon(HomeActivity.this);
+                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
             }
         });
         recyclerView.setAdapter(homeAdapter);

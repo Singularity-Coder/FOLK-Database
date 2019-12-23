@@ -19,6 +19,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -210,22 +211,52 @@ public class HelperGeneral extends AppCompatActivity {
 
         new DatePickerDialog(
                 context,
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                (view, year, monthOfYear, dayOfMonth) -> {
 //                        txtDate.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
-                        c.set(Calendar.YEAR, year);
-                        c.set(Calendar.MONTH, monthOfYear);
-                        c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    c.set(Calendar.YEAR, year);
+                    c.set(Calendar.MONTH, monthOfYear);
+                    c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-                        String myFormat = "dd/MM/yy";
-                        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                        datefield.setText(sdf.format(c.getTime()));
-                    }
+                    String myFormat = "dd/MM/yy";
+                    SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+                    datefield.setText(sdf.format(c.getTime()));
                 },
                 mYear,
                 mMonth,
                 mDay).show();
+    }
+
+
+//    android.R.style.Theme_DeviceDefault_Dialog_Alert
+//    android.R.style.Theme_DeviceDefault_Light_Dialog_Alert
+//    android.R.style.Theme_Material_Light_Dialog_Alert
+//    android.R.style.Theme_Material_Dialog_Alert
+    public static void showDatePickerOldStyle(final TextView datefield, Context context) {
+// Get Current Date
+        final Calendar c = Calendar.getInstance();
+        int mYear = c.get(Calendar.YEAR);
+        int mMonth = c.get(Calendar.MONTH);
+        int mDay = c.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog dialog = new DatePickerDialog(
+                context,
+                android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                (view, year, monthOfYear, dayOfMonth) -> {
+//                        txtDate.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
+                    c.set(Calendar.YEAR, year);
+                    c.set(Calendar.MONTH, monthOfYear);
+                    c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                    String myFormat = "dd/MM/yy";
+                    SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+                    datefield.setText(sdf.format(c.getTime()));
+                },
+                mYear,
+                mMonth,
+                mDay);
+
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
     }
 
     public static void showTimePicker(final TextView timeField, Activity activity) {
@@ -263,9 +294,9 @@ public class HelperGeneral extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
-    public static void dialogComingSoon(Activity activity) {
+    public static void dialogShowMessage(Activity activity, String message) {
         new AlertDialog.Builder(activity)
-                .setTitle("Coming Soon")
+                .setMessage(message)
                 // Specifying a listener allows you to take an action before dismissing the dialog.
                 // The dialog is automatically dismissed when a dialog button is clicked.
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {

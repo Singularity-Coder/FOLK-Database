@@ -71,13 +71,10 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void delaySplashFor2Sec() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
-                SplashActivity.this.startActivity(mainIntent);
-                SplashActivity.this.finish();
-            }
+        new Handler().postDelayed(() -> {
+            Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
+            SplashActivity.this.startActivity(mainIntent);
+            SplashActivity.this.finish();
         }, SHOW_SPLASH_FOR);
     }
 

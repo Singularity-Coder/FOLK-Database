@@ -1,6 +1,10 @@
 package com.singularitycoder.folkdatabase.auth;
 
 import com.google.firebase.firestore.Exclude;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.util.ArrayList;
 
 public class AuthUserItem {
 
@@ -20,6 +24,14 @@ public class AuthUserItem {
     private String profileImageUrl;
     private String signUpStatus;
     private String creationTimeStamp;
+
+//    @SerializedName("List of Zones")
+//    @Expose(serialize = true)
+//    private ArrayList<String> zonesArray;
+//
+//    @SerializedName("TeamLeads")
+//    @Expose(serialize = true)
+//    private ArrayList<String> teamLeadsArray;
 
     public AuthUserItem() {
     }
@@ -99,4 +111,12 @@ public class AuthUserItem {
     public void setDocId(String docId) {
         this.docId = docId;
     }
+
+//    public ArrayList<String> getZonesArray() {
+//        return zonesArray;
+//    }
+//
+//    public ArrayList<String> getTeamLeadsArray() {
+//        return teamLeadsArray;
+//    }
 }

@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
@@ -35,6 +36,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -49,26 +51,32 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.gson.Gson;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.R;
+import com.singularitycoder.folkdatabase.SplashActivity;
 import com.singularitycoder.folkdatabase.database.ContactItem;
+import com.singularitycoder.folkdatabase.helper.ApiEndPoints;
 import com.singularitycoder.folkdatabase.helper.HelperConstants;
 import com.singularitycoder.folkdatabase.helper.HelperCustomEditText;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
+import com.singularitycoder.folkdatabase.helper.RetrofitClientInstance;
 import com.singularitycoder.folkdatabase.home.HomeActivity;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -82,6 +90,10 @@ import java.util.Objects;
 
 import droidninja.filepicker.FilePickerBuilder;
 import droidninja.filepicker.FilePickerConst;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 import static com.singularitycoder.folkdatabase.helper.HelperImage.showSettingsDialog;
 import static java.lang.String.valueOf;
@@ -156,10 +168,10 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (tab.getPosition()) {
                     case 0:
-                        Toast.makeText(getApplicationContext(), "You clciked this 1", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), "You clciked this 1", Toast.LENGTH_LONG).show();
                         break;
                     case 1:
-                        Toast.makeText(getApplicationContext(), "You clciked this 2", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), "You clciked this 2", Toast.LENGTH_LONG).show();
                         break;
                 }
             }
@@ -168,10 +180,10 @@ public class MainActivity extends AppCompatActivity {
             public void onTabUnselected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
-                        Snackbar.make(mCoordinatorLayout, "1 got away", Snackbar.LENGTH_SHORT).show();
+//                        Snackbar.make(mCoordinatorLayout, "1 got away", Snackbar.LENGTH_SHORT).show();
                         break;
                     case 1:
-                        Snackbar.make(mCoordinatorLayout, "2 got away", Snackbar.LENGTH_SHORT).show();
+//                        Snackbar.make(mCoordinatorLayout, "2 got away", Snackbar.LENGTH_SHORT).show();
                         break;
                 }
 
@@ -181,10 +193,10 @@ public class MainActivity extends AppCompatActivity {
             public void onTabReselected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
-                        Toast.makeText(getApplicationContext(), "You clciked 1 again", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), "You clciked 1 again", Toast.LENGTH_LONG).show();
                         break;
                     case 1:
-                        Toast.makeText(getApplicationContext(), "You clciked 2 again", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), "You clciked 2 again", Toast.LENGTH_LONG).show();
                         break;
                 }
             }
@@ -530,10 +542,10 @@ public class MainActivity extends AppCompatActivity {
     public static class SignUpFragment extends Fragment {
         private TextView tvTermsPrivacy;
         private TextView tvMemberType;
-        private TextView tvDirectAuthority;
+        private TextView tvDirectAuthorityTitle;
         private TextView tvOpenGallery;
         private TextView tvShowHidePassword;
-        private HelperCustomEditText etDirectAuthority;
+        private TextView tvDirectAuthority;
         private HelperCustomEditText etShortName;
         private TextView etSignUpZone;
         private HelperCustomEditText etFullName;
@@ -550,6 +562,8 @@ public class MainActivity extends AppCompatActivity {
         private String adminKey;
         private String lastFourDigits;
         private String newImagePath = null;
+        private String[] zones;
+        private String[] teamLeads;
 
         private final ArrayList<ContactItem> imageUriArray = new ArrayList<>();
         private final ArrayList<String> imageExtensionStringArray = new ArrayList<>();
@@ -572,6 +586,7 @@ public class MainActivity extends AppCompatActivity {
                 authCheck();
                 clickListeners();
                 showHidePassword();
+                AsyncTask.execute(this::getZoneDataFromApi);
             }
             return view;
         }
@@ -584,8 +599,8 @@ public class MainActivity extends AppCompatActivity {
             if ((null) != getActivity()) loadingBar = new ProgressDialog(getActivity());
             tvTermsPrivacy = view.findViewById(R.id.tv_signup_terms);
             etSignUpZone = view.findViewById(R.id.et_signup_zone_type);
+            tvDirectAuthorityTitle = view.findViewById(R.id.tv_signup_direct_authority_title);
             tvDirectAuthority = view.findViewById(R.id.tv_signup_direct_authority);
-            etDirectAuthority = view.findViewById(R.id.et_signup_direct_authority);
             etFullName = view.findViewById(R.id.et_signup_first_name);
             etEmail = view.findViewById(R.id.et_signup_email);
             etGmail = view.findViewById(R.id.et_signup_gmail);
@@ -608,7 +623,7 @@ public class MainActivity extends AppCompatActivity {
                 // if shared pref value is not null n if true or false
 
                 Log.d(TAG, "authCheck: isAuthing");
-                
+
                 if (null != getActivity()) {
                     HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
                     String signUpStatus = helperSharedPreference.getSignupStatus();
@@ -689,18 +704,53 @@ public class MainActivity extends AppCompatActivity {
 
             tvSignUpMemberType.setOnClickListener(view16 -> dialogSignUpMemberType());
 
+            tvDirectAuthority.setOnClickListener(view -> {
+                if (!("").equals(valueOf(etSignUpZone.getText()))) {
+                    AsyncTask.execute(this::getTeamLeadsFromApi);
+                } else {
+                    etSignUpZone.setError("Select a Zone first!");
+                    Toast.makeText(getActivity(), "Select a Zone first!", Toast.LENGTH_SHORT).show();
+                }
+            });
+
             tvTermsPrivacy.setOnClickListener(view1 -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.iskconbangalore.org/privacy-policy/"))));
 
             etSignUpZone.setOnClickListener(view12 -> dialogSignUpZone());
 
-            tvHkmJoiningDate.setOnClickListener(view -> HelperGeneral.showDatePicker(tvHkmJoiningDate, getActivity()));
+            tvHkmJoiningDate.setOnClickListener(view -> HelperGeneral.showDatePickerOldStyle(tvHkmJoiningDate, getActivity()));
+
+            etShortName.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    new Handler().postDelayed((Runnable) () -> {
+                        if (!("").equals(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""))) {
+                            if (valueOf(etShortName.getText()).trim().replaceAll("\\s+", "").length() >= 4) {
+                                Log.d(TAG, "afterTextChanged: " + valueOf(editable));
+                                doesAuthorityShortNameExistApi(valueOf(editable), "TL");
+                            }
+                        } else {
+                            HelperGeneral.dialogShowMessage(getActivity(), "Short Name cannot be empty!");
+                        }
+                    }, 2000);
+                }
+            });
 
             btnCreateAccount.setOnClickListener(view13 -> {
                 if (HelperGeneral.hasInternet(Objects.requireNonNull(getContext()))) {
                     if (hasValidInput(
                             etSignUpZone,
                             tvSignUpMemberType,
-                            etDirectAuthority,
+                            tvDirectAuthority,
                             etShortName,
                             tvHkmJoiningDate,
                             etFullName,
@@ -715,7 +765,7 @@ public class MainActivity extends AppCompatActivity {
 
                         String zone = valueOf(etSignUpZone.getText());
                         String memberType = valueOf(tvSignUpMemberType.getText());
-                        String directAuthority = valueOf(etDirectAuthority.getText());
+                        String directAuthority = valueOf(tvDirectAuthority.getText());
                         String folkGuideAbbr = valueOf(etShortName.getText()).trim();
                         String kcExperience = valueOf(tvHkmJoiningDate.getText()).trim();
                         String firstName = valueOf(etFullName.getText());
@@ -771,7 +821,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-
             tvShowHidePassword.setOnClickListener(view -> {
                 if (tvShowHidePassword.getText().toString().trim().equals("SHOW")) {
                     Log.d(TAG, "showHidePassword: got hit 1");
@@ -805,7 +854,7 @@ public class MainActivity extends AppCompatActivity {
         private boolean hasValidInput(
                 TextView etSignUpZone,
                 TextView tvSignUpMemberType,
-                HelperCustomEditText etDirectAuthority,
+                TextView tvDirectAuthority,
                 HelperCustomEditText etShortName,
                 TextView etHkmJoiningDate,
                 HelperCustomEditText etFirstName,
@@ -816,7 +865,7 @@ public class MainActivity extends AppCompatActivity {
 
             String zone = valueOf(etSignUpZone.getText());
             String memberType = valueOf(tvSignUpMemberType.getText());
-            String directAuthority = valueOf(etDirectAuthority.getText());
+            String directAuthority = valueOf(tvDirectAuthority.getText());
             String folkGuideAbbr = valueOf(etShortName.getText()).trim();
             String kcExperience = valueOf(etHkmJoiningDate.getText()).trim();
             String firstName = valueOf(etFirstName.getText());
@@ -838,8 +887,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (directAuthority.equals("")) {
-                etDirectAuthority.setError("Direct Authority is Required!");
-                etDirectAuthority.requestFocus();
+                tvDirectAuthority.setError("Direct Authority is Required!");
+                tvDirectAuthority.requestFocus();
                 return false;
             }
 
@@ -1404,6 +1453,165 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        private void getZoneDataFromApi() {
+            ApiEndPoints apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiEndPoints.class);
+            Call<String> call = apiService.getZones();
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                    getActivity().runOnUiThread(() -> {
+                        Log.d(TAG, "onResponse: hit 1");
+                        Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
+                        Log.d("Raw Response: ", valueOf(response.raw()));
+                        Log.d("Real Response: ", String.valueOf(response.body()));
+                        Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
+
+                        if (response.isSuccessful()) {
+                            if (response.body() != null) {
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response.body());
+                                    Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
+
+                                    if (jsonObject.getString("status").equals("Success")) {
+                                        JSONArray jsonArray = jsonObject.getJSONArray("List of Zones");
+                                        zones = new String[jsonArray.length()];
+                                        for (int i = 0; i < jsonArray.length(); i++) {
+                                            zones[i] = valueOf(jsonArray.get(i));
+                                            System.out.println("zones: " + valueOf(jsonArray.get(i)));
+                                        }
+                                    }
+
+                                    if (jsonObject.getString("status").equals("Failure")) {
+                                        HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                    getActivity().runOnUiThread(() -> {
+                        Log.d(TAG, "onResponse: hit 2");
+                        Log.d(TAG, "onFailure: " + t.getMessage());
+                        Log.d(TAG, "onFailure: " + call.toString());
+                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
+                    });
+                }
+            });
+        }
+
+
+        private void doesAuthorityShortNameExistApi(String shortName, String memberType) {
+            ApiEndPoints apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiEndPoints.class);
+            Call<String> call = apiService.doesShortNameExist(shortName, memberType);
+            call.enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                    getActivity().runOnUiThread(() -> {
+                        Log.d(TAG, "onResponse: hit 1");
+                        Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
+                        Log.d("Raw Response: ", valueOf(response.raw()));
+                        Log.d("Real Response: ", String.valueOf(response.body()));
+                        Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
+
+                        if (response.isSuccessful()) {
+                            if (response.body() != null) {
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response.body());
+                                    Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
+
+                                    if (jsonObject.getString("status").equals("Success")) {
+                                        HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                    }
+
+                                    if (jsonObject.getString("status").equals("Failure")) {
+                                        HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                    getActivity().runOnUiThread(() -> {
+                        Log.d(TAG, "onResponse: hit 2");
+                        Log.d(TAG, "onFailure: " + t.getMessage());
+                        Log.d(TAG, "onFailure: " + call.toString());
+                        Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
+                    });
+                }
+            });
+        }
+
+
+        private void getTeamLeadsFromApi() {
+            ApiEndPoints apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiEndPoints.class);
+            if (!("").equals(valueOf(etSignUpZone.getText()).trim())) {
+//                Call<AuthUserItem> call = apiService.getTeamLeadsBasedOnZone(valueOf(etSignUpZone.getText()).trim().replaceAll("\\s+", ""));
+                Call<String> call = apiService.getTeamLeadsBasedOnZone(valueOf(etSignUpZone.getText()).trim());
+                call.enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                        getActivity().runOnUiThread(() -> {
+                            Log.d(TAG, "onResponse: hit 1");
+                            Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
+                            Log.d("Raw Response: ", valueOf(response.raw()));
+                            Log.d("Real Response: ", valueOf(response.body()));
+                            Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
+
+                            if (response.isSuccessful()) {
+                                if (response.body() != null) {
+                                    try {
+                                        JSONObject jsonObject = new JSONObject(response.body());
+                                        Log.d(TAG, "onResponse: h0");
+                                        Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
+
+                                        if (jsonObject.getString("status").equals("Success")) {
+                                            Log.d(TAG, "onResponse: h1");
+                                            // show progress
+                                            JSONArray jsonArray = jsonObject.getJSONArray("TeamLeads");
+                                            zones = new String[jsonArray.length()];
+                                            for (int i = 0; i < jsonArray.length(); i++) {
+                                                teamLeads[i] = valueOf(jsonArray.get(i));
+                                                System.out.println("TeamLeads: " + valueOf(jsonArray.get(i)));
+                                            }
+                                            dialogSignUpAuthorities();
+                                        }
+
+                                        if (jsonObject.getString("status").equals("Failure")) {
+                                            Log.d(TAG, "onResponse: h2");
+                                            HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        getActivity().runOnUiThread(() -> {
+                            Log.d(TAG, "onResponse: hit 2");
+                            Log.d(TAG, "onFailure: " + t.getMessage());
+                            Log.d(TAG, "onFailure: " + call.toString());
+                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
+                        });
+                    }
+                });
+            }
+        }
+
+
         private void dialogSignUpMemberType() {
             if (null != getActivity()) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
@@ -1431,6 +1639,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        private void dialogSignUpAuthorities() {
+            if (null != getActivity()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
+                builder.setTitle("Direct Authority");
+                String[] selectArray = teamLeads;
+                builder.setItems(selectArray, (dialog, which) -> {
+                    for (int j = 0; j < teamLeads.length; j++) {
+                        if (which == j) {
+                            tvDirectAuthority.setText(teamLeads[j]);
+                        }
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        }
+
+
         private void showImagePickerOptions() {
             FilePickerBuilder.getInstance()
                     .setSelectedFiles(imageFilePathsStringArray)
@@ -1444,20 +1670,11 @@ public class MainActivity extends AppCompatActivity {
             if (null != getActivity()) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(Objects.requireNonNull(getActivity())));
                 builder.setTitle("Which Zone?");
-                String[] selectArray = {"ISKCON BANGALORE", "ISKCON MYSORE", "ISKCON AHEMDABAD"};
-                builder.setItems(selectArray, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0:
-                                etSignUpZone.setText("ISKCON BANGALORE");
-                                break;
-                            case 1:
-                                etSignUpZone.setText("ISKCON MYSORE");
-                                break;
-                            case 2:
-                                etSignUpZone.setText("ISKCON AHEMDABAD");
-                                break;
+                String[] selectArray = zones;
+                builder.setItems(selectArray, (dialog, which) -> {
+                    for (int k = 0; k < zones.length; k++) {
+                        if (which == k) {
+                            etSignUpZone.setText(zones[k]);
                         }
                     }
                 });

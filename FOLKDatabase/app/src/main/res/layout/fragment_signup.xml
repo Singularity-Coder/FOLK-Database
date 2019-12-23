@@ -150,7 +150,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/tv_member_type" />
 
             <TextView
-                android:id="@+id/tv_signup_direct_authority"
+                android:id="@+id/tv_signup_direct_authority_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -168,19 +168,18 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_phone"
                 app:layout_constraintTop_toBottomOf="@+id/et_member_type" />
 
-            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
-                android:id="@+id/et_signup_direct_authority"
+            <TextView
+                android:id="@+id/tv_signup_direct_authority"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="15dp"
-                android:digits="QWERTYUIOPASDFGHJKLZXCVBNM"
                 android:drawablePadding="10dp"
                 android:fontFamily="@font/roboto_regular"
+                android:gravity="center_vertical"
                 android:hint="Whom do you report to? Ex: SSRD"
-                android:inputType="textCapCharacters"
                 android:maxLength="6"
                 android:maxLines="1"
                 android:nestedScrollingEnabled="true"
@@ -190,7 +189,7 @@
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_signup_direct_authority" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_signup_direct_authority_title" />
 
             <TextView
                 android:id="@+id/tv_signup_short_name"
@@ -208,7 +207,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/et_signup_email"
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
-                app:layout_constraintTop_toBottomOf="@+id/et_signup_direct_authority" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_signup_direct_authority" />
 
             <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
                 android:id="@+id/et_signup_short_name"
