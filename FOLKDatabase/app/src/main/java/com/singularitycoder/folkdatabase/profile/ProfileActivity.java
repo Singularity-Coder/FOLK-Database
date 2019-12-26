@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -49,6 +50,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -59,18 +62,23 @@ import com.singularitycoder.folkdatabase.auth.AuthUserItem;
 import com.singularitycoder.folkdatabase.auth.MainActivity;
 import com.singularitycoder.folkdatabase.database.TeamLeadItem;
 import com.singularitycoder.folkdatabase.database.ZonalHeadItem;
+import com.singularitycoder.folkdatabase.helper.HelperConstants;
 import com.singularitycoder.folkdatabase.helper.HelperFrescoImageViewer;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.database.AllUsersItem;
 import com.singularitycoder.folkdatabase.database.ContactItem;
 import com.singularitycoder.folkdatabase.database.FolkGuideItem;
+import com.singularitycoder.folkdatabase.home.HomeActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+
+import static java.lang.String.valueOf;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -91,6 +99,9 @@ public class ProfileActivity extends AppCompatActivity {
     private AllUsersItem allUsersItem;
     private ZonalHeadItem zonalHeadItem;
     private AuthUserItem authUserItem;
+    private ViewPagerAdapter profileAdapter;
+    private ProgressDialog loadingBar;
+
 
     // Create a firebase auth object
     private FirebaseAuth mAuth;
@@ -100,9 +111,9 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setStatuBarColor();
         setContentView(R.layout.activity_profile);
-        getIntentData();
         inits();
-        setUpViewPager();
+        getIntentData();
+        initProfiles();
         setUpTabLayout();
         setUpToolbar();
         setUpAppbarLayout();
@@ -112,28 +123,102 @@ public class ProfileActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
     }
 
+    private void inits() {
+        // Set ViewPager
+        tabLayout = findViewById(R.id.tablayout_profile);
+        viewPager = findViewById(R.id.viewpager_profile);
+        profileAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        mCoordinatorLayout = findViewById(R.id.coordinator_profile);
+        ivProfileImage = findViewById(R.id.img_profile_header);
+        tvName = findViewById(R.id.tv_main_title);
+        tvSubTitle = findViewById(R.id.tv_main_subtitle);
+        conLayProfileActions = findViewById(R.id.con_lay_profile_action_icons);
+        loadingBar = new ProgressDialog(this);
+    }
+
+
+    // READ
+    private void readAuthUserData() {
+        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+        String email = sp.getString("email", "");
+        runOnUiThread(() -> {
+            loadingBar.setMessage("Please wait...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+        });
+
+        FirebaseFirestore.getInstance()
+                .collection(HelperConstants.AUTH_FOLK_PEOPLE)
+                .whereEqualTo("email", email)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                        Log.d(TAG, "docList: " + docList);
+
+                        for (DocumentSnapshot docSnap : docList) {
+                            authUserItem = docSnap.toObject(AuthUserItem.class);
+                            if (authUserItem != null) {
+                                Log.d(TAG, "AuthItem: " + authUserItem);
+
+                                if (!("").equals(valueOf(docSnap.getString("fullName")))) {
+                                    authUserItem.setFullName(valueOf(docSnap.getString("fullName")));
+                                    Log.d(TAG, "readAuthUserData: fullname: " + valueOf(docSnap.getString("fullName")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
+                                    authUserItem.setProfileImageUrl(valueOf(docSnap.getString("profileImageUrl")));
+                                    Log.d(TAG, "readAuthUserData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("memberType")))) {
+                                    authUserItem.setMemberType(valueOf(docSnap.getString("memberType")));
+                                    Log.d(TAG, "readAuthUserData: memberType: " + valueOf(docSnap.getString("memberType")));
+                                }
+
+                                Map<String, Object> talent = (Map<String, Object>) docSnap.getData().get("talent");
+                                Log.d(TAG, "readContactsData: talent map: " + talent);
+                            }
+                            Log.d(TAG, "firedoc id: " + docSnap.getId());
+                        }
+                        Toast.makeText(ProfileActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> {
+                            loadingBar.dismiss();
+                        });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(ProfileActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(() -> loadingBar.dismiss());
+                });
+    }
+
+
     private void getIntentData() {
         Intent intent = getIntent();
         profileKey = intent.getStringExtra("profileKey");
         Log.d(TAG, "getIntentData: profileKey: " + profileKey);
         if (("AUTHUSER").equals(profileKey)) {
             // load ur own profile data from firestore
-            SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-            authUserItem = new AuthUserItem(
-                    "",
-                    sp.getString("memberType", ""),
-                    "",
-                    "",
-                    "",
-                    sp.getString("fullName", ""),
-                    sp.getString("phone", ""),
-                    sp.getString("email", ""),
-                    sp.getString("gmail", ""),
-                    "",
-                    sp.getString("profileImage", ""),
-                    "",
-                    ""
-            );
+//            SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+//            authUserItem = new AuthUserItem(
+//                    "",
+//                    sp.getString("memberType", ""),
+//                    "",
+//                    "",
+//                    "",
+//                    sp.getString("fullName", ""),
+//                    sp.getString("phone", ""),
+//                    sp.getString("email", ""),
+//                    sp.getString("gmail", ""),
+//                    "",
+//                    sp.getString("profileImage", ""),
+//                    "",
+//                    ""
+//            );
+            Log.d(TAG, "getIntentData: auth prof hit");
+            readAuthUserData();
         }
 
         if (("FOLKGUIDE").equals(profileKey)) {
@@ -183,13 +268,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
 
-    private void inits() {
-        mCoordinatorLayout = findViewById(R.id.coordinator_profile);
-        ivProfileImage = findViewById(R.id.img_profile_header);
-        tvName = findViewById(R.id.tv_main_title);
-        tvSubTitle = findViewById(R.id.tv_main_subtitle);
-        conLayProfileActions = findViewById(R.id.con_lay_profile_action_icons);
-
+    private void initProfiles() {
         if (("AUTHUSER").equals(profileKey)) {
             HelperGeneral.glideProfileImage(this, authUserItem.getProfileImageUrl(), ivProfileImage);
             ivProfileImage.setOnClickListener(view -> {
@@ -201,6 +280,11 @@ public class ProfileActivity extends AppCompatActivity {
             tvSubTitle.setText(authUserItem.getMemberType());
             profileActions(this, authUserItem.getPhone(), authUserItem.getPhone(), authUserItem.getEmail());
             conLayProfileActions.setVisibility(View.GONE);
+            // Set up Viewpager tabs
+            profileAdapter.addFrag(new AboutFragment(), "BASIC INFO");
+            profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
+            viewPager.setAdapter(profileAdapter);
+            tabLayout.setTabMode(TabLayout.MODE_FIXED);
         }
 
         if (("FOLKGUIDE").equals(profileKey)) {
@@ -214,6 +298,11 @@ public class ProfileActivity extends AppCompatActivity {
             tvSubTitle.setText("Full Name: " + folkGuideItem.getStrFirstName());
             profileActions(this, folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
             conLayProfileActions.setVisibility(View.VISIBLE);
+            // Set up Viewpager tabs
+            profileAdapter.addFrag(new AboutFragment(), "BASIC INFO");
+            profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
+            viewPager.setAdapter(profileAdapter);
+            tabLayout.setTabMode(TabLayout.MODE_FIXED);
         }
 
         if (("TEAMLEAD").equals(profileKey)) {
@@ -227,6 +316,11 @@ public class ProfileActivity extends AppCompatActivity {
             tvSubTitle.setText("Full Name: " + teamLeadItem.getStrFirstName());
             profileActions(this, teamLeadItem.getStrPhone(), teamLeadItem.getStrWhatsApp(), teamLeadItem.getStrEmail());
             conLayProfileActions.setVisibility(View.VISIBLE);
+            // Set up Viewpager tabs
+            profileAdapter.addFrag(new AboutFragment(), "BASIC INFO");
+            profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
+            viewPager.setAdapter(profileAdapter);
+            tabLayout.setTabMode(TabLayout.MODE_FIXED);
         }
 
         if (("CONTACT").equals(profileKey)) {
@@ -240,6 +334,14 @@ public class ProfileActivity extends AppCompatActivity {
             tvSubTitle.setText(contactItem.getStrFolkGuide());
             profileActions(this, contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail());
             conLayProfileActions.setVisibility(View.VISIBLE);
+            // Set up Viewpager tabs
+            profileAdapter.addFrag(new AboutFragment(), "BASIC INFO");
+            profileAdapter.addFrag(new AboutFragment(), "OCCUPATION");
+            profileAdapter.addFrag(new AboutFragment(), "RESIDENCE");
+            profileAdapter.addFrag(new TalentFragment(), "TALENT");
+            profileAdapter.addFrag(new TalentFragment(), "FAMILY");
+            profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
+            viewPager.setAdapter(profileAdapter);
         }
 
         if (("ZONALHEAD").equals(profileKey)) {
@@ -253,6 +355,11 @@ public class ProfileActivity extends AppCompatActivity {
             tvSubTitle.setText(zonalHeadItem.getStrMemberType());
             profileActions(this, zonalHeadItem.getStrPhone(), zonalHeadItem.getStrWhatsApp(), zonalHeadItem.getStrEmail());
             conLayProfileActions.setVisibility(View.VISIBLE);
+            // Set up Viewpager tabs
+            profileAdapter.addFrag(new AboutFragment(), "BASIC INFO");
+            profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
+            viewPager.setAdapter(profileAdapter);
+            tabLayout.setTabMode(TabLayout.MODE_FIXED);
         }
 
         if (("ALLUSER").equals(profileKey)) {
@@ -266,6 +373,11 @@ public class ProfileActivity extends AppCompatActivity {
             tvSubTitle.setText(allUsersItem.getStrMemberType());
             profileActions(this, allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail());
             conLayProfileActions.setVisibility(View.VISIBLE);
+            // Set up Viewpager tabs
+            profileAdapter.addFrag(new AboutFragment(), "BASIC INFO");
+            profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
+            viewPager.setAdapter(profileAdapter);
+            tabLayout.setTabMode(TabLayout.MODE_FIXED);
         }
     }
 
@@ -423,23 +535,8 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
 
-    private void setUpViewPager() {
-        // Set ViewPager
-        viewPager = findViewById(R.id.viewpager_profile);
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new AboutFragment(), "BASIC INFO");
-        adapter.addFrag(new AboutFragment(), "OCCUPATION");
-        adapter.addFrag(new AboutFragment(), "RESIDENCE");
-        adapter.addFrag(new TalentFragment(), "TALENT");
-        adapter.addFrag(new TalentFragment(), "FAMILY");
-        adapter.addFrag(new ActivityFragment(), "ACTIVITY");
-        viewPager.setAdapter(adapter);
-    }
-
-
     private void setUpTabLayout() {
         // Set TabLayout
-        tabLayout = findViewById(R.id.tablayout_profile);
         tabLayout.setupWithViewPager(viewPager);
 
         // Do something on selecting each tab of tab layout
@@ -635,7 +732,6 @@ public class ProfileActivity extends AppCompatActivity {
     public static class AboutFragment extends Fragment {
 
 
-
         public AboutFragment() {
         }
 
@@ -806,5 +902,4 @@ public class ProfileActivity extends AppCompatActivity {
             super.onActivityCreated(savedInstanceState);
         }
     }
-
 }

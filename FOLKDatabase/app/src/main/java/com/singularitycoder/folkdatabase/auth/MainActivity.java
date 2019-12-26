@@ -461,6 +461,11 @@ public class MainActivity extends AppCompatActivity {
                                     // store it in shared prefs
                                     // or get the doc id and load the details in the home page live
 
+                                    if (null != getActivity()) {
+                                        SharedPreferences sp = Objects.requireNonNull(getActivity()).getSharedPreferences("authItem", Context.MODE_PRIVATE);
+                                        sp.edit().putString("email", email).apply();
+                                    }
+
                                     Intent intent = new Intent(getActivity(), HomeActivity.class);
                                     startActivity(intent);
                                     Objects.requireNonNull(getActivity()).finish();
@@ -977,7 +982,6 @@ public class MainActivity extends AppCompatActivity {
 
             //create user
             if (null != getActivity()) {
-
                 firebaseAuth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(Objects.requireNonNull(getActivity()), task -> {
                             if (null != getActivity()) {
@@ -1024,7 +1028,6 @@ public class MainActivity extends AppCompatActivity {
                                             creationTimeStamp);
                                 }
                             } else {
-
                                 if (null != getActivity()) {
                                     getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                 }
@@ -1500,7 +1503,7 @@ public class MainActivity extends AppCompatActivity {
                         getActivity().runOnUiThread(() -> {
                             Log.d(TAG, "onResponse: hit 2");
                             Log.d(TAG, "onFailure: " + t.getMessage());
-                            Log.d(TAG, "onFailure: " + call.toString());
+                            Log.d(TAG, "onFailure: " + valueOf(call));
                             Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
                         });
                     }
@@ -1520,7 +1523,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "onResponse: hit 1");
                             Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
                             Log.d("Raw Response: ", valueOf(response.raw()));
-                            Log.d("Real Response: ", String.valueOf(response.body()));
+                            Log.d("Real Response: ", valueOf(response.body()));
                             Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
 
                             if (response.isSuccessful()) {
@@ -1551,7 +1554,7 @@ public class MainActivity extends AppCompatActivity {
                         getActivity().runOnUiThread(() -> {
                             Log.d(TAG, "onResponse: hit 2");
                             Log.d(TAG, "onFailure: " + t.getMessage());
-                            Log.d(TAG, "onFailure: " + call.toString());
+                            Log.d(TAG, "onFailure: " + valueOf(call));
                             Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
                         });
                     }
@@ -1563,8 +1566,8 @@ public class MainActivity extends AppCompatActivity {
         private void getTeamLeadsFromApi() {
             ApiEndPoints apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiEndPoints.class);
             if (!("").equals(valueOf(etSignUpZone.getText()).trim())) {
-//                Call<AuthUserItem> call = apiService.getTeamLeadsBasedOnZone(valueOf(etSignUpZone.getText()).trim().replaceAll("\\s+", ""));
-                Call<String> call = apiService.getTeamLeadsBasedOnZone(valueOf(etSignUpZone.getText()).trim());
+                Call<String> call = apiService.getTeamLeadsBasedOnZone("https://us-central1-folk-database.cloudfunctions.net/populateTLsByZone?zone=ISKCONBangalore", valueOf(etSignUpZone.getText()).trim().replaceAll("\\s+", ""));
+//                Call<String> call = apiService.getTeamLeadsBasedOnZone(valueOf(etSignUpZone.getText()).trim());
                 call.enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
@@ -1587,7 +1590,7 @@ public class MainActivity extends AppCompatActivity {
                                                 Log.d(TAG, "onResponse: h1");
                                                 // show progress
                                                 JSONArray jsonArray = jsonObject.getJSONArray("TeamLeads");
-                                                zones = new String[jsonArray.length()];
+                                                teamLeads = new String[jsonArray.length()];
                                                 for (int i = 0; i < jsonArray.length(); i++) {
                                                     teamLeads[i] = valueOf(jsonArray.get(i));
                                                     System.out.println("TeamLeads: " + valueOf(jsonArray.get(i)));
@@ -1614,7 +1617,7 @@ public class MainActivity extends AppCompatActivity {
                             getActivity().runOnUiThread(() -> {
                                 Log.d(TAG, "onResponse: hit 2");
                                 Log.d(TAG, "onFailure: " + t.getMessage());
-                                Log.d(TAG, "onFailure: " + call.toString());
+                                Log.d(TAG, "onFailure: " + valueOf(call));
                                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
                             });
                         }
@@ -1629,20 +1632,17 @@ public class MainActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
                 builder.setTitle("I am a");
                 String[] selectArray = {"FOLK Guide", "Team Lead", "Zonal Head"};
-                builder.setItems(selectArray, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0:
-                                tvSignUpMemberType.setText("FOLK Guide");
-                                break;
-                            case 1:
-                                tvSignUpMemberType.setText("Team Lead");
-                                break;
-                            case 2:
-                                tvSignUpMemberType.setText("Zonal Head");
-                                break;
-                        }
+                builder.setItems(selectArray, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            tvSignUpMemberType.setText("FOLK Guide");
+                            break;
+                        case 1:
+                            tvSignUpMemberType.setText("Team Lead");
+                            break;
+                        case 2:
+                            tvSignUpMemberType.setText("Zonal Head");
+                            break;
                     }
                 });
                 AlertDialog dialog = builder.create();

@@ -32,20 +32,35 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
-    // Support
+    // Design
     implementation 'com.google.android.material:material:1.0.0'
+
+    // Recycler View
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+
+    // Card View
     implementation 'androidx.cardview:cardview:1.0.0'
+
+    // Color Palette
     implementation 'androidx.palette:palette:1.0.0'
 
-    // Image Loader
+    // Glide Image Loader
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+
+    // Fresco Image Loader
+    implementation 'com.github.stfalcon:stfalcon-imageviewer:1.0.0'
+
+    // Facebook Fresco for animated GIF, WebP, animated WebP support
+    implementation 'com.facebook.fresco:fresco:2.0.0'
+    implementation 'com.facebook.fresco:animated-gif:2.0.0'
+    implementation 'com.facebook.fresco:animated-webp:2.0.0'
+    implementation 'com.facebook.fresco:webpsupport:2.0.0'
 
     // Circular Image
     implementation 'com.mikhaellopez:circularimageview:4.0.1'
 
-    // Text Drawable
+    // Text Drawable for letter images
     implementation 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
 
     // Permissions
@@ -59,20 +74,11 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:19.2.0'
     implementation 'com.google.firebase:firebase-storage:19.1.0'
 
-    // Fresco Image Loader
-    implementation 'com.github.stfalcon:stfalcon-imageviewer:1.0.0'
-
     // Doc and Photo Picker
     implementation 'com.droidninja:filepicker:2.2.1'
 
     // Facebook Shimmer
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
-
-    // Facebook Fresco for animated GIF, WebP, animated WebP support
-    implementation 'com.facebook.fresco:fresco:2.0.0'
-    implementation 'com.facebook.fresco:animated-gif:2.0.0'
-    implementation 'com.facebook.fresco:animated-webp:2.0.0'
-    implementation 'com.facebook.fresco:webpsupport:2.0.0'
 
     // Leak Canary - shows memory leaks
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.6.2'
@@ -84,22 +90,28 @@ dependencies {
     // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.6.0'
 
-    // GSON Library - Convert JSON response easily with this
+    // Retrofit GSON Library - Convert JSON response easily with this
     implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
 
-    //For serialising JSONP add converter-scalars
+    // Retrofit Scalars Library - For serialising JSON response to String
     implementation 'com.squareup.retrofit2:converter-scalars:2.1.0'
 
     // Logging
     implementation 'com.squareup.okhttp3:logging-interceptor:3.3.1'
 
-    // Dagger Dependencies
-    def dagger_version = "2.22"
-    implementation "com.google.dagger:dagger:$dagger_version"
-    annotationProcessor "com.google.dagger:dagger-compiler:$dagger_version"
+    // Dagger
+    implementation "com.google.dagger:dagger:2.24"
+    annotationProcessor "com.google.dagger:dagger-compiler:2.22"
 
-    // Dagger Android Studio Dependencies
-    implementation "com.google.dagger:dagger-android:$dagger_version"
-    implementation "com.google.dagger:dagger-android-support:$dagger_version" // if you use the support libraries
-    annotationProcessor "com.google.dagger:dagger-android-processor:$dagger_version"
+    // Dagger Android Studio
+    implementation "com.google.dagger:dagger-android:2.22"
+    annotationProcessor "com.google.dagger:dagger-android-processor:2.22"
+
+    // ViewModel and LiveData
+    implementation "androidx.lifecycle:lifecycle-extensions:2.1.0"
+    implementation "androidx.lifecycle:lifecycle-common-java8:2.1.0"
+
+    // Room DB
+    implementation "androidx.room:room-runtime:2.2.3"
+    annotationProcessor "androidx.room:room-compiler:2.2.3"
 }

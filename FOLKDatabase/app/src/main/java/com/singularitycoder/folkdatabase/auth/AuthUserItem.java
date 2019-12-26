@@ -52,58 +52,6 @@ public class AuthUserItem {
         this.creationTimeStamp = creationTimeStamp;
     }
 
-    public String getZone() {
-        return zone;
-    }
-
-    public String getMemberType() {
-        return memberType;
-    }
-
-    public String getDirectAuthority() {
-        return directAuthority;
-    }
-
-    public String getShortName() {
-        return shortName;
-    }
-
-    public String getHkmJoiningDate() {
-        return hkmJoiningDate;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getGmail() {
-        return gmail;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getProfileImageUrl() {
-        return profileImageUrl;
-    }
-
-    public String getSignUpStatus() {
-        return signUpStatus;
-    }
-
-    public String getCreationTimeStamp() {
-        return creationTimeStamp;
-    }
-
     public String getDocId() {
         return docId;
     }
@@ -112,7 +60,111 @@ public class AuthUserItem {
         this.docId = docId;
     }
 
-//    public ArrayList<String> getZonesArray() {
+    public String getZone() {
+        return zone;
+    }
+
+    public void setZone(String zone) {
+        this.zone = zone;
+    }
+
+    public String getMemberType() {
+        return memberType;
+    }
+
+    public void setMemberType(String memberType) {
+        this.memberType = memberType;
+    }
+
+    public String getDirectAuthority() {
+        return directAuthority;
+    }
+
+    public void setDirectAuthority(String directAuthority) {
+        this.directAuthority = directAuthority;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
+    public String getHkmJoiningDate() {
+        return hkmJoiningDate;
+    }
+
+    public void setHkmJoiningDate(String hkmJoiningDate) {
+        this.hkmJoiningDate = hkmJoiningDate;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getGmail() {
+        return gmail;
+    }
+
+    public void setGmail(String gmail) {
+        this.gmail = gmail;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public String getSignUpStatus() {
+        return signUpStatus;
+    }
+
+    public void setSignUpStatus(String signUpStatus) {
+        this.signUpStatus = signUpStatus;
+    }
+
+    public String getCreationTimeStamp() {
+        return creationTimeStamp;
+    }
+
+    public void setCreationTimeStamp(String creationTimeStamp) {
+        this.creationTimeStamp = creationTimeStamp;
+    }
+
+    //    public ArrayList<String> getZonesArray() {
 //        return zonesArray;
 //    }
 //

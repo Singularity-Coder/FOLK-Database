@@ -50,6 +50,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.karumi.dexter.Dexter;
@@ -58,6 +59,7 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.R;
+import com.singularitycoder.folkdatabase.auth.AuthUserItem;
 import com.singularitycoder.folkdatabase.auth.MainActivity;
 import com.singularitycoder.folkdatabase.database.ContactItem;
 import com.singularitycoder.folkdatabase.database.DatabaseActivity;
@@ -71,6 +73,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static java.lang.String.valueOf;
@@ -87,6 +90,7 @@ public class HomeActivity extends AppCompatActivity {
     private ProgressDialog loadingBar;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
+    private AuthUserItem authUserItem;
 
     // this listener is called when there is change in firebase fireUser session
     private FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
@@ -109,7 +113,8 @@ public class HomeActivity extends AppCompatActivity {
         init();
         authCheck();
         initToolBar();
-        setUpRecyclerView();
+        AsyncTask.execute(this::readAuthUserData);
+//        setUpRecyclerView();
     }
 
 
@@ -156,6 +161,58 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
+    // READ
+    private void readAuthUserData() {
+        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+        String email = sp.getString("email", "");
+        runOnUiThread(() -> {
+            loadingBar.setMessage("Please wait...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+        });
+
+        FirebaseFirestore.getInstance()
+                .collection(HelperConstants.AUTH_FOLK_PEOPLE)
+                .whereEqualTo("email", email)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                        Log.d(TAG, "docList: " + docList);
+
+                        for (DocumentSnapshot docSnap : docList) {
+                            authUserItem = docSnap.toObject(AuthUserItem.class);
+                            if (authUserItem != null) {
+                                Log.d(TAG, "AuthItem: " + authUserItem);
+
+                                if (!("").equals(valueOf(docSnap.getString("fullName")))) {
+                                    authUserItem.setFullName(valueOf(docSnap.getString("fullName")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
+                                    authUserItem.setProfileImageUrl(valueOf(docSnap.getString("profileImageUrl")));
+                                }
+
+                                Map<String, Object> talent = (Map<String, Object>) docSnap.getData().get("talent");
+                                Log.d(TAG, "readContactsData: talent map: " + talent);
+                            }
+                            Log.d(TAG, "firedoc id: " + docSnap.getId());
+                        }
+                        Toast.makeText(HomeActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> {
+                            loadingBar.dismiss();
+                            setUpRecyclerView();
+                        });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(HomeActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(() -> loadingBar.dismiss());
+                });
+    }
+
+
     private void setUpRecyclerView() {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
@@ -177,19 +234,19 @@ public class HomeActivity extends AppCompatActivity {
 
         homeList = new ArrayList<>();
 
-        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-        String imgUrl = sp.getString("profileImage", "");
-        String fullName = sp.getString("firstName", "") + " " + sp.getString("lastName", "");
-        String memberType = sp.getString("memberType", "");
+//        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+//        String imgUrl = sp.getString("profileImage", "");
+//        String fullName = sp.getString("firstName", "") + " " + sp.getString("lastName", "");
+//        String memberType = sp.getString("memberType", "");
 
-        homeList.add(new HomeItem(imgUrl, fullName));
+        homeList.add(new HomeItem(authUserItem.getProfileImageUrl(), authUserItem.getFullName()));
         homeList.add(new HomeItem(R.drawable.ic_accomodation3, "Accomodation", ""));
         homeList.add(new HomeItem(R.drawable.ic_database3, "Database", ""));
         homeList.add(new HomeItem(R.drawable.ic_posting3, "Posting", ""));
         homeList.add(new HomeItem(R.drawable.ic_service3, "Service", ""));
         homeList.add(new HomeItem(R.drawable.ic_payments3, "Payments", ""));
         homeList.add(new HomeItem(R.drawable.ic_prasadum3, "Prasadum Coupon", ""));
-        homeList.add(new HomeItem(R.drawable.ic_widgets_black_24dp, "Tools", ""));
+//        homeList.add(new HomeItem(R.drawable.ic_widgets_black_24dp, "Tools", ""));
 
         homeAdapter = new HomeAdapter(homeList, this);
         homeAdapter.setHasStableIds(true);
@@ -221,10 +278,10 @@ public class HomeActivity extends AppCompatActivity {
             if (position == 6) {
                 HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
             }
-
-            if (position == 7) {
-                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
-            }
+//
+//            if (position == 7) {
+//                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
+//            }
         });
         recyclerView.setAdapter(homeAdapter);
     }
