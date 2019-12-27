@@ -192,48 +192,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/tv_signup_direct_authority_title" />
 
             <TextView
-                android:id="@+id/tv_signup_short_name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginRight="10dp"
-                android:ellipsize="end"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:maxLines="1"
-                android:text="Short Name"
-                android:textColor="@color/colorBlack"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="@+id/et_signup_email"
-                app:layout_constraintStart_toStartOf="@+id/et_signup_email"
-                app:layout_constraintTop_toBottomOf="@+id/tv_signup_direct_authority" />
-
-            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
-                android:id="@+id/et_signup_short_name"
-                style="@style/StyleEditText"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginStart="15dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="15dp"
-                android:digits="QWERTYUIOPASDFGHJKLZXCVBNM"
-                android:drawablePadding="10dp"
-                android:fontFamily="@font/roboto_regular"
-                android:hint="Ex: CTCD"
-                android:inputType="textCapCharacters"
-                android:maxLength="6"
-                android:maxLines="1"
-                android:nestedScrollingEnabled="true"
-                android:scrollHorizontally="true"
-                android:singleLine="true"
-                android:textColor="@color/colorBlack"
-                android:textSize="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_signup_short_name" />
-
-            <TextView
                 android:id="@+id/tv_signup_hkm_joining_date"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -249,7 +207,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/et_signup_email"
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
-                app:layout_constraintTop_toBottomOf="@+id/et_signup_short_name" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_signup_direct_authority" />
 
             <TextView
                 android:id="@+id/tv_signup_hkm_joining_date_picker"
@@ -314,6 +272,48 @@
                 app:layout_constraintTop_toBottomOf="@+id/tv_signup_first_name" />
 
             <TextView
+                android:id="@+id/tv_signup_short_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:ellipsize="end"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:maxLines="1"
+                android:text="Short Name"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@+id/et_signup_email"
+                app:layout_constraintStart_toStartOf="@+id/et_signup_email"
+                app:layout_constraintTop_toBottomOf="@+id/et_signup_first_name" />
+
+            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+                android:id="@+id/et_signup_short_name"
+                style="@style/StyleEditText"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginEnd="15dp"
+                android:digits="QWERTYUIOPASDFGHJKLZXCVBNM"
+                android:drawablePadding="10dp"
+                android:fontFamily="@font/roboto_regular"
+                android:hint="Ex: CTCD"
+                android:inputType="textCapCharacters"
+                android:maxLength="6"
+                android:maxLines="1"
+                android:nestedScrollingEnabled="true"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_signup_short_name" />
+
+            <TextView
                 android:id="@+id/tv_signup_email"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -329,7 +329,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="@+id/et_signup_email"
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
-                app:layout_constraintTop_toBottomOf="@+id/et_signup_first_name" />
+                app:layout_constraintTop_toBottomOf="@+id/et_signup_short_name" />
 
             <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
                 android:id="@+id/et_signup_email"

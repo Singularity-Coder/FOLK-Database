@@ -1574,6 +1574,7 @@ public class MainActivity extends AppCompatActivity {
 
                                             if (jsonObject.getString("status").equals("Failure")) {
                                                 HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                                etShortName.setText("");
                                             }
                                         } catch (JSONException e) {
                                             e.printStackTrace();
@@ -1594,6 +1595,7 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d(TAG, "onFailure: " + valueOf(call));
                                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
                                 getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                etShortName.setText("");
                             });
                         }
                     }
