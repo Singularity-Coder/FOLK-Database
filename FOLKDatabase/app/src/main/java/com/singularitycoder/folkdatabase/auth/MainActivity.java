@@ -591,7 +591,6 @@ public class MainActivity extends AppCompatActivity {
                 authCheck();
                 clickListeners();
                 showHidePassword();
-                AsyncTask.execute(this::getZoneDataFromApi);
             }
             return view;
         }
@@ -720,33 +719,48 @@ public class MainActivity extends AppCompatActivity {
 
             tvTermsPrivacy.setOnClickListener(view1 -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.iskconbangalore.org/privacy-policy/"))));
 
-            etSignUpZone.setOnClickListener(view12 -> dialogSignUpZone());
+            etSignUpZone.setOnClickListener(view12 -> {
+                AsyncTask.execute(this::getZoneDataFromApi);
+            });
 
             tvHkmJoiningDate.setOnClickListener(view -> HelperGeneral.showDatePickerOldStyle(tvHkmJoiningDate, getActivity()));
 
-            etShortName.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//            etShortName.addTextChangedListener(new TextWatcher() {
+//                @Override
+//                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//                }
+//
+//                @Override
+//                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//                }
+//
+//                @Override
+//                public void afterTextChanged(Editable editable) {
+//                    new Handler().postDelayed((Runnable) () -> {
+//                        if (!("").equals(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""))) {
+//                            if (valueOf(etShortName.getText()).trim().replaceAll("\\s+", "").length() >= 4) {
+//                                Log.d(TAG, "afterTextChanged: " + valueOf(editable));
+//                                doesAuthorityShortNameExistApi(valueOf(editable), "TL");
+//                            }
+//                        } else {
+//                            HelperGeneral.dialogShowMessage(getActivity(), "Short Name cannot be empty!");
+//                        }
+//                    }, 2000);
+//                }
+//            });
 
-                }
 
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    new Handler().postDelayed((Runnable) () -> {
-                        if (!("").equals(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""))) {
-                            if (valueOf(etShortName.getText()).trim().replaceAll("\\s+", "").length() >= 4) {
-                                Log.d(TAG, "afterTextChanged: " + valueOf(editable));
-                                doesAuthorityShortNameExistApi(valueOf(editable), "TL");
-                            }
-                        } else {
-                            HelperGeneral.dialogShowMessage(getActivity(), "Short Name cannot be empty!");
+            etShortName.setOnFocusChangeListener((view, b) -> {
+                if (!view.hasFocus()) {
+                    if (!("").equals(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""))) {
+                        if (valueOf(etShortName.getText()).trim().replaceAll("\\s+", "").length() >= 4) {
+                            doesAuthorityShortNameExistApi(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""), "TL");
                         }
-                    }, 2000);
+                    } else {
+                        HelperGeneral.dialogShowMessage(getActivity(), "Short Name cannot be empty!");
+                    }
                 }
             });
 
@@ -1457,117 +1471,86 @@ public class MainActivity extends AppCompatActivity {
 
 
         private void getZoneDataFromApi() {
-            ApiEndPoints apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiEndPoints.class);
-            Call<String> call = apiService.getZones();
-            call.enqueue(new Callback<String>() {
-                @Override
-                public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                    if (null != getActivity()) {
-                        getActivity().runOnUiThread(() -> {
-                            Log.d(TAG, "onResponse: hit 1");
-                            Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
-                            Log.d("Raw Response: ", valueOf(response.raw()));
-                            Log.d("Real Response: ", String.valueOf(response.body()));
-                            Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
+            if (null != getActivity()) {
+                getActivity().runOnUiThread(() -> {
+                    loadingBar = new ProgressDialog(getActivity());
+                    loadingBar.show();
+                    loadingBar.setMessage("Please wait...");
+                    loadingBar.setCanceledOnTouchOutside(false);
+                    loadingBar.setCancelable(false);
+                    loadingBar.show();
+                });
+                ApiEndPoints apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiEndPoints.class);
+                Call<String> call = apiService.getZones();
+                call.enqueue(new Callback<String>() {
+                    @Override
+                    public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                        if (null != getActivity()) {
+                            getActivity().runOnUiThread(() -> {
+                                Log.d(TAG, "onResponse: hit 1");
+                                Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
+                                Log.d("Raw Response: ", valueOf(response.raw()));
+                                Log.d("Real Response: ", String.valueOf(response.body()));
+                                Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
 
-                            if (response.isSuccessful()) {
-                                if (response.body() != null) {
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(response.body());
-                                        Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
+                                if (response.isSuccessful()) {
+                                    if (response.body() != null) {
+                                        try {
+                                            JSONObject jsonObject = new JSONObject(response.body());
+                                            Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
 
-                                        if (jsonObject.getString("status").equals("Success")) {
-                                            JSONArray jsonArray = jsonObject.getJSONArray("List of Zones");
-                                            zones = new String[jsonArray.length()];
-                                            for (int i = 0; i < jsonArray.length(); i++) {
-                                                zones[i] = valueOf(jsonArray.get(i));
-                                                System.out.println("zones: " + valueOf(jsonArray.get(i)));
+                                            if (jsonObject.getString("status").equals("Success")) {
+                                                JSONArray jsonArray = jsonObject.getJSONArray("List of Zones");
+                                                zones = new String[jsonArray.length()];
+                                                for (int i = 0; i < jsonArray.length(); i++) {
+                                                    zones[i] = valueOf(jsonArray.get(i));
+                                                    System.out.println("zones: " + valueOf(jsonArray.get(i)));
+                                                }
+                                                dialogSignUpZone();
                                             }
-                                        }
 
-                                        if (jsonObject.getString("status").equals("Failure")) {
-                                            HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                            if (jsonObject.getString("status").equals("Failure")) {
+                                                HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                            }
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
                                         }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
                                     }
                                 }
-                            }
-                        });
+                            });
+                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        }
                     }
-                }
 
-                @Override
-                public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                    if (null != getActivity()) {
-                        getActivity().runOnUiThread(() -> {
-                            Log.d(TAG, "onResponse: hit 2");
-                            Log.d(TAG, "onFailure: " + t.getMessage());
-                            Log.d(TAG, "onFailure: " + valueOf(call));
-                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
-                        });
+                    @Override
+                    public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                        if (null != getActivity()) {
+                            getActivity().runOnUiThread(() -> {
+                                Log.d(TAG, "onResponse: hit 2");
+                                Log.d(TAG, "onFailure: " + t.getMessage());
+                                Log.d(TAG, "onFailure: " + valueOf(call));
+                                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
+                                getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
 
         private void doesAuthorityShortNameExistApi(String shortName, String memberType) {
-            ApiEndPoints apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiEndPoints.class);
-            Call<String> call = apiService.doesShortNameExist(shortName, memberType);
-            call.enqueue(new Callback<String>() {
-                @Override
-                public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                    if (null != getActivity()) {
-                        getActivity().runOnUiThread(() -> {
-                            Log.d(TAG, "onResponse: hit 1");
-                            Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
-                            Log.d("Raw Response: ", valueOf(response.raw()));
-                            Log.d("Real Response: ", valueOf(response.body()));
-                            Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
-
-                            if (response.isSuccessful()) {
-                                if (response.body() != null) {
-                                    try {
-                                        JSONObject jsonObject = new JSONObject(response.body());
-                                        Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
-
-                                        if (jsonObject.getString("status").equals("Success")) {
-                                            HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
-                                        }
-
-                                        if (jsonObject.getString("status").equals("Failure")) {
-                                            HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                        });
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                    if (null != getActivity()) {
-                        getActivity().runOnUiThread(() -> {
-                            Log.d(TAG, "onResponse: hit 2");
-                            Log.d(TAG, "onFailure: " + t.getMessage());
-                            Log.d(TAG, "onFailure: " + valueOf(call));
-                            Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
-                        });
-                    }
-                }
-            });
-        }
-
-
-        private void getTeamLeadsFromApi() {
-            ApiEndPoints apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiEndPoints.class);
-            if (!("").equals(valueOf(etSignUpZone.getText()).trim())) {
-                Call<String> call = apiService.getTeamLeadsBasedOnZone("https://us-central1-folk-database.cloudfunctions.net/populateTLsByZone?zone=ISKCONBangalore", valueOf(etSignUpZone.getText()).trim().replaceAll("\\s+", ""));
-//                Call<String> call = apiService.getTeamLeadsBasedOnZone(valueOf(etSignUpZone.getText()).trim());
+            if (null != getActivity()) {
+                getActivity().runOnUiThread(() -> {
+                    loadingBar = new ProgressDialog(getActivity());
+                    loadingBar.show();
+                    loadingBar.setMessage("Please wait...");
+                    loadingBar.setCanceledOnTouchOutside(false);
+                    loadingBar.setCancelable(false);
+                    loadingBar.show();
+                });
+                ApiEndPoints apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiEndPoints.class);
+                Call<String> call = apiService.doesShortNameExist(shortName, memberType);
                 call.enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
@@ -1583,23 +1566,13 @@ public class MainActivity extends AppCompatActivity {
                                     if (response.body() != null) {
                                         try {
                                             JSONObject jsonObject = new JSONObject(response.body());
-                                            Log.d(TAG, "onResponse: h0");
                                             Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
 
                                             if (jsonObject.getString("status").equals("Success")) {
-                                                Log.d(TAG, "onResponse: h1");
-                                                // show progress
-                                                JSONArray jsonArray = jsonObject.getJSONArray("TeamLeads");
-                                                teamLeads = new String[jsonArray.length()];
-                                                for (int i = 0; i < jsonArray.length(); i++) {
-                                                    teamLeads[i] = valueOf(jsonArray.get(i));
-                                                    System.out.println("TeamLeads: " + valueOf(jsonArray.get(i)));
-                                                }
-                                                dialogSignUpAuthorities();
+                                                HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
                                             }
 
                                             if (jsonObject.getString("status").equals("Failure")) {
-                                                Log.d(TAG, "onResponse: h2");
                                                 HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
                                             }
                                         } catch (JSONException e) {
@@ -1608,6 +1581,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }
                             });
+                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
                         }
                     }
 
@@ -1619,10 +1593,87 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d(TAG, "onFailure: " + t.getMessage());
                                 Log.d(TAG, "onFailure: " + valueOf(call));
                                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
+                                getActivity().runOnUiThread(() -> loadingBar.dismiss());
                             });
                         }
                     }
                 });
+            }
+        }
+
+
+        private void getTeamLeadsFromApi() {
+            if (null != getActivity()) {
+                getActivity().runOnUiThread(() -> {
+                    loadingBar = new ProgressDialog(getActivity());
+                    loadingBar.show();
+                    loadingBar.setMessage("Please wait...");
+                    loadingBar.setCanceledOnTouchOutside(false);
+                    loadingBar.setCancelable(false);
+                    loadingBar.show();
+                });
+                ApiEndPoints apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiEndPoints.class);
+                if (!("").equals(valueOf(etSignUpZone.getText()).trim())) {
+                    Call<String> call = apiService.getTeamLeadsBasedOnZone("https://us-central1-folk-database.cloudfunctions.net/populateTLsByZone?zone=ISKCONBangalore", valueOf(etSignUpZone.getText()).trim().replaceAll("\\s+", ""));
+//                Call<String> call = apiService.getTeamLeadsBasedOnZone(valueOf(etSignUpZone.getText()).trim());
+                    call.enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+                            if (null != getActivity()) {
+                                getActivity().runOnUiThread(() -> {
+                                    Log.d(TAG, "onResponse: hit 1");
+                                    Log.e("TAG", "String Response: " + new Gson().toJson(response.body()));
+                                    Log.d("Raw Response: ", valueOf(response.raw()));
+                                    Log.d("Real Response: ", valueOf(response.body()));
+                                    Toast.makeText(getActivity(), " " + response.body(), Toast.LENGTH_LONG).show();
+
+                                    if (response.isSuccessful()) {
+                                        if (response.body() != null) {
+                                            try {
+                                                JSONObject jsonObject = new JSONObject(response.body());
+                                                Log.d(TAG, "onResponse: h0");
+                                                Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
+
+                                                if (jsonObject.getString("status").equals("Success")) {
+                                                    Log.d(TAG, "onResponse: h1");
+                                                    // show progress
+                                                    JSONArray jsonArray = jsonObject.getJSONArray("TeamLeads");
+                                                    teamLeads = new String[jsonArray.length()];
+                                                    for (int i = 0; i < jsonArray.length(); i++) {
+                                                        teamLeads[i] = valueOf(jsonArray.get(i));
+                                                        System.out.println("TeamLeads: " + valueOf(jsonArray.get(i)));
+                                                    }
+                                                    dialogSignUpAuthorities();
+                                                }
+
+                                                if (jsonObject.getString("status").equals("Failure")) {
+                                                    Log.d(TAG, "onResponse: h2");
+                                                    HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                                }
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                });
+                                getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+                            if (null != getActivity()) {
+                                getActivity().runOnUiThread(() -> {
+                                    Log.d(TAG, "onResponse: hit 2");
+                                    Log.d(TAG, "onFailure: " + t.getMessage());
+                                    Log.d(TAG, "onFailure: " + valueOf(call));
+                                    Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
+                                    getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                });
+                            }
+                        }
+                    });
+                }
             }
         }
 
