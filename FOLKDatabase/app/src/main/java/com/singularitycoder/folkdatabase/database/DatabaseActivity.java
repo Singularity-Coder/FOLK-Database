@@ -393,8 +393,6 @@ public class DatabaseActivity extends AppCompatActivity {
                 getData(getActivity());
                 setUpRecyclerView();
                 Log.d(TAG, "onCreateView: current date: " + HelperGeneral.currentDate());
-//            findBirthdays(HelperGeneral.currentDate());
-                findBirthdays("06-01");
             }
             return view;
         }
@@ -658,31 +656,6 @@ public class DatabaseActivity extends AppCompatActivity {
                         noFeedImage.setVisibility(View.VISIBLE);
                         noFeedText.setVisibility(View.VISIBLE);
                     });
-            }
-        }
-
-
-        private void findBirthdays(String text) {
-            ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
-
-            Log.d(TAG, "findBirthdays: bd 1");
-            for (ContactItem contact : contactList) {
-                Log.d(TAG, "findBirthdays: bd 2");
-
-                if (text.toLowerCase().trim().contains(valueOf(contact.getStrDobMonth()).toLowerCase().trim())) {
-                    Log.d(TAG, "findBirthdays: bd 3");
-
-                    filteredContactsList.add(contact);
-                    Log.d(TAG, "birthday list: " + filteredContactsList);
-                    if (null != getActivity()) {
-                        Toast.makeText(getActivity(), "got a match", Toast.LENGTH_SHORT).show();
-                    }
-
-                    // send notification that many number of times as the lsit loops
-                }
-//                contactsAdapter.flterList(filteredContactsList);
-//                contactsAdapter.notifyDataSetChanged();
-//                tvListCount.setText(filteredContactsList.size() + " Contacts");
             }
         }
 

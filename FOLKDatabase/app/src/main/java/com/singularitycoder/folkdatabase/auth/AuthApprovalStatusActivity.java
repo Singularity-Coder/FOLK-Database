@@ -3,12 +3,16 @@ package com.singularitycoder.folkdatabase.auth;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -18,25 +22,37 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.AuthUserItem;
 import com.singularitycoder.folkdatabase.auth.MainActivity;
+import com.singularitycoder.folkdatabase.helper.HelperConstants;
+import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import com.singularitycoder.folkdatabase.home.HomeActivity;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
+import static java.lang.String.valueOf;
+
 public class AuthApprovalStatusActivity extends AppCompatActivity {
+
+    private static final String TAG = "AuthApprovalStatusActiv";
 
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private FirebaseFirestore firestore;
+    private ProgressDialog loadingBar;
     private Button btnCallAuthority;
     private Button btnCheckStatus;
     private TextView tvFolkGuideGreetingText;
     private AuthUserItem authUserItem;
     private HelperSharedPreference helperSharedPreference;
+    private String strAuthorityPhoneNumber;
+    private String strSignUpStatus;
 
     // this listener is called when there is change in firebase fireUser session
     FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
@@ -51,6 +67,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
         }
     };
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +76,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
         inits();
         authCheck();
         setData();
+        AsyncTask.execute(() -> readAuthUserData());
         clickListeners();
         getStatus();
     }
@@ -81,6 +99,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
         helperSharedPreference = HelperSharedPreference.getInstance(this);
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        loadingBar = new ProgressDialog(this);
         btnCallAuthority = findViewById(R.id.btn_call_authority);
         btnCheckStatus = findViewById(R.id.btn_check_status);
         tvFolkGuideGreetingText = findViewById(R.id.tv_folk_guide_greeting_text);
@@ -101,35 +120,128 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
 
     private void setData() {
         SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-        tvFolkGuideGreetingText.setText("Hello " + sp.getString("firstName", "") + " " + sp.getString("lastName", "") + ",");
+        tvFolkGuideGreetingText.setText("Hello " + sp.getString("firstName", "") + ",");
     }
 
 
     private void clickListeners() {
-        btnCallAuthority.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // query that searches team leads number
-            }
+        btnCallAuthority.setOnClickListener(view -> {
+            Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", strAuthorityPhoneNumber, null));
+            callIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+            startActivity(callIntent);
         });
 
         btnCheckStatus.setOnClickListener(view -> {
             // load progress
             // check db for yes
             // if yes then jump to home else toast
-            startActivity(new Intent(this, HomeActivity.class));
+
         });
     }
 
 
     private boolean getStatus() {
-//        firestore.collection("AllFolkGuides").document(authUserItem.getDocId()).get()
-//                .addOnSuccessListener((OnSuccessListener<Void>) aVoid -> {
-//                    Toast.makeText(AuthApprovalStatusActivity.this, "Product Updated", Toast.LENGTH_LONG).show();
-//                });
-
-        helperSharedPreference.setSignupStatus("true");
+        AsyncTask.execute(() -> readSignUpStatus());
         return false;
+    }
+
+
+    // READ - query that searches team leads or direct authority phone number
+    private void readAuthUserData() {
+        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+        String email = sp.getString("email", "");
+        String directAuthority = sp.getString("directAuthority", "");
+        runOnUiThread(() -> {
+            loadingBar.setMessage("Please wait...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+        });
+
+        FirebaseFirestore.getInstance()
+                .collection(HelperConstants.AUTH_FOLK_PEOPLE)
+                .whereEqualTo("directAuthority", directAuthority)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                        Log.d(TAG, "docList: " + docList);
+
+                        for (DocumentSnapshot docSnap : docList) {
+                            authUserItem = docSnap.toObject(AuthUserItem.class);
+                            if (authUserItem != null) {
+                                Log.d(TAG, "AuthItem: " + authUserItem);
+
+                                if (!("").equals(valueOf(docSnap.getString("phone")))) {
+                                    authUserItem.setPhone(valueOf(docSnap.getString("phone")));
+                                    strAuthorityPhoneNumber = valueOf(docSnap.getString("phone"));
+                                }
+
+                                authUserItem.setDocId(docSnap.getId());
+                            }
+                            Log.d(TAG, "firedoc id: " + docSnap.getId());
+                        }
+                        Toast.makeText(AuthApprovalStatusActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> loadingBar.dismiss());
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(AuthApprovalStatusActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(() -> loadingBar.dismiss());
+                });
+    }
+
+    // READ - query that searches team leads or direct authority phone number
+    private void readSignUpStatus() {
+        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+        String email = sp.getString("email", "");
+        runOnUiThread(() -> {
+            loadingBar.setMessage("Please wait...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+        });
+
+        FirebaseFirestore.getInstance()
+                .collection(HelperConstants.AUTH_FOLK_PEOPLE)
+                .whereEqualTo("email", email)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                        Log.d(TAG, "docList: " + docList);
+
+                        for (DocumentSnapshot docSnap : docList) {
+                            authUserItem = docSnap.toObject(AuthUserItem.class);
+                            if (authUserItem != null) {
+                                Log.d(TAG, "AuthItem: " + authUserItem);
+
+                                if (!("").equals(valueOf(docSnap.getString("signUpStatus")))) {
+                                    authUserItem.setSignUpStatus(valueOf(docSnap.getString("signUpStatus")));
+                                    strSignUpStatus = valueOf(docSnap.getString("signUpStatus"));
+
+                                    if (docSnap.getString("signUpStatus").equals("true")) {
+                                        runOnUiThread(() -> loadingBar.dismiss());
+                                        helperSharedPreference.setSignupStatus("true");
+                                        startActivity(new Intent(this, HomeActivity.class));
+                                    } else {
+                                        helperSharedPreference.setSignupStatus("false");
+                                        HelperGeneral.dialogShowMessage(AuthApprovalStatusActivity.this, "Your account is still not verified. Please call your Authority!");
+                                    }
+                                }
+
+                                authUserItem.setDocId(docSnap.getId());
+                            }
+                            Log.d(TAG, "firedoc id: " + docSnap.getId());
+                        }
+                        Toast.makeText(AuthApprovalStatusActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> loadingBar.dismiss());
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(AuthApprovalStatusActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(() -> loadingBar.dismiss());
+                });
     }
 
 

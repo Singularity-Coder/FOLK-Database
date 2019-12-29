@@ -11,7 +11,6 @@ public interface ApiEndPoints {
     @GET("/populateListOfZones")
     Call<String> getZones();
 
-//    @GET("/populateTLsByZone")
     @GET
     Call<String> getTeamLeadsBasedOnZone(
             @Url String url,

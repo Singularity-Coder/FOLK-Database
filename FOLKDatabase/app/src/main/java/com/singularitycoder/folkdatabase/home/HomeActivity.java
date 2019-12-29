@@ -59,6 +59,8 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.R;
+import com.singularitycoder.folkdatabase.auth.AuthApprovalStatusActivity;
+import com.singularitycoder.folkdatabase.auth.AuthUserApprovalItem;
 import com.singularitycoder.folkdatabase.auth.AuthUserItem;
 import com.singularitycoder.folkdatabase.auth.MainActivity;
 import com.singularitycoder.folkdatabase.database.ContactItem;
@@ -91,6 +93,10 @@ public class HomeActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private AuthUserItem authUserItem;
+    private ContactItem personItemModel;
+    private ArrayList<ContactItem> contactList;
+    private FirebaseFirestore firestore;
+
 
     // this listener is called when there is change in firebase fireUser session
     private FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
@@ -114,14 +120,19 @@ public class HomeActivity extends AppCompatActivity {
         authCheck();
         initToolBar();
         AsyncTask.execute(this::readAuthUserData);
+        AsyncTask.execute(this::readContactsData);
 //        setUpRecyclerView();
+//        findBirthdays(HelperGeneral.currentDate());
+
     }
 
 
     private void init() {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        firestore = FirebaseFirestore.getInstance();
         loadingBar = new ProgressDialog(this);
+        contactList = new ArrayList<>();
     }
 
 
@@ -161,6 +172,174 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
+    private void findBirthdays(String text) {
+        ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
+
+        Log.d(TAG, "findBirthdays: bd 1");
+        for (ContactItem contact : contactList) {
+            Log.d(TAG, "findBirthdays: bd 2");
+
+            if (text.toLowerCase().trim().contains(valueOf(contact.getStrDobMonth()).toLowerCase().trim())) {
+                Log.d(TAG, "findBirthdays: bd 3");
+
+                filteredContactsList.add(contact);
+                Log.d(TAG, "birthday list: " + filteredContactsList);
+                Toast.makeText(HomeActivity.this, "got a match", Toast.LENGTH_SHORT).show();
+
+                // send notification that many number of times as the lsit loops
+            }
+//                contactsAdapter.flterList(filteredContactsList);
+//                contactsAdapter.notifyDataSetChanged();
+//                tvListCount.setText(filteredContactsList.size() + " Contacts");
+        }
+    }
+
+
+    // READ
+    private void readContactsData() {
+        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+        String folkGuideAbbr = sp.getString("folkGuideAbbr", "");
+        String zone = sp.getString("zone", "");
+        Log.d(TAG, "folkguide: " + folkGuideAbbr + " zone: " + zone);
+
+        FirebaseFirestore.getInstance()
+                .collection(HelperConstants.FOLK_MEMBERS)
+                .whereEqualTo("folk_guide", folkGuideAbbr)
+                .whereEqualTo("zone", zone)
+                .get()
+//            FirebaseFirestore.getInstance().collection(HelperConstants.FOLK_MEMBERS).get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                        Log.d(TAG, "docList: " + docList);
+
+                        Log.d(TAG, "readContactsData: hittt 1");
+                        for (DocumentSnapshot docSnap : docList) {
+                            personItemModel = docSnap.toObject(ContactItem.class);
+                            if (personItemModel != null) {
+                                Log.d(TAG, "readContactsData: hittt 2");
+                                Log.d(TAG, "personItem: " + personItemModel);
+
+                                if (!("").equals(valueOf(docSnap.getId()))) {
+                                    personItemModel.setId(docSnap.getId());
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("name")))) {
+                                    personItemModel.setFirstName(valueOf(docSnap.getString("name")));
+                                }
+
+                                if (("").equals(valueOf(docSnap.getString("folk_guide")))) {
+                                    personItemModel.setStrFolkGuide("No FOLK Guide");
+                                } else {
+                                    personItemModel.setStrFolkGuide(valueOf(docSnap.getString("folk_guide")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("occupation")))) {
+                                    personItemModel.setStrOccupation(docSnap.getString("occupation"));
+                                }
+
+                                if (("").equals(docSnap.getString("dob_month"))) {
+                                    personItemModel.setStrDobMonth(docSnap.getString("0"));
+                                } else {
+                                    personItemModel.setStrDobMonth(valueOf(docSnap.getString("dob_month")));
+                                    Log.d(TAG, "dob month: " + docSnap.getString("dob_month"));
+                                }
+
+                                if (("").equals(docSnap.getString("dob"))) {
+                                    personItemModel.setStrBirthday("Missing Birthday");
+                                } else {
+                                    personItemModel.setStrBirthday(docSnap.getString("dob"));
+                                }
+
+                                if (!("").equals(docSnap.getString("city"))) {
+                                    personItemModel.setStrLocation(docSnap.getString("city"));
+                                }
+
+                                if (!("").equals(docSnap.getString("folk_residency_interest"))) {
+                                    personItemModel.setStrRecidencyInterest(valueOf(docSnap.getString("folk_residency_interest")));
+                                }
+
+                                if (!("").equals(docSnap.getString("mobile"))) {
+                                    personItemModel.setStrPhone(valueOf(docSnap.getString("mobile")));
+                                }
+
+                                if (!("").equals(docSnap.getString("mobile"))) {
+                                    personItemModel.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("email")))) {
+                                    personItemModel.setStrEmail(valueOf(docSnap.getString("email")));
+                                }
+
+                                Map<String, Object> talent = (Map<String, Object>) docSnap.getData().get("talent");
+                                Log.d(TAG, "readContactsData: talent map: " + talent);
+
+//                                    // Cooking
+//                                    Map<String, Object> cooking = (Map<String, Object>) talent.get("cooking");
+//                                    if (!("").equals(valueOf(talent.get("disclose")))) {
+//                                        personItemModel.setStrTalentDisclose(valueOf(talent.get("disclose")));
+//                                    }
+//
+//                                    if (!("").equals(valueOf(Objects.requireNonNull(cooking).get("can_cook_for")))) {
+//                                        personItemModel.setStrCanCookFor(valueOf(cooking.get("can_cook_for")));
+//                                    }
+//
+//                                    if (!("").equals(valueOf(cooking.get("cooking_self_rating")))) {
+//                                        personItemModel.setStrSelfRating(valueOf(cooking.get("cooking_self_rating")));
+//                                    }
+//
+//                                    Map<String, Object> cookingSkills = (Map<String, Object>) cooking.get("skills");
+//
+//                                    if (!("").equals(valueOf(cookingSkills.get("south_indian")))) {
+//                                        personItemModel.setStrCanCookSouthIndian(valueOf(cookingSkills.get("south_indian")));
+//                                    }
+//
+//                                    // Sports
+//                                    Map<String, Object> sports = (Map<String, Object>) talent.get("sports_talent");
+//                                    Map<String, Object> sportsParticipation = (Map<String, Object>) sports.get("participation");
+//
+//                                    if (!("").equals(valueOf(sportsParticipation.get("college_level")))) {
+//                                        personItemModel.setStrCollegeLevel(valueOf(sportsParticipation.get("college_level")));
+//                                    }
+//
+//                                    if (!("").equals(valueOf(sportsParticipation.get("college_level")))) {
+//                                        personItemModel.setStrDistrictLevel(valueOf(sportsParticipation.get("college_level")));
+//                                    }
+
+
+//                                    for (Map.Entry<String, Object> entry : talent.entrySet()) {
+//                                        Log.d(TAG, "Key: " + entry.getKey() + "\n Value: " + entry.getValue());
+//                                        Map<String, Object> cooking2 = (Map<String, Object>) entry;
+//                                        if (("disclose").equals(entry.getKey())) {
+//                                            personItemModel.setStrTalentDisclose(entry.getKey());
+//                                        }
+//
+//                                    }
+
+//                                    // Send to Profile Talent
+//                                    SharedPreferences spTalent = Objects.requireNonNull(getActivity()).getSharedPreferences("talentItem", Context.MODE_PRIVATE);
+//                                    spTalent.edit().putString("canCook", valueOf(cooking.get("can_cook_for"))).apply();
+//                                    spTalent.edit().putString("disclose", valueOf(talent.get("disclose"))).apply();
+//                                    spTalent.edit().putString("cookingSelfRating", valueOf(cooking.get("cooking_self_rating"))).apply();
+//                                    spTalent.edit().putString("canCookSouthIndian", valueOf(cookingSkills.get("south_indian"))).apply();
+//                                    spTalent.edit().putString("sportsCollegeLevel", valueOf(sportsParticipation.get("college_level"))).apply();
+//                                    spTalent.edit().putString("sportsDistrictLevel", valueOf(sportsParticipation.get("district_level"))).apply();
+
+                            }
+                            Log.d(TAG, "firedoc id: " + docSnap.getId());
+                        }
+                        Toast.makeText(HomeActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
+                    }
+                    contactList.add(personItemModel);
+                    Log.d(TAG, "readContactsData: contactList: " + contactList);
+//                    findBirthdays("07-20");
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(HomeActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
     // READ
     private void readAuthUserData() {
         SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
@@ -195,6 +374,7 @@ public class HomeActivity extends AppCompatActivity {
                                 }
 
                                 Map<String, Object> talent = (Map<String, Object>) docSnap.getData().get("talent");
+                                authUserItem.setDocId(docSnap.getId());
                                 Log.d(TAG, "readContactsData: talent map: " + talent);
                             }
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
@@ -290,6 +470,12 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_home, menu);
+        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+        String memberType = sp.getString("memberType", "");
+        if (memberType.equals("Folk Guide")) {
+            MenuItem itemApproveUsers = findViewById(R.id.action_approve_users);
+            itemApproveUsers.setVisible(false);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -297,8 +483,13 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_notifications:
+            case R.id.action_birthdays:
                 dialogNotifications(this);
+                return true;
+            case R.id.action_approve_users:
+                SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+                String memberType = sp.getString("memberType", "");
+                dialogApproveUsers(this, memberType);
                 return true;
             case R.id.action_my_profile:
                 Intent intent = new Intent(this, ProfileActivity.class);
@@ -545,6 +736,156 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
+    // Get All sub collection details
+    private void dialogApproveUsers(Activity activity, String memberType) {
+        final Dialog dialog = new Dialog(activity);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(true);
+        dialog.setContentView(R.layout.dialog_approve_users);
+
+        Rect displayRectangle = new Rect();
+        Window window = activity.getWindow();
+        window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
+        Objects.requireNonNull(dialog.getWindow()).setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
+
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // if today's date matches birthday - show notif badge
+        // Show all birthday's in the notifications
+
+        ImageView imgCloseBtn = dialog.findViewById(R.id.img_dialog_close);
+        imgCloseBtn.setOnClickListener(view -> {
+            dialog.dismiss();
+        });
+
+        ArrayList<AuthUserApprovalItem> approveUsersList = new ArrayList<>();
+//        notificationList.add(new ContactItem("Michael Marvin", "", "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
+        LinearLayoutManager commentLayoutManager = new LinearLayoutManager(activity, RecyclerView.VERTICAL, false);
+        RecyclerView approveUsersRecycler = dialog.findViewById(R.id.dialog_approve_users_recycler);
+        approveUsersRecycler.setLayoutManager(commentLayoutManager);
+        approveUsersRecycler.setHasFixedSize(true);
+        approveUsersRecycler.setItemViewCacheSize(20);
+        approveUsersRecycler.setDrawingCacheEnabled(true);
+        approveUsersRecycler.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
+        ApproveUsersAdapter approveUsersAdapter = new ApproveUsersAdapter(approveUsersList, activity);
+        approveUsersAdapter.setHasStableIds(true);
+        approveUsersRecycler.setAdapter(approveUsersAdapter);
+
+        // READ - Read sub collection details
+        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+        String folkGuideAbbr = sp.getString("folkGuideAbbr", "");
+        String zone = sp.getString("zone", "");
+
+        String collectionName = "";
+        String subCollectionName = "";
+
+        if (memberType.equals("Team Leads")) {
+            collectionName = HelperConstants.AUTH_FOLK_TEAM_LEADS;
+            subCollectionName = HelperConstants.AUTH_FOLK_GUIDE_APPROVALS;
+        }
+
+        if (memberType.equals("Zonal Heads")) {
+            collectionName = HelperConstants.AUTH_FOLK_ZONAL_HEADS;
+            subCollectionName = HelperConstants.AUTH_FOLK_TEAM_LEAD_APPROVALS;
+        }
+
+        FirebaseFirestore
+                .getInstance()
+                .collection(collectionName)
+                .document(authUserItem.getDocId())
+                .collection(subCollectionName)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+//                    shimmerFrameLayout.setVisibility(View.GONE);
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                        Log.d(TAG, "docList: " + docList);
+
+                        for (DocumentSnapshot docSnap : docList) {
+                            personItemModel = docSnap.toObject(ContactItem.class);
+                            if (personItemModel != null) {
+                                Log.d(TAG, "personItem: " + personItemModel);
+
+                                if (!("").equals(valueOf(docSnap.getId()))) {
+                                    personItemModel.setId(docSnap.getId());
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("name")))) {
+                                    personItemModel.setFirstName(valueOf(docSnap.getString("name")));
+                                }
+
+                                if (("").equals(valueOf(docSnap.getString("folk_guide")))) {
+                                    personItemModel.setStrFolkGuide("No FOLK Guide");
+                                } else {
+                                    personItemModel.setStrFolkGuide(valueOf(docSnap.getString("folk_guide")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("occupation")))) {
+                                    personItemModel.setStrOccupation(docSnap.getString("occupation"));
+                                }
+
+                                if (("").equals(docSnap.getString("dob_month"))) {
+                                    personItemModel.setStrDobMonth(docSnap.getString("0"));
+                                } else {
+                                    personItemModel.setStrDobMonth(valueOf(docSnap.getString("dob_month")));
+                                    Log.d(TAG, "dob month: " + docSnap.getString("dob_month"));
+                                }
+
+                                if (("").equals(docSnap.getString("dob"))) {
+                                    personItemModel.setStrBirthday("Missing Birthday");
+                                } else {
+                                    personItemModel.setStrBirthday(docSnap.getString("dob"));
+                                }
+
+                                if (!("").equals(docSnap.getString("city"))) {
+                                    personItemModel.setStrLocation(docSnap.getString("city"));
+                                }
+
+                                if (!("").equals(docSnap.getString("folk_residency_interest"))) {
+                                    personItemModel.setStrRecidencyInterest(valueOf(docSnap.getString("folk_residency_interest")));
+                                }
+
+                                if (!("").equals(docSnap.getString("mobile"))) {
+                                    personItemModel.setStrPhone(valueOf(docSnap.getString("mobile")));
+                                }
+
+                                if (!("").equals(docSnap.getString("mobile"))) {
+                                    personItemModel.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("email")))) {
+                                    personItemModel.setStrEmail(valueOf(docSnap.getString("email")));
+                                }
+
+                                Map<String, Object> talent = (Map<String, Object>) docSnap.getData().get("talent");
+                                Log.d(TAG, "readContactsData: talent map: " + talent);
+                            }
+                            Log.d(TAG, "firedoc id: " + docSnap.getId());
+                            contactList.add(personItemModel);
+//                            tvListCount.setText(contactList.size() + " Contacts");
+                        }
+                        approveUsersAdapter.notifyDataSetChanged();
+                        Toast.makeText(HomeActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
+
+//                        if (contactList.size() == 0) {
+//                            noFeedImage.setVisibility(View.VISIBLE);
+//                            noFeedText.setVisibility(View.VISIBLE);
+//                        } else {
+//                            noFeedImage.setVisibility(View.GONE);
+//                            noFeedText.setVisibility(View.GONE);
+//                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(HomeActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
+//                    noFeedImage.setVisibility(View.VISIBLE);
+//                    noFeedText.setVisibility(View.VISIBLE);
+                });
+
+        dialog.show();
+    }
+
+
     private void dialogChangePassword(Activity activity) {
         final Dialog dialog = new Dialog(activity);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -662,11 +1003,29 @@ public class HomeActivity extends AppCompatActivity {
             loadingBar.setCanceledOnTouchOutside(false);
             loadingBar.show();
         });
+
         if (firebaseUser != null) {
             firebaseUser.updatePassword(newPassword)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Toast.makeText(HomeActivity.this, "Password is updated! LogIn with new password!", Toast.LENGTH_SHORT).show();
+                            Log.d(TAG, "changePassword: docId: " + authUserItem.getDocId());
+
+                            // Update existing values
+                            firestore
+                                    .collection(HelperConstants.AUTH_FOLK_GUIDES)
+                                    .document(authUserItem.getDocId())
+                                    .update("password", newPassword)
+                                    .addOnSuccessListener(documentReference1 -> {
+                                        Toast.makeText(HomeActivity.this, "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(HomeActivity.this, AuthApprovalStatusActivity.class));
+                                        finish();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.w(TAG, "Error adding document", e);
+                                        Toast.makeText(HomeActivity.this, "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                                    });
+
                             AsyncTask.execute(this::logOut);
                             runOnUiThread(() -> loadingBar.dismiss());
                         } else {

@@ -546,7 +546,6 @@ public class MainActivity extends AppCompatActivity {
 
     public static class SignUpFragment extends Fragment {
         private TextView tvTermsPrivacy;
-        private TextView tvMemberType;
         private TextView tvDirectAuthorityTitle;
         private TextView tvOpenGallery;
         private TextView tvShowHidePassword;
@@ -725,44 +724,53 @@ public class MainActivity extends AppCompatActivity {
 
             tvHkmJoiningDate.setOnClickListener(view -> HelperGeneral.showDatePickerOldStyle(tvHkmJoiningDate, getActivity()));
 
-//            etShortName.addTextChangedListener(new TextWatcher() {
-//                @Override
-//                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//
-//                }
-//
-//                @Override
-//                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//
-//                }
-//
-//                @Override
-//                public void afterTextChanged(Editable editable) {
-//                    new Handler().postDelayed((Runnable) () -> {
-//                        if (!("").equals(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""))) {
-//                            if (valueOf(etShortName.getText()).trim().replaceAll("\\s+", "").length() >= 4) {
-//                                Log.d(TAG, "afterTextChanged: " + valueOf(editable));
-//                                doesAuthorityShortNameExistApi(valueOf(editable), "TL");
-//                            }
-//                        } else {
-//                            HelperGeneral.dialogShowMessage(getActivity(), "Short Name cannot be empty!");
-//                        }
-//                    }, 2000);
-//                }
-//            });
+            etShortName.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
+                }
 
-            etShortName.setOnFocusChangeListener((view, b) -> {
-                if (!view.hasFocus()) {
-                    if (!("").equals(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""))) {
-                        if (valueOf(etShortName.getText()).trim().replaceAll("\\s+", "").length() >= 4) {
-                            doesAuthorityShortNameExistApi(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""), "TL");
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    new Handler().postDelayed((Runnable) () -> {
+                        if (null != getActivity()) {
+                            if (!("").equals(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""))) {
+                                if (valueOf(etShortName.getText()).trim().replaceAll("\\s+", "").length() >= 4) {
+                                    Log.d(TAG, "afterTextChanged: " + valueOf(editable));
+                                    if (!("").equals(valueOf(tvSignUpMemberType.getText()))) {
+                                        doesAuthorityShortNameExistApi(valueOf(editable), valueOf(tvSignUpMemberType.getText()).trim().replaceAll("\\s+", ""));
+                                    } else {
+                                        tvSignUpMemberType.setError("Choose a Member Type first!");
+                                        Toast.makeText(getActivity(), "Choose a Member Type first!", Toast.LENGTH_SHORT).show();
+                                        etShortName.setText("");
+                                    }
+                                }
+                            } else {
+//                                HelperGeneral.dialogShowMessage(getActivity(), "Short Name cannot be empty!");
+                                Toast.makeText(getActivity(), "Short Name cannot be empty!", Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    } else {
-                        HelperGeneral.dialogShowMessage(getActivity(), "Short Name cannot be empty!");
-                    }
+                    }, 4000);
                 }
             });
+
+
+//            etShortName.setOnFocusChangeListener((view, b) -> {
+//                if (!view.hasFocus()) {
+//                    if (!("").equals(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""))) {
+//                        if (valueOf(etShortName.getText()).trim().replaceAll("\\s+", "").length() >= 4) {
+//                            doesAuthorityShortNameExistApi(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""), "TL");
+//                        }
+//                    } else {
+//                        HelperGeneral.dialogShowMessage(getActivity(), "Short Name cannot be empty!");
+//                    }
+//                }
+//            });
 
             btnCreateAccount.setOnClickListener(view13 -> {
                 if (HelperGeneral.hasInternet(Objects.requireNonNull(getContext()))) {
@@ -1208,6 +1216,7 @@ public class MainActivity extends AppCompatActivity {
                 sp.edit().putString("profileImage", profileImage).apply();
                 sp.edit().putString("firstName", firstName).apply();
                 sp.edit().putString("memberType", memberType).apply();
+                sp.edit().putString("directAuthority", directAuthority).apply();
                 sp.edit().putString("phone", phone).apply();
                 sp.edit().putString("email", email).apply();
                 sp.edit().putString("gmail", gmail).apply();
@@ -1541,14 +1550,14 @@ public class MainActivity extends AppCompatActivity {
 
         private void doesAuthorityShortNameExistApi(String shortName, String memberType) {
             if (null != getActivity()) {
-                getActivity().runOnUiThread(() -> {
-                    loadingBar = new ProgressDialog(getActivity());
-                    loadingBar.show();
-                    loadingBar.setMessage("Please wait...");
-                    loadingBar.setCanceledOnTouchOutside(false);
-                    loadingBar.setCancelable(false);
-                    loadingBar.show();
-                });
+//                getActivity().runOnUiThread(() -> {
+//                    loadingBar = new ProgressDialog(getActivity());
+//                    loadingBar.show();
+//                    loadingBar.setMessage("Please wait...");
+//                    loadingBar.setCanceledOnTouchOutside(false);
+//                    loadingBar.setCancelable(false);
+//                    loadingBar.show();
+//                });
                 ApiEndPoints apiService = RetrofitClientInstance.getRetrofitInstance().create(ApiEndPoints.class);
                 Call<String> call = apiService.doesShortNameExist(shortName, memberType);
                 call.enqueue(new Callback<String>() {
@@ -1569,12 +1578,15 @@ public class MainActivity extends AppCompatActivity {
                                             Log.d(TAG, "onResponse: status: " + jsonObject.getString("status"));
 
                                             if (jsonObject.getString("status").equals("Success")) {
-                                                HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+//                                                HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                                Toast.makeText(getActivity(), jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
                                             }
 
                                             if (jsonObject.getString("status").equals("Failure")) {
-                                                HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+//                                                HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                                Toast.makeText(getActivity(), jsonObject.getString("message"), Toast.LENGTH_SHORT).show();
                                                 etShortName.setText("");
+                                                etShortName.setError("Short Name not available. Try a different one!");
                                             }
                                         } catch (JSONException e) {
                                             e.printStackTrace();
@@ -1582,7 +1594,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 }
                             });
-                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+//                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
                         }
                     }
 
@@ -1594,7 +1606,7 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d(TAG, "onFailure: " + t.getMessage());
                                 Log.d(TAG, "onFailure: " + valueOf(call));
                                 Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_LONG).show();
-                                getActivity().runOnUiThread(() -> loadingBar.dismiss());
+//                                getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                 etShortName.setText("");
                             });
                         }
