@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -63,7 +62,6 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.R;
-import com.singularitycoder.folkdatabase.SplashActivity;
 import com.singularitycoder.folkdatabase.database.ContactItem;
 import com.singularitycoder.folkdatabase.helper.ApiEndPoints;
 import com.singularitycoder.folkdatabase.helper.HelperConstants;
@@ -93,7 +91,6 @@ import droidninja.filepicker.FilePickerConst;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 import static com.singularitycoder.folkdatabase.helper.HelperImage.showSettingsDialog;
 import static java.lang.String.valueOf;
@@ -566,6 +563,7 @@ public class MainActivity extends AppCompatActivity {
         private String adminKey;
         private String lastFourDigits;
         private String newImagePath = null;
+        private String profileImageDirectory;
         private String[] zones;
         private String[] teamLeads;
 
@@ -1100,13 +1098,25 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
 
+            if (memberType.equals("FOLK Guide")) {
+                profileImageDirectory = HelperConstants.DIR_IMAGES_PATH_FOLK_GUIDES;
+            }
+
+            if (memberType.equals("Team Lead")) {
+                profileImageDirectory = HelperConstants.DIR_IMAGES_PATH_FOLK_TEAM_LEADS;
+            }
+
+            if (memberType.equals("Zonal Head")) {
+                profileImageDirectory = HelperConstants.DIR_IMAGES_PATH_FOLK_ZONAL_HEADS;
+            }
+
             for (int i = 0; i < imgUriArray.size(); i++) {
                 final int finalI = i;
 
-                if ((null) != FirebaseStorage.getInstance().getReference().child(HelperConstants.FOLK_PROFILE_IMAGES_PATH)) {
+                if ((null) != FirebaseStorage.getInstance().getReference().child(profileImageDirectory)) {
                     // First put file in Storage
                     FirebaseStorage.getInstance().getReference()
-                            .child(HelperConstants.FOLK_PROFILE_IMAGES_PATH)
+                            .child(profileImageDirectory)
                             .child(imgUriArray.get(i).getImageName())
                             .putFile(imgUriArray.get(i).getIvProfileImage())
                             .addOnCompleteListener(task -> {
@@ -1114,7 +1124,7 @@ public class MainActivity extends AppCompatActivity {
                                 // Then get the download URL with the filename from Storage
                                 if (task.isSuccessful()) {
                                     FirebaseStorage.getInstance().getReference()
-                                            .child(HelperConstants.FOLK_PROFILE_IMAGES_PATH)
+                                            .child(profileImageDirectory)
                                             .child(imgUriArray.get(finalI).getImageName())
                                             .getDownloadUrl()
                                             .addOnCompleteListener(task1 -> {
@@ -1144,7 +1154,7 @@ public class MainActivity extends AppCompatActivity {
                                                     Log.d(TAG, "task data: " + valueOf(task1.getResult()));
                                                 } else {
                                                     FirebaseStorage.getInstance().getReference()
-                                                            .child(HelperConstants.FOLK_PROFILE_IMAGES_PATH)
+                                                            .child(profileImageDirectory)
                                                             .child(imageUriArray.get(finalI).getImageName())
                                                             .delete();
                                                     if (null != getActivity()) {
@@ -1226,7 +1236,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
             // Collection name is "AuthUserItem". U can create a new collection this way
-            firestore.collection(HelperConstants.AUTH_FOLK_PEOPLE)
+            firestore.collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
                     .add(authUserItem)
                     .addOnSuccessListener(documentReference -> {
 
@@ -1251,7 +1261,7 @@ public class MainActivity extends AppCompatActivity {
 
                             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
                             // Collection name is "AuthUserItem". U can create a new collection this way
-                            firestore.collection(HelperConstants.AUTH_FOLK_GUIDES)
+                            firestore.collection(HelperConstants.COLL_AUTH_FOLK_GUIDES)
                                     .add(authUserItem1)
                                     .addOnSuccessListener(documentReference13 -> {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference13.getId());
@@ -1262,7 +1272,8 @@ public class MainActivity extends AppCompatActivity {
                                         // Create another collection for FolkGuideApprovals -> to Team Leads
                                         authUserItem1.setDocId(documentReference13.getId());
                                         btnCreateAccount.setEnabled(false);
-                                        approveFolkGuides(documentReference13.getId(), zone, memberType, directAuthority, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
+                                        approveFolkGuides(documentReference13.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
+                                        approveUsers(documentReference13.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.w(TAG, "Error adding document", e);
@@ -1293,7 +1304,7 @@ public class MainActivity extends AppCompatActivity {
 
                             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
                             // Collection name is "AuthUserItem". U can create a new collection this way
-                            firestore.collection(HelperConstants.AUTH_FOLK_TEAM_LEADS)
+                            firestore.collection(HelperConstants.COLL_AUTH_FOLK_TEAM_LEADS)
                                     .add(authUserItem1)
                                     .addOnSuccessListener(documentReference12 -> {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference12.getId());
@@ -1304,7 +1315,8 @@ public class MainActivity extends AppCompatActivity {
                                         // Collection for Team Lead approvals -> to Zonal Heads
                                         authUserItem1.setDocId(documentReference12.getId());
                                         btnCreateAccount.setEnabled(false);
-                                        approveTeamLeads(documentReference12.getId(), zone, memberType, directAuthority, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
+                                        approveTeamLeads(documentReference12.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
+                                        approveUsers(documentReference12.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.w(TAG, "Error adding document", e);
@@ -1335,7 +1347,7 @@ public class MainActivity extends AppCompatActivity {
 
                             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
                             // Collection name is "AuthUserItem". U can create a new collection this way
-                            firestore.collection(HelperConstants.AUTH_FOLK_ZONAL_HEADS)
+                            firestore.collection(HelperConstants.COLL_AUTH_FOLK_ZONAL_HEADS)
                                     .add(authUserItem1)
                                     .addOnSuccessListener(documentReference1 -> {
                                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
@@ -1367,11 +1379,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        private void approveFolkGuides(
+        private void approveUsers(
                 String docId,
                 String zone,
                 String memberType,
                 String directAuthority,
+                String email,
                 String folkGuideAbbr,
                 String firstName,
                 String profileImage,
@@ -1391,6 +1404,7 @@ public class MainActivity extends AppCompatActivity {
                     zone,
                     memberType,
                     directAuthority,
+                    email,
                     folkGuideAbbr,
                     firstName,
                     profileImage,
@@ -1401,7 +1415,67 @@ public class MainActivity extends AppCompatActivity {
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
             // Collection name is "AuthUserItem". U can create a new collection this way
-            firestore.collection(HelperConstants.AUTH_FOLK_GUIDES).document(docId).collection(HelperConstants.AUTH_FOLK_GUIDE_APPROVALS)
+            firestore
+                    .collection(HelperConstants.COLL_AUTH_FOLK_APPROVE_MEMBERS)
+                    .add(authUserApprovalItem)
+                    .addOnSuccessListener(documentReference1 -> {
+                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
+                        if (null != getActivity()) {
+                            Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                            Objects.requireNonNull(getActivity()).finish();
+                            btnCreateAccount.setEnabled(false);
+                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w(TAG, "Error adding document", e);
+                        if (null != getActivity()) {
+                            Toast.makeText(getActivity(), "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
+                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        }
+                    });
+        }
+
+
+        private void approveFolkGuides(
+                String docId,
+                String zone,
+                String memberType,
+                String directAuthority,
+                String email,
+                String folkGuideAbbr,
+                String firstName,
+                String profileImage,
+                String signUpStatus,
+                String redFlagStatus,
+                String approveRequestTimeStamp) {
+
+            loadingBar = new ProgressDialog(getActivity());
+            loadingBar.show();
+            loadingBar.setMessage("Setting Approval Values...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.setCancelable(false);
+            loadingBar.show();
+
+            AuthUserApprovalItem authUserApprovalItem = new AuthUserApprovalItem(
+                    docId,
+                    zone,
+                    memberType,
+                    directAuthority,
+                    email,
+                    folkGuideAbbr,
+                    firstName,
+                    profileImage,
+                    signUpStatus,
+                    redFlagStatus,
+                    approveRequestTimeStamp
+            );
+
+            // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
+            // Collection name is "AuthUserItem". U can create a new collection this way
+            firestore
+                    .collection(HelperConstants.COLL_AUTH_FOLK_APPROVE_FOLK_GUIDES)
                     .add(authUserApprovalItem)
                     .addOnSuccessListener(documentReference1 -> {
                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
@@ -1428,6 +1502,7 @@ public class MainActivity extends AppCompatActivity {
                 String zone,
                 String memberType,
                 String directAuthority,
+                String email,
                 String folkGuideAbbr,
                 String firstName,
                 String profileImage,
@@ -1447,6 +1522,7 @@ public class MainActivity extends AppCompatActivity {
                     zone,
                     memberType,
                     directAuthority,
+                    email,
                     folkGuideAbbr,
                     firstName,
                     profileImage,
@@ -1457,7 +1533,8 @@ public class MainActivity extends AppCompatActivity {
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
             // Collection name is "AuthUserItem". U can create a new collection this way
-            firestore.collection(HelperConstants.AUTH_FOLK_TEAM_LEADS).document(docId).collection(HelperConstants.AUTH_FOLK_TEAM_LEAD_APPROVALS)
+            firestore
+                    .collection(HelperConstants.COLL_AUTH_FOLK_APPROVE_TEAM_LEADS)
                     .add(authUserApprovalItem)
                     .addOnSuccessListener(documentReference1 -> {
                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());

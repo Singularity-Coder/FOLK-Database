@@ -3,18 +3,22 @@ package com.singularitycoder.folkdatabase.helper;
 public class HelperConstants {
 
     // Firebase Firestore Auth Collections
-    public static final String AUTH_FOLK_PEOPLE = "FolkPeople";
-    public static final String AUTH_FOLK_GUIDES = "FolkGuides";
-    public static final String AUTH_FOLK_TEAM_LEADS = "TeamLeads";
-    public static final String AUTH_FOLK_ZONAL_HEADS = "ZonalHeads";
-    public static final String AUTH_FOLK_GUIDE_APPROVALS = "FolkGuideApprovals";
-    public static final String AUTH_FOLK_TEAM_LEAD_APPROVALS = "TeamLeadApprovals";
+    public static final String COLL_AUTH_FOLK_MEMBERS = "FolkMembers";
+    public static final String COLL_AUTH_FOLK_GUIDES = "FolkGuides";
+    public static final String COLL_AUTH_FOLK_TEAM_LEADS = "TeamLeads";
+    public static final String COLL_AUTH_FOLK_ZONAL_HEADS = "ZonalHeads";
+    public static final String COLL_AUTH_FOLK_APPROVE_MEMBERS = "ApproveMembers";
+    public static final String COLL_AUTH_FOLK_APPROVE_FOLK_GUIDES = "ApproveFolkGuides";
+    public static final String COLL_AUTH_FOLK_APPROVE_TEAM_LEADS = "ApproveTeamLeads";
 
     // Firebase Firestore Main Collections
-    public static final String FOLK_MEMBERS = "Profile";
+    public static final String COLL_FOLK_NEW_MEMBERS = "Profile";
 
     // Firebase Storage
-    public static final String FOLK_PROFILE_IMAGES_PATH = "ProfileImages/";
+    public static final String DIR_FOLK_PROFILE_IMAGES_PATH = "ProfileImages/";
+    public static final String DIR_IMAGES_PATH_FOLK_GUIDES = "FolkGuideProfileImages/";
+    public static final String DIR_IMAGES_PATH_FOLK_TEAM_LEADS = "TeamLeadProfileImages/";
+    public static final String DIR_IMAGES_PATH_FOLK_ZONAL_HEADS = "ZonalHeadProfileImages/";
 
     // FolkGuides Collection & TeamLeads Collection Keys
     public static final String KEY_EMAIL = "email";
@@ -25,7 +29,7 @@ public class HelperConstants {
     public static final String KEY_TEAM_LEAD = "team_lead";
     public static final String KEY_ZONE = "zone";
 
-    // AllFolkPeople, AllFolkGuides, AllTeamLeads, AllZonalHeads Collections Keys
+    // FolkPeople, FolkGuides, TeamLeads, ZonalHeads Collections Keys
     public static final String KEY_AUTH_CREATION_TIME = "creationTimeStamp";
     public static final String KEY_AUTH_DEPARTMENT = "department";
     public static final String KEY_AUTH_DIRECT_AUTHORITY = "directAuthority";

@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
 import android.app.Activity;
@@ -43,9 +44,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -53,6 +56,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.rpc.Help;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -68,6 +72,7 @@ import com.singularitycoder.folkdatabase.database.DatabaseActivity;
 import com.singularitycoder.folkdatabase.helper.HelperConstants;
 import com.singularitycoder.folkdatabase.helper.HelperCustomEditText;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
+import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.io.File;
@@ -78,6 +83,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.singularitycoder.folkdatabase.helper.HelperGeneral.hasInternet;
 import static java.lang.String.valueOf;
 
 public class HomeActivity extends AppCompatActivity {
@@ -94,8 +100,15 @@ public class HomeActivity extends AppCompatActivity {
     private FirebaseUser firebaseUser;
     private AuthUserItem authUserItem;
     private ContactItem personItemModel;
+    private AuthUserApprovalItem authUserApprovalItem;
     private ArrayList<ContactItem> contactList;
     private FirebaseFirestore firestore;
+    private String collectionName;
+    private String approveCollectionName;
+    private String approveAllMembersCollectionName;
+    private boolean setSignUpStatus = true;
+    private boolean setRedFlagStatus = true;
+    private HelperSharedPreference helperSharedPreference;
 
 
     // this listener is called when there is change in firebase fireUser session
@@ -131,6 +144,7 @@ public class HomeActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         firestore = FirebaseFirestore.getInstance();
+        helperSharedPreference = HelperSharedPreference.getInstance(this);
         loadingBar = new ProgressDialog(this);
         contactList = new ArrayList<>();
     }
@@ -203,11 +217,11 @@ public class HomeActivity extends AppCompatActivity {
         Log.d(TAG, "folkguide: " + folkGuideAbbr + " zone: " + zone);
 
         FirebaseFirestore.getInstance()
-                .collection(HelperConstants.FOLK_MEMBERS)
+                .collection(HelperConstants.COLL_FOLK_NEW_MEMBERS)
                 .whereEqualTo("folk_guide", folkGuideAbbr)
                 .whereEqualTo("zone", zone)
                 .get()
-//            FirebaseFirestore.getInstance().collection(HelperConstants.FOLK_MEMBERS).get()
+//            FirebaseFirestore.getInstance().collection(HelperConstants.COLL_FOLK_NEW_MEMBERS).get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
@@ -351,7 +365,7 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         FirebaseFirestore.getInstance()
-                .collection(HelperConstants.AUTH_FOLK_PEOPLE)
+                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
                 .whereEqualTo("email", email)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -753,13 +767,21 @@ public class HomeActivity extends AppCompatActivity {
         // if today's date matches birthday - show notif badge
         // Show all birthday's in the notifications
 
+        ShimmerFrameLayout shimmerFrameLayout = dialog.findViewById(R.id.shimmer_view_container);
+        LottieAnimationView noFeedImage = dialog.findViewById(R.id.img_no_feed_lottie_image);
+        noFeedImage.setAnimation(R.raw.empty_box);
+        noFeedImage.playAnimation();
+        TextView noFeedText = dialog.findViewById(R.id.tv_no_feed_text);
+        TextView tvListCount = dialog.findViewById(R.id.tv_list_count);
         ImageView imgCloseBtn = dialog.findViewById(R.id.img_dialog_close);
         imgCloseBtn.setOnClickListener(view -> {
             dialog.dismiss();
         });
+        TextView noInternetText = dialog.findViewById(R.id.tv_no_internet);
+        SwipeRefreshLayout swipeRefreshLayout = dialog.findViewById(R.id.refresh_layout);
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
 
         ArrayList<AuthUserApprovalItem> approveUsersList = new ArrayList<>();
-//        notificationList.add(new ContactItem("Michael Marvin", "", "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
         LinearLayoutManager commentLayoutManager = new LinearLayoutManager(activity, RecyclerView.VERTICAL, false);
         RecyclerView approveUsersRecycler = dialog.findViewById(R.id.dialog_approve_users_recycler);
         approveUsersRecycler.setLayoutManager(commentLayoutManager);
@@ -771,115 +793,217 @@ public class HomeActivity extends AppCompatActivity {
         approveUsersAdapter.setHasStableIds(true);
         approveUsersRecycler.setAdapter(approveUsersAdapter);
 
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            shimmerFrameLayout.setVisibility(View.VISIBLE);
+            if (hasInternet(HomeActivity.this)) {
+                AsyncTask.execute(this::readContactsData);
+                noInternetText.setVisibility(View.GONE);
+                swipeRefreshLayout.setRefreshing(false);
+                shimmerFrameLayout.setVisibility(View.GONE);
+                approveUsersAdapter.notifyDataSetChanged();
+            } else {
+                noInternetText.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setRefreshing(false);
+                shimmerFrameLayout.setVisibility(View.GONE);
+            }
+        });
+
         // READ - Read sub collection details
         SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+        SharedPreferences approveMembersSharedPrefs = HomeActivity.this.getSharedPreferences("ApproveMember", Context.MODE_PRIVATE);
+
         String folkGuideAbbr = sp.getString("folkGuideAbbr", "");
         String zone = sp.getString("zone", "");
 
-        String collectionName = "";
-        String subCollectionName = "";
-
-        if (memberType.equals("Team Leads")) {
-            collectionName = HelperConstants.AUTH_FOLK_TEAM_LEADS;
-            subCollectionName = HelperConstants.AUTH_FOLK_GUIDE_APPROVALS;
+        if (memberType.equals("FOLK Guide")) {
+            collectionName = HelperConstants.COLL_AUTH_FOLK_APPROVE_FOLK_GUIDES;
         }
 
-        if (memberType.equals("Zonal Heads")) {
-            collectionName = HelperConstants.AUTH_FOLK_ZONAL_HEADS;
-            subCollectionName = HelperConstants.AUTH_FOLK_TEAM_LEAD_APPROVALS;
+        if (memberType.equals("Team Lead")) {
+            collectionName = HelperConstants.COLL_AUTH_FOLK_APPROVE_TEAM_LEADS;
         }
 
         FirebaseFirestore
                 .getInstance()
                 .collection(collectionName)
-                .document(authUserItem.getDocId())
-                .collection(subCollectionName)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-//                    shimmerFrameLayout.setVisibility(View.GONE);
+                    shimmerFrameLayout.setVisibility(View.GONE);
                     if (!queryDocumentSnapshots.isEmpty()) {
                         List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
                         Log.d(TAG, "docList: " + docList);
 
                         for (DocumentSnapshot docSnap : docList) {
-                            personItemModel = docSnap.toObject(ContactItem.class);
-                            if (personItemModel != null) {
-                                Log.d(TAG, "personItem: " + personItemModel);
+                            authUserApprovalItem = docSnap.toObject(AuthUserApprovalItem.class);
+                            if (authUserApprovalItem != null) {
+                                Log.d(TAG, "authUserApproveItem: " + authUserApprovalItem);
 
-                                if (!("").equals(valueOf(docSnap.getId()))) {
-                                    personItemModel.setId(docSnap.getId());
+                                if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
+                                    authUserApprovalItem.setProfileImageUrl(valueOf(docSnap.getString("profileImageUrl")));
                                 }
 
-                                if (!("").equals(valueOf(docSnap.getString("name")))) {
-                                    personItemModel.setFirstName(valueOf(docSnap.getString("name")));
+                                if (!("").equals(valueOf(docSnap.getString("fullName")))) {
+                                    authUserApprovalItem.setFullName(valueOf(docSnap.getString("fullName")));
                                 }
 
-                                if (("").equals(valueOf(docSnap.getString("folk_guide")))) {
-                                    personItemModel.setStrFolkGuide("No FOLK Guide");
-                                } else {
-                                    personItemModel.setStrFolkGuide(valueOf(docSnap.getString("folk_guide")));
+                                if (!("").equals(valueOf(docSnap.getString("approveRequestTimeStamp")))) {
+                                    authUserApprovalItem.setApproveRequestTimeStamp(valueOf(docSnap.getString("approveRequestTimeStamp")));
                                 }
 
-                                if (!("").equals(valueOf(docSnap.getString("occupation")))) {
-                                    personItemModel.setStrOccupation(docSnap.getString("occupation"));
+                                if (!("").equals(valueOf(docSnap.getString("directAuthority")))) {
+                                    authUserApprovalItem.setDirectAuthority(valueOf(docSnap.getString("directAuthority")));
                                 }
 
-                                if (("").equals(docSnap.getString("dob_month"))) {
-                                    personItemModel.setStrDobMonth(docSnap.getString("0"));
-                                } else {
-                                    personItemModel.setStrDobMonth(valueOf(docSnap.getString("dob_month")));
-                                    Log.d(TAG, "dob month: " + docSnap.getString("dob_month"));
+                                if (!("").equals(valueOf(docSnap.getString("docId")))) {
+                                    authUserApprovalItem.setDocId(valueOf(docSnap.getString("docId")));
                                 }
 
-                                if (("").equals(docSnap.getString("dob"))) {
-                                    personItemModel.setStrBirthday("Missing Birthday");
-                                } else {
-                                    personItemModel.setStrBirthday(docSnap.getString("dob"));
-                                }
-
-                                if (!("").equals(docSnap.getString("city"))) {
-                                    personItemModel.setStrLocation(docSnap.getString("city"));
-                                }
-
-                                if (!("").equals(docSnap.getString("folk_residency_interest"))) {
-                                    personItemModel.setStrRecidencyInterest(valueOf(docSnap.getString("folk_residency_interest")));
-                                }
-
-                                if (!("").equals(docSnap.getString("mobile"))) {
-                                    personItemModel.setStrPhone(valueOf(docSnap.getString("mobile")));
-                                }
-
-                                if (!("").equals(docSnap.getString("mobile"))) {
-                                    personItemModel.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
+                                if (!("").equals(valueOf(docSnap.getString("shortName")))) {
+                                    authUserApprovalItem.setShortName(valueOf(docSnap.getString("shortName")));
                                 }
 
                                 if (!("").equals(valueOf(docSnap.getString("email")))) {
-                                    personItemModel.setStrEmail(valueOf(docSnap.getString("email")));
+                                    authUserApprovalItem.setEmail(valueOf(docSnap.getString("email")));
                                 }
 
-                                Map<String, Object> talent = (Map<String, Object>) docSnap.getData().get("talent");
-                                Log.d(TAG, "readContactsData: talent map: " + talent);
+                                if (!("").equals(valueOf(docSnap.getString("memberType")))) {
+                                    authUserApprovalItem.setMemberType(valueOf(docSnap.getString("memberType")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("redFlagStatus")))) {
+                                    authUserApprovalItem.setRedFlagStatus(valueOf(docSnap.getString("redFlagStatus")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("signUpStatus")))) {
+                                    authUserApprovalItem.setSignUpStatus(valueOf(docSnap.getString("signUpStatus")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("zone")))) {
+                                    authUserApprovalItem.setZone(valueOf(docSnap.getString("zone")));
+                                }
                             }
-                            Log.d(TAG, "firedoc id: " + docSnap.getId());
-                            contactList.add(personItemModel);
-//                            tvListCount.setText(contactList.size() + " Contacts");
+                            approveUsersList.add(authUserApprovalItem);
+                            tvListCount.setText(approveUsersList.size() + " Members to Approve");
                         }
+
+                        if (authUserApprovalItem.getMemberType().equals("FOLK Guide")) {
+                            // go to folk guide and folk members coll
+                            approveCollectionName = HelperConstants.COLL_AUTH_FOLK_GUIDES;
+                            approveAllMembersCollectionName = HelperConstants.COLL_AUTH_FOLK_MEMBERS;
+                        }
+
+                        if (authUserApprovalItem.getMemberType().equals("Team Lead")) {
+                            // go to team leads and folk members coll
+                            approveCollectionName = HelperConstants.COLL_AUTH_FOLK_TEAM_LEADS;
+                            approveAllMembersCollectionName = HelperConstants.COLL_AUTH_FOLK_MEMBERS;
+                        }
+
+                        Log.d(TAG, "dialogApproveUsers: approveCollName: " + approveCollectionName);
+                        Log.d(TAG, "dialogApproveUsers: allApproveCollName: " + approveAllMembersCollectionName);
+
+                        // APPROVE MEMBER
+                        approveUsersAdapter.setOnApproveMemberClickedListener((view, position, button) -> {
+                            // change signUpStatus = true
+                            runOnUiThread(() -> {
+                                loadingBar.setMessage("Please wait...");
+                                loadingBar.setCanceledOnTouchOutside(false);
+                                loadingBar.show();
+                            });
+
+                            approveMembersSharedPrefs.edit().putString("setSignUpStatus", valueOf(setSignUpStatus)).apply();
+
+                            firestore
+                                    .collection(approveCollectionName)
+                                    .document(authUserItem.getDocId())
+                                    .update("signUpStatus", valueOf(setSignUpStatus))
+                                    .addOnSuccessListener(documentReference1 -> {
+                                        if (valueOf(button.getText()).toLowerCase().equals("approve")) {
+                                            button.setText("APPROVED");
+                                            button.setTextColor(getResources().getColor(R.color.colorLightBlue));
+                                            button.setBackgroundColor(getResources().getColor(R.color.colorAccent));
+                                            button.setElevation(1);
+                                            setSignUpStatus = false;
+                                            approveMembersSharedPrefs.edit().putString("setSignUpStatus", valueOf(setSignUpStatus)).apply();
+                                        }
+
+                                        if (valueOf(button.getText()).toLowerCase().equals("approved")) {
+                                            button.setText("APPROVE");
+                                            button.setTextColor(getResources().getColor(R.color.colorAccent));
+                                            button.setBackgroundColor(getResources().getColor(R.color.colorWhite));
+                                            button.setElevation(1);
+                                            approveMembersSharedPrefs.edit().putString("setSignUpStatus", valueOf(setSignUpStatus)).apply();
+                                            setSignUpStatus = true;
+                                        }
+                                        loadingBar.dismiss();
+                                        Toast.makeText(HomeActivity.this, "Item Updated", Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(HomeActivity.this, AuthApprovalStatusActivity.class));
+                                        finish();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.w(TAG, "Error adding document", e);
+                                        loadingBar.dismiss();
+                                        Toast.makeText(HomeActivity.this, "Failed to Update Item", Toast.LENGTH_SHORT).show();
+                                    });
+                        });
+
+                        // REJECT MEMBER
+                        approveUsersAdapter.setOnRejectMemberClickedListener((view, position, button) -> {
+                            // change redFlagStatus = true
+                            runOnUiThread(() -> {
+                                loadingBar.setMessage("Please wait...");
+                                loadingBar.setCanceledOnTouchOutside(false);
+                                loadingBar.show();
+                            });
+
+                            firestore
+                                    .collection(approveCollectionName)
+                                    .document(authUserItem.getDocId())
+                                    .update("redFlagStatus", valueOf(setRedFlagStatus))
+                                    .addOnSuccessListener(documentReference1 -> {
+                                        if (valueOf(button.getText()).toLowerCase().equals("reject")) {
+                                            button.setText("REJECTED");
+                                            button.setTextColor(getResources().getColor(R.color.colorLightRed));
+                                            button.setBackgroundColor(getResources().getColor(R.color.colorRed));
+                                            button.setElevation(1);
+                                            approveMembersSharedPrefs.edit().putString("setRedFlagStatus", valueOf(setRedFlagStatus)).apply();
+                                            setRedFlagStatus = false;
+                                        }
+
+                                        if (valueOf(button.getText()).toLowerCase().equals("rejected")) {
+                                            button.setText("REJECT");
+                                            button.setTextColor(getResources().getColor(R.color.colorRed));
+                                            button.setBackgroundColor(getResources().getColor(R.color.colorWhite));
+                                            button.setElevation(1);
+                                            approveMembersSharedPrefs.edit().putString("setRedFlagStatus", valueOf(setRedFlagStatus)).apply();
+                                            setRedFlagStatus = true;
+                                        }
+                                        loadingBar.dismiss();
+                                        Toast.makeText(HomeActivity.this, "Item Updated", Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(HomeActivity.this, AuthApprovalStatusActivity.class));
+                                        finish();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.w(TAG, "Error adding document", e);
+                                        loadingBar.dismiss();
+                                        Toast.makeText(HomeActivity.this, "Failed to Update Item", Toast.LENGTH_SHORT).show();
+                                    });
+                        });
                         approveUsersAdapter.notifyDataSetChanged();
                         Toast.makeText(HomeActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
 
-//                        if (contactList.size() == 0) {
-//                            noFeedImage.setVisibility(View.VISIBLE);
-//                            noFeedText.setVisibility(View.VISIBLE);
-//                        } else {
-//                            noFeedImage.setVisibility(View.GONE);
-//                            noFeedText.setVisibility(View.GONE);
-//                        }
+                        if (approveUsersList.size() == 0) {
+                            noFeedImage.setVisibility(View.VISIBLE);
+                            noFeedText.setVisibility(View.VISIBLE);
+                        } else {
+                            noFeedImage.setVisibility(View.GONE);
+                            noFeedText.setVisibility(View.GONE);
+                        }
                     }
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(HomeActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
-//                    noFeedImage.setVisibility(View.VISIBLE);
-//                    noFeedText.setVisibility(View.VISIBLE);
+                    noFeedImage.setVisibility(View.VISIBLE);
+                    noFeedText.setVisibility(View.VISIBLE);
                 });
 
         dialog.show();
@@ -976,7 +1100,7 @@ public class HomeActivity extends AppCompatActivity {
     private String oldPassword() {
         FirebaseFirestore
                 .getInstance()
-                .collection(HelperConstants.AUTH_FOLK_PEOPLE)
+                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
@@ -1013,7 +1137,7 @@ public class HomeActivity extends AppCompatActivity {
 
                             // Update existing values
                             firestore
-                                    .collection(HelperConstants.AUTH_FOLK_GUIDES)
+                                    .collection(HelperConstants.COLL_AUTH_FOLK_GUIDES)
                                     .document(authUserItem.getDocId())
                                     .update("password", newPassword)
                                     .addOnSuccessListener(documentReference1 -> {
@@ -1066,6 +1190,8 @@ public class HomeActivity extends AppCompatActivity {
         FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
             FirebaseUser user = firebaseAuth.getCurrentUser();
             if (user == null) {
+                // unload all shared prefs
+                helperSharedPreference.setSignupStatus("false");
                 // fireUser fireAuth state is changed - fireUser is null launch login activity
                 startActivity(new Intent(HomeActivity.this, MainActivity.class));
                 Objects.requireNonNull(HomeActivity.this).finish();

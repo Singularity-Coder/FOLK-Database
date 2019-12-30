@@ -13,7 +13,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -25,15 +24,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.singularitycoder.folkdatabase.R;
-import com.singularitycoder.folkdatabase.auth.AuthUserItem;
-import com.singularitycoder.folkdatabase.auth.MainActivity;
 import com.singularitycoder.folkdatabase.helper.HelperConstants;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import com.singularitycoder.folkdatabase.home.HomeActivity;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import static java.lang.String.valueOf;
@@ -78,7 +74,6 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
         setData();
         AsyncTask.execute(() -> readAuthUserData());
         clickListeners();
-        getStatus();
     }
 
 
@@ -135,14 +130,8 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
             // load progress
             // check db for yes
             // if yes then jump to home else toast
-
+            AsyncTask.execute(() -> readSignUpStatus());
         });
-    }
-
-
-    private boolean getStatus() {
-        AsyncTask.execute(() -> readSignUpStatus());
-        return false;
     }
 
 
@@ -151,21 +140,29 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
         SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
         String email = sp.getString("email", "");
         String directAuthority = sp.getString("directAuthority", "");
+        Log.d(TAG, "readAuthUserData: directAuthority: " + directAuthority);
         runOnUiThread(() -> {
             loadingBar.setMessage("Please wait...");
             loadingBar.setCanceledOnTouchOutside(false);
             loadingBar.show();
         });
 
-        FirebaseFirestore.getInstance()
-                .collection(HelperConstants.AUTH_FOLK_PEOPLE)
-                .whereEqualTo("directAuthority", directAuthority)
+        Log.d(TAG, "readAuthUserData: hitz 0");
+
+        FirebaseFirestore
+                .getInstance()
+                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
+                .whereEqualTo("shortName", directAuthority)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    Log.d(TAG, "readAuthUserData: hitz 1");
 
                     if (!queryDocumentSnapshots.isEmpty()) {
                         List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
                         Log.d(TAG, "docList: " + docList);
+
+                        Log.d(TAG, "readAuthUserData: hitz 2");
 
                         for (DocumentSnapshot docSnap : docList) {
                             authUserItem = docSnap.toObject(AuthUserItem.class);
@@ -175,6 +172,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
                                 if (!("").equals(valueOf(docSnap.getString("phone")))) {
                                     authUserItem.setPhone(valueOf(docSnap.getString("phone")));
                                     strAuthorityPhoneNumber = valueOf(docSnap.getString("phone"));
+                                    Log.d(TAG, "readAuthUserData: authorityPhone: " + strAuthorityPhoneNumber);
                                 }
 
                                 authUserItem.setDocId(docSnap.getId());
@@ -202,7 +200,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
         });
 
         FirebaseFirestore.getInstance()
-                .collection(HelperConstants.AUTH_FOLK_PEOPLE)
+                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
                 .whereEqualTo("email", email)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -224,6 +222,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
                                         runOnUiThread(() -> loadingBar.dismiss());
                                         helperSharedPreference.setSignupStatus("true");
                                         startActivity(new Intent(this, HomeActivity.class));
+                                        finish();
                                     } else {
                                         helperSharedPreference.setSignupStatus("false");
                                         HelperGeneral.dialogShowMessage(AuthApprovalStatusActivity.this, "Your account is still not verified. Please call your Authority!");

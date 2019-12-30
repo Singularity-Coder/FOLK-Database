@@ -8,7 +8,7 @@
         android:id="@+id/shimmer_view_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="85dp"
         android:clipChildren="true"
         android:clipToPadding="true"
         app:layout_constraintTop_toTopOf="parent"
@@ -27,8 +27,8 @@
 
                 <com.mikhaellopez.circularimageview.CircularImageView
                     android:id="@+id/img_profile_pic"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
                     android:layout_marginStart="15dp"
                     android:layout_marginLeft="15dp"
                     android:layout_marginTop="2dp"
@@ -58,7 +58,7 @@
                     android:padding="0dp"
                     android:text="Loading..."
                     android:textColor="@color/colorBlack"
-                    android:textSize="17sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toStartOf="@+id/tv_date"
                     app:layout_constraintStart_toEndOf="@+id/img_profile_pic"
@@ -127,8 +127,8 @@
 
                 <com.mikhaellopez.circularimageview.CircularImageView
                     android:id="@+id/img_profile_pic1"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
                     android:layout_marginStart="15dp"
                     android:layout_marginLeft="15dp"
                     android:layout_marginTop="2dp"
@@ -158,7 +158,7 @@
                     android:padding="0dp"
                     android:text="Loading..."
                     android:textColor="@color/colorBlack"
-                    android:textSize="17sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toEndOf="@+id/img_profile_pic1"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -224,8 +224,8 @@
 
                 <com.mikhaellopez.circularimageview.CircularImageView
                     android:id="@+id/img_profile_pic2"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
                     android:layout_marginStart="15dp"
                     android:layout_marginLeft="15dp"
                     android:layout_marginTop="2dp"
@@ -255,7 +255,7 @@
                     android:padding="0dp"
                     android:text="Loading..."
                     android:textColor="@color/colorBlack"
-                    android:textSize="17sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintStart_toEndOf="@+id/img_profile_pic2"
                     app:layout_constraintTop_toTopOf="parent" />

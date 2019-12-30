@@ -68,7 +68,6 @@ import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.database.AllUsersItem;
 import com.singularitycoder.folkdatabase.database.ContactItem;
 import com.singularitycoder.folkdatabase.database.FolkGuideItem;
-import com.singularitycoder.folkdatabase.home.HomeActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -148,7 +147,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         FirebaseFirestore.getInstance()
-                .collection(HelperConstants.AUTH_FOLK_PEOPLE)
+                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
                 .whereEqualTo("email", email)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {

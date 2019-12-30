@@ -509,11 +509,11 @@ public class DatabaseActivity extends AppCompatActivity {
                 String zone = sp.getString("zone", "");
 
             FirebaseFirestore.getInstance()
-                    .collection(HelperConstants.FOLK_MEMBERS)
+                    .collection(HelperConstants.COLL_FOLK_NEW_MEMBERS)
                     .whereEqualTo("folk_guide", folkGuideAbbr)
                     .whereEqualTo("zone", zone)
                     .get()
-//            FirebaseFirestore.getInstance().collection(HelperConstants.FOLK_MEMBERS).get()
+//            FirebaseFirestore.getInstance().collection(HelperConstants.COLL_FOLK_NEW_MEMBERS).get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         shimmerFrameLayout.setVisibility(View.GONE);
                         if (!queryDocumentSnapshots.isEmpty()) {
@@ -1245,7 +1245,6 @@ public class DatabaseActivity extends AppCompatActivity {
 
             noFeedText = view.findViewById(R.id.tv_no_feed_text);
             noFeedImage = view.findViewById(R.id.img_no_feed_lottie_image);
-
             noFeedImage.setAnimation(R.raw.empty_box);
             noFeedImage.playAnimation();
 
@@ -1318,7 +1317,7 @@ public class DatabaseActivity extends AppCompatActivity {
                 String zone = sp.getString("zone", "");
 
                 FirebaseFirestore.getInstance()
-                        .collection(HelperConstants.AUTH_FOLK_GUIDES)
+                        .collection(HelperConstants.COLL_AUTH_FOLK_GUIDES)
                         .whereEqualTo("zone", zone)
                         .get()
                         .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -1530,7 +1529,7 @@ public class DatabaseActivity extends AppCompatActivity {
                 String zone = sp.getString("zone", "");
 
                 FirebaseFirestore.getInstance()
-                        .collection(HelperConstants.AUTH_FOLK_TEAM_LEADS)
+                        .collection(HelperConstants.COLL_AUTH_FOLK_TEAM_LEADS)
                         .whereEqualTo("zone", zone)
                         .get()
                         .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -1741,7 +1740,7 @@ public class DatabaseActivity extends AppCompatActivity {
             String zone = sp.getString("zone", "");
 
             FirebaseFirestore.getInstance()
-                    .collection(HelperConstants.AUTH_FOLK_ZONAL_HEADS)
+                    .collection(HelperConstants.COLL_AUTH_FOLK_ZONAL_HEADS)
                     .whereEqualTo("zone", zone)
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -1953,7 +1952,7 @@ public class DatabaseActivity extends AppCompatActivity {
             String zone = sp.getString("zone", "");
 
             FirebaseFirestore.getInstance()
-                    .collection(HelperConstants.AUTH_FOLK_PEOPLE)
+                    .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
                     .whereEqualTo("zone", zone)
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {

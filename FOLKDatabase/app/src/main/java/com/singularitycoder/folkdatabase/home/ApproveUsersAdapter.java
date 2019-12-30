@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,6 +24,8 @@ public class ApproveUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     private ArrayList<AuthUserApprovalItem> approveUsersList;
     private Context context;
+    public ApproveMember approveMemberListener;
+    public RejectMember rejectMemberListener;
 
     public ApproveUsersAdapter(ArrayList<AuthUserApprovalItem> approveUsersList, Context context) {
         this.approveUsersList = approveUsersList;
@@ -42,10 +45,9 @@ public class ApproveUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         if (null != holder) {
             ApproveUsersViewHolder approveUsersViewHolder = ((ApproveUsersViewHolder) holder);
             HelperGeneral.glideProfileImage(context, authUserApprovalItem.getProfileImageUrl(), approveUsersViewHolder.imgProfileImage);
-            approveUsersViewHolder.tvName.setText(authUserApprovalItem.getFirstName());
-            approveUsersViewHolder.tvSubTitle1.setText("Short Name: " + authUserApprovalItem.getFolkGuideAbbr());
-            approveUsersViewHolder.tvSubTitle2.setText("Direct Authority: " + authUserApprovalItem.getDirectAuthority());
-            approveUsersViewHolder.tvDate.setText(authUserApprovalItem.getApproveRequestTimeStamp());
+            approveUsersViewHolder.tvName.setText(authUserApprovalItem.getFullName());
+            approveUsersViewHolder.tvSubTitle1.setText("Short Name: " + authUserApprovalItem.getShortName());
+            approveUsersViewHolder.tvSubTitle2.setText("Requested on: " + authUserApprovalItem.getApproveRequestTimeStamp());
         }
     }
 
@@ -61,8 +63,9 @@ public class ApproveUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     class ApproveUsersViewHolder extends RecyclerView.ViewHolder {
         CircularImageView imgProfileImage;
-        TextView tvName, tvSubTitle1, tvSubTitle2, tvDate;
+        TextView tvName, tvSubTitle1, tvSubTitle2;
         ConstraintLayout personLayout;
+        Button btnApproveMember, btnRejectMember;
 
         public ApproveUsersViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -70,8 +73,33 @@ public class ApproveUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             tvName = itemView.findViewById(R.id.tv_name);
             tvSubTitle1 = itemView.findViewById(R.id.tv_subtitle_1);
             tvSubTitle2 = itemView.findViewById(R.id.tv_subtitle_2);
-            tvDate = itemView.findViewById(R.id.tv_date);
             personLayout = itemView.findViewById(R.id.con_lay_person_container);
+            btnApproveMember = itemView.findViewById(R.id.btn_dialog_approve);
+            btnRejectMember = itemView.findViewById(R.id.btn_dialog_reject);
+
+            btnApproveMember.setOnClickListener(view -> {
+                approveMemberListener.onClickOfApprove(view, getAdapterPosition(), btnApproveMember);
+            });
+
+            btnRejectMember.setOnClickListener(view -> {
+                rejectMemberListener.onClickOfReject(view, getAdapterPosition(), btnRejectMember);
+            });
         }
+    }
+
+    interface ApproveMember {
+        void onClickOfApprove(View view, int position, Button approveButton);
+    }
+
+    public void setOnApproveMemberClickedListener(ApproveMember approveMemberListener) {
+        this.approveMemberListener = approveMemberListener;
+    }
+
+    interface RejectMember {
+        void onClickOfReject(View view, int position, Button rejectButton);
+    }
+
+    public void setOnRejectMemberClickedListener(RejectMember rejectMemberListener) {
+        this.rejectMemberListener = rejectMemberListener;
     }
 }
