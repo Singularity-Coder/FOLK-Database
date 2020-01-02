@@ -179,7 +179,7 @@
                 android:drawablePadding="10dp"
                 android:fontFamily="@font/roboto_regular"
                 android:gravity="center_vertical"
-                android:hint="Whom do you report to? Ex: SSRD"
+                android:hint="Whom do you report to? Ex: SRRD"
                 android:maxLength="6"
                 android:maxLines="1"
                 android:nestedScrollingEnabled="true"

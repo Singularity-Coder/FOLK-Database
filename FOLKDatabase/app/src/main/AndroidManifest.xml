@@ -36,6 +36,7 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".SplashActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,18 +46,20 @@
         </activity>
         <activity
             android:name=".helper.HelperFrescoImageViewer"
-            android:theme="@style/Theme.Transparent"/>
+            android:theme="@style/Theme.Transparent" />
         <activity
             android:name=".helper.HelperWebViewActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".auth.MainActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
             android:name=".home.HomeActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".auth.AuthApprovalStatusActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
             android:name=".profile.ProfileActivity"

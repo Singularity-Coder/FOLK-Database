@@ -53,6 +53,7 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.gson.Gson;
@@ -117,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
         setUpAppbarLayout();
         setUpCollapsingToolbar();
     }
-
     private void setStatuBarColor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = this.getWindow();
@@ -312,6 +312,9 @@ public class MainActivity extends AppCompatActivity {
         private ProgressDialog loadingBar;
         private FirebaseFirestore firestore;
         private FirebaseAuth firebaseAuth;
+        private HelperSharedPreference helperSharedPreference;
+        private AuthUserItem authUserItem;
+        private String strSignUpStatus;
 
 
         public LoginFragment() {
@@ -333,6 +336,7 @@ public class MainActivity extends AppCompatActivity {
         private void init(View view) {
             firebaseAuth = FirebaseAuth.getInstance();
             firestore = FirebaseFirestore.getInstance();
+            helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
             if ((null) != getActivity()) loadingBar = new ProgressDialog(getActivity());
             etEmail = view.findViewById(R.id.et_login_email);
             etPassword = view.findViewById(R.id.et_login_password);
@@ -353,8 +357,7 @@ public class MainActivity extends AppCompatActivity {
             btnLogin.setOnClickListener(view1 -> {
                 if (HelperGeneral.hasInternet(Objects.requireNonNull(getContext()))) {
                     if (hasValidInput(etEmail, etPassword)) {
-                        loadingBar.setTitle("Login Account");
-                        loadingBar.setMessage("Please wait, while we are checking the credentials!");
+                        loadingBar.setMessage("Please wait...");
                         loadingBar.setCanceledOnTouchOutside(false);
                         loadingBar.show();
 
@@ -371,6 +374,60 @@ public class MainActivity extends AppCompatActivity {
             });
 
             tvNotMember.setOnClickListener(view13 -> authTabLayout.getTabAt(0).select());
+        }
+
+
+        private String readSignUpStatus() {
+            // TODO: 2019-12-31 - this also needs checking
+            SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
+            String email = sp.getString("email", "");
+            getActivity().runOnUiThread(() -> {
+                loadingBar.setMessage("Checking SignUp Status...");
+                loadingBar.setCanceledOnTouchOutside(false);
+                loadingBar.show();
+            });
+
+            FirebaseFirestore.getInstance()
+                    .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
+                    .whereEqualTo("email", email)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                            Log.d(TAG, "docList: " + docList);
+
+                            for (DocumentSnapshot docSnap : docList) {
+                                authUserItem = docSnap.toObject(AuthUserItem.class);
+                                if (authUserItem != null) {
+                                    Log.d(TAG, "AuthItem: " + authUserItem);
+
+                                    if (!("").equals(valueOf(docSnap.getString("signUpStatus")))) {
+                                        authUserItem.setSignUpStatus(valueOf(docSnap.getString("signUpStatus")));
+                                        strSignUpStatus = valueOf(docSnap.getString("signUpStatus"));
+
+                                        if (docSnap.getString("signUpStatus").equals("true")) {
+                                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                            helperSharedPreference.setSignupStatus("true");
+                                        } else {
+                                            helperSharedPreference.setSignupStatus("false");
+                                            HelperGeneral.dialogShowMessage(getActivity(), "Your account is still not verified. Please call your Authority!");
+                                        }
+                                    }
+
+                                    authUserItem.setDocId(docSnap.getId());
+                                }
+                                Log.d(TAG, "firedoc id: " + docSnap.getId());
+                            }
+                            Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
+                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                    });
+            return strSignUpStatus;
         }
 
 
@@ -446,7 +503,7 @@ public class MainActivity extends AppCompatActivity {
         private void loginUser(String email, String password) {
             if ((null) != getActivity()) {
                 loadingBar.show();
-                loadingBar.setMessage("Please wait, while we are checking the credentials!");
+                loadingBar.setMessage("Checking credentials...");
                 loadingBar.setCanceledOnTouchOutside(false);
                 firebaseAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(Objects.requireNonNull(getActivity()), task -> {
@@ -463,9 +520,13 @@ public class MainActivity extends AppCompatActivity {
                                         sp.edit().putString("email", email).apply();
                                     }
 
-                                    Intent intent = new Intent(getActivity(), HomeActivity.class);
-                                    startActivity(intent);
-                                    Objects.requireNonNull(getActivity()).finish();
+                                    if (("true").equals(readSignUpStatus())) {
+                                        Intent intent = new Intent(getActivity(), HomeActivity.class);
+                                        startActivity(intent);
+                                        Objects.requireNonNull(getActivity()).finish();
+                                    } else {
+                                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                                    }
                                 }
                             } else {
                                 if ((null) != getActivity()) {
@@ -628,10 +689,10 @@ public class MainActivity extends AppCompatActivity {
                 if (null != getActivity()) {
                     HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
                     String signUpStatus = helperSharedPreference.getSignupStatus();
-                    if (null != getActivity()) {
-                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
-                        Objects.requireNonNull(getActivity()).finish();
-                    }
+//                    if (null != getActivity()) {
+//                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+//                        Objects.requireNonNull(getActivity()).finish();
+//                    }
 
                     if (null != signUpStatus) {
                         if (("false").equals(signUpStatus)) {

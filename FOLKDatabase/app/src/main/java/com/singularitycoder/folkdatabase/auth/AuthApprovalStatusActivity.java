@@ -137,6 +137,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
 
     // READ - query that searches team leads or direct authority phone number
     private void readAuthUserData() {
+        // TODO: 2019-12-31 Check this properly
         SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
         String email = sp.getString("email", "");
         String directAuthority = sp.getString("directAuthority", "");
@@ -184,13 +185,16 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(AuthApprovalStatusActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
-                    runOnUiThread(() -> loadingBar.dismiss());
+                    if (null != AuthApprovalStatusActivity.this) {
+                        Toast.makeText(AuthApprovalStatusActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> loadingBar.dismiss());
+                    }
                 });
     }
 
     // READ - query that searches team leads or direct authority phone number
     private void readSignUpStatus() {
+        // TODO: 2019-12-31 - this also needs checking
         SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
         String email = sp.getString("email", "");
         runOnUiThread(() -> {
