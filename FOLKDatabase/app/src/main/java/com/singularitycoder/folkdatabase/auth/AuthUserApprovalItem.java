@@ -17,11 +17,12 @@ public class AuthUserApprovalItem {
     private String signUpStatus;
     private String redFlagStatus;
     private String approveRequestTimeStamp;
+    private String approveRequestEpochTimeStamp;
 
     public AuthUserApprovalItem() {
     }
 
-    public AuthUserApprovalItem(String docId, String zone, String memberType, String directAuthority, String email, String shortName, String fullName, String profileImageUrl, String signUpStatus, String redFlagStatus, String approveRequestTimeStamp) {
+    public AuthUserApprovalItem(String docId, String zone, String memberType, String directAuthority, String email, String shortName, String fullName, String profileImageUrl, String signUpStatus, String redFlagStatus, String approveRequestTimeStamp, String approveRequestEpochTimeStamp) {
         this.docId = docId;
         this.zone = zone;
         this.memberType = memberType;
@@ -33,6 +34,7 @@ public class AuthUserApprovalItem {
         this.signUpStatus = signUpStatus;
         this.redFlagStatus = redFlagStatus;
         this.approveRequestTimeStamp = approveRequestTimeStamp;
+        this.approveRequestEpochTimeStamp = approveRequestEpochTimeStamp;
     }
 
     public void setDocId(String docId) {
@@ -121,5 +123,13 @@ public class AuthUserApprovalItem {
 
     public void setApproveRequestTimeStamp(String approveRequestTimeStamp) {
         this.approveRequestTimeStamp = approveRequestTimeStamp;
+    }
+
+    public String getApproveRequestEpochTimeStamp() {
+        return approveRequestEpochTimeStamp;
+    }
+
+    public void setApproveRequestEpochTimeStamp(String approveRequestEpochTimeStamp) {
+        this.approveRequestEpochTimeStamp = approveRequestEpochTimeStamp;
     }
 }

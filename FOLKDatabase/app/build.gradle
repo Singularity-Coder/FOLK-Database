@@ -22,6 +22,10 @@ android {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
     }
+    // Improves Gradle build times
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
 }
 
 dependencies {

@@ -109,6 +109,11 @@ public class HelperGeneral extends AppCompatActivity {
         return formattedTime;
     }
 
+    public static long getCurrentEpochTime() {
+        long time = System.currentTimeMillis();
+        return time;
+    }
+
     public static boolean isThisTimeGreater(String currentTime, String EndTime) {
         try {
 //            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
@@ -227,7 +232,7 @@ public class HelperGeneral extends AppCompatActivity {
     }
 
 
-//    android.R.style.Theme_DeviceDefault_Dialog_Alert
+    //    android.R.style.Theme_DeviceDefault_Dialog_Alert
 //    android.R.style.Theme_DeviceDefault_Light_Dialog_Alert
 //    android.R.style.Theme_Material_Light_Dialog_Alert
 //    android.R.style.Theme_Material_Dialog_Alert

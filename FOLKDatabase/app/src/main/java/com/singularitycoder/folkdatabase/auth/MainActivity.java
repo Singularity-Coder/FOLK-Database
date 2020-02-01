@@ -25,6 +25,7 @@ import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
+import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -118,6 +119,8 @@ public class MainActivity extends AppCompatActivity {
         setUpAppbarLayout();
         setUpCollapsingToolbar();
     }
+
+
     private void setStatuBarColor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = this.getWindow();
@@ -608,8 +611,8 @@ public class MainActivity extends AppCompatActivity {
         private TextView tvOpenGallery;
         private TextView tvShowHidePassword;
         private TextView tvDirectAuthority;
-        private HelperCustomEditText etShortName;
         private TextView etSignUpZone;
+        private HelperCustomEditText etShortName;
         private HelperCustomEditText etFullName;
         private HelperCustomEditText etEmail;
         private HelperCustomEditText etGmail;
@@ -649,8 +652,16 @@ public class MainActivity extends AppCompatActivity {
                 authCheck();
                 clickListeners();
                 showHidePassword();
+                checkFunctionExecutionTimings();
             }
             return view;
+        }
+
+
+        private void checkFunctionExecutionTimings() {
+            TimingLogger timingLogger = new TimingLogger(TAG, "hasValidInput");
+            timingLogger.addSplit("");
+            timingLogger.dumpToLog();
         }
 
 
@@ -873,7 +884,8 @@ public class MainActivity extends AppCompatActivity {
                                     gmail,
                                     phone,
                                     password,
-                                    HelperGeneral.currentDateTime());
+                                    HelperGeneral.currentDateTime(),
+                                    valueOf(HelperGeneral.getCurrentEpochTime()));
                         });
                     }
                 } else {
@@ -1052,7 +1064,8 @@ public class MainActivity extends AppCompatActivity {
                 String gmail,
                 String phone,
                 String password,
-                String creationTimeStamp) {
+                String creationTimeStamp,
+                String epochTimeStamp) {
 
             if (null != getActivity()) {
                 getActivity().runOnUiThread(() -> {
@@ -1089,7 +1102,8 @@ public class MainActivity extends AppCompatActivity {
                                             gmail,
                                             phone,
                                             password,
-                                            creationTimeStamp);
+                                            creationTimeStamp,
+                                            epochTimeStamp);
                                 } else {
                                     // If profile pic does not exist
                                     // 3. Create user using Firestore DB image storage, get Profile image uri from storage
@@ -1106,7 +1120,8 @@ public class MainActivity extends AppCompatActivity {
                                             password,
                                             "",
                                             "false",
-                                            creationTimeStamp);
+                                            creationTimeStamp,
+                                            epochTimeStamp);
                                 }
                             } else {
                                 if (null != getActivity()) {
@@ -1145,7 +1160,8 @@ public class MainActivity extends AppCompatActivity {
                 String gmail,
                 String phone,
                 String password,
-                String creationTimeStamp) {
+                String creationTimeStamp,
+                String currentEpochTime) {
 
             // if adding in storage is successful then add the entry of the url in Firestore
             if (null != getActivity()) {
@@ -1210,7 +1226,8 @@ public class MainActivity extends AppCompatActivity {
                                                             password,
                                                             valueOf(task1.getResult()),
                                                             "false",
-                                                            creationTimeStamp);
+                                                            creationTimeStamp,
+                                                            currentEpochTime);
 
                                                     Log.d(TAG, "task data: " + valueOf(task1.getResult()));
                                                 } else {
@@ -1254,7 +1271,8 @@ public class MainActivity extends AppCompatActivity {
                 String password,
                 String profileImage,
                 String signUpStatus,
-                String creationTimeStamp) {
+                String creationTimeStamp,
+                String epochTimeStamp) {
 
             getActivity().runOnUiThread(() -> {
                 loadingBar = new ProgressDialog(getActivity());
@@ -1279,7 +1297,8 @@ public class MainActivity extends AppCompatActivity {
                     password,
                     profileImage,
                     signUpStatus,
-                    creationTimeStamp
+                    creationTimeStamp,
+                    epochTimeStamp
             );
 
             if (null != getActivity()) {
@@ -1317,7 +1336,8 @@ public class MainActivity extends AppCompatActivity {
                                     password,
                                     profileImage,
                                     signUpStatus,
-                                    creationTimeStamp
+                                    creationTimeStamp,
+                                    epochTimeStamp
                             );
 
                             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
@@ -1333,8 +1353,8 @@ public class MainActivity extends AppCompatActivity {
                                         // Create another collection for FolkGuideApprovals -> to Team Leads
                                         authUserItem1.setDocId(documentReference13.getId());
                                         btnCreateAccount.setEnabled(false);
-                                        approveFolkGuides(documentReference13.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
-                                        approveUsers(documentReference13.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
+                                        approveFolkGuides(documentReference13.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime(), valueOf(HelperGeneral.getCurrentEpochTime()));
+                                        approveUsers(documentReference13.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime(), valueOf(HelperGeneral.getCurrentEpochTime()));
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.w(TAG, "Error adding document", e);
@@ -1360,7 +1380,8 @@ public class MainActivity extends AppCompatActivity {
                                     password,
                                     profileImage,
                                     signUpStatus,
-                                    creationTimeStamp
+                                    creationTimeStamp,
+                                    epochTimeStamp
                             );
 
                             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
@@ -1376,8 +1397,8 @@ public class MainActivity extends AppCompatActivity {
                                         // Collection for Team Lead approvals -> to Zonal Heads
                                         authUserItem1.setDocId(documentReference12.getId());
                                         btnCreateAccount.setEnabled(false);
-                                        approveTeamLeads(documentReference12.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
-                                        approveUsers(documentReference12.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime());
+                                        approveTeamLeads(documentReference12.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime(), valueOf(HelperGeneral.getCurrentEpochTime()));
+                                        approveUsers(documentReference12.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime(), valueOf(HelperGeneral.getCurrentEpochTime()));
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.w(TAG, "Error adding document", e);
@@ -1403,7 +1424,8 @@ public class MainActivity extends AppCompatActivity {
                                     password,
                                     profileImage,
                                     signUpStatus,
-                                    creationTimeStamp
+                                    creationTimeStamp,
+                                    epochTimeStamp
                             );
 
                             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
@@ -1451,7 +1473,8 @@ public class MainActivity extends AppCompatActivity {
                 String profileImage,
                 String signUpStatus,
                 String redFlagStatus,
-                String approveRequestTimeStamp) {
+                String approveRequestTimeStamp,
+                String epochTimeStamp) {
 
             loadingBar = new ProgressDialog(getActivity());
             loadingBar.show();
@@ -1471,7 +1494,8 @@ public class MainActivity extends AppCompatActivity {
                     profileImage,
                     signUpStatus,
                     redFlagStatus,
-                    approveRequestTimeStamp
+                    approveRequestTimeStamp,
+                    epochTimeStamp
             );
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
@@ -1510,7 +1534,8 @@ public class MainActivity extends AppCompatActivity {
                 String profileImage,
                 String signUpStatus,
                 String redFlagStatus,
-                String approveRequestTimeStamp) {
+                String approveRequestTimeStamp,
+                String epochTimeStamp) {
 
             loadingBar = new ProgressDialog(getActivity());
             loadingBar.show();
@@ -1530,7 +1555,8 @@ public class MainActivity extends AppCompatActivity {
                     profileImage,
                     signUpStatus,
                     redFlagStatus,
-                    approveRequestTimeStamp
+                    approveRequestTimeStamp,
+                    epochTimeStamp
             );
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
@@ -1569,7 +1595,8 @@ public class MainActivity extends AppCompatActivity {
                 String profileImage,
                 String signUpStatus,
                 String redFlagStatus,
-                String approveRequestTimeStamp) {
+                String approveRequestTimeStamp,
+                String epochTimeStamp) {
 
             loadingBar = new ProgressDialog(getActivity());
             loadingBar.show();
@@ -1589,7 +1616,8 @@ public class MainActivity extends AppCompatActivity {
                     profileImage,
                     signUpStatus,
                     redFlagStatus,
-                    approveRequestTimeStamp
+                    approveRequestTimeStamp,
+                    epochTimeStamp
             );
 
             // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
@@ -1922,6 +1950,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // Gallery Result
+            // TODO: 2020-01-03 - Do conversions in background thread. Byte code conversion is wrong. Only works for files and not images and other stuff.
             if (data != null && requestCode == FilePickerConst.REQUEST_CODE_PHOTO && resultCode == Activity.RESULT_OK) {
 
                 imageFilePathsStringArray.addAll(Objects.requireNonNull(data.getStringArrayListExtra(FilePickerConst.KEY_SELECTED_MEDIA)));

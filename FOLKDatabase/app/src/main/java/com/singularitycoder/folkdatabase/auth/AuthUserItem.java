@@ -24,6 +24,7 @@ public class AuthUserItem {
     private String profileImageUrl;
     private String signUpStatus;
     private String creationTimeStamp;
+    private String epochTimeStamp;
 
 //    @SerializedName("List of Zones")
 //    @Expose(serialize = true)
@@ -36,7 +37,7 @@ public class AuthUserItem {
     public AuthUserItem() {
     }
 
-    public AuthUserItem(String zone, String memberType, String directAuthority, String shortName, String hkmJoiningDate, String fullName, String phone, String email, String gmail, String password, String profileImageUrl, String signUpStatus, String creationTimeStamp) {
+    public AuthUserItem(String zone, String memberType, String directAuthority, String shortName, String hkmJoiningDate, String fullName, String phone, String email, String gmail, String password, String profileImageUrl, String signUpStatus, String creationTimeStamp, String epochTimeStamp) {
         this.zone = zone;
         this.memberType = memberType;
         this.directAuthority = directAuthority;
@@ -50,6 +51,7 @@ public class AuthUserItem {
         this.profileImageUrl = profileImageUrl;
         this.signUpStatus = signUpStatus;
         this.creationTimeStamp = creationTimeStamp;
+        this.epochTimeStamp = epochTimeStamp;
     }
 
     public String getDocId() {
@@ -162,6 +164,14 @@ public class AuthUserItem {
 
     public void setCreationTimeStamp(String creationTimeStamp) {
         this.creationTimeStamp = creationTimeStamp;
+    }
+
+    public String getEpochTimeStamp() {
+        return epochTimeStamp;
+    }
+
+    public void setEpochTimeStamp(String epochTimeStamp) {
+        this.epochTimeStamp = epochTimeStamp;
     }
 
     //    public ArrayList<String> getZonesArray() {
