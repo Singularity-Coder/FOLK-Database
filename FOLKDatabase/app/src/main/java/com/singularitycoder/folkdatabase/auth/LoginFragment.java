@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.singularitycoder.folkdatabase.auth.MainActivity.authTabLayout;
+import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
 import static java.lang.String.valueOf;
 
 public class LoginFragment extends Fragment {
@@ -103,7 +104,7 @@ public class LoginFragment extends Fragment {
 
 
     private void logIn() {
-        if (HelperGeneral.hasInternet(Objects.requireNonNull(getContext()))) {
+        if (hasInternet()) {
             if (hasValidInput(etEmail, etPassword)) {
                 loadingBar.setMessage("Please wait...");
                 loadingBar.setCanceledOnTouchOutside(false);
@@ -272,6 +273,11 @@ public class LoginFragment extends Fragment {
                                 // or get the doc id and load the details in the home page live
 
                                 if (null != getActivity()) {
+                                    // Main Shared Pref
+                                    HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
+                                    helperSharedPreference.setEmail(email);
+
+                                    // Test Shared Pref
                                     SharedPreferences sp = Objects.requireNonNull(getActivity()).getSharedPreferences("authItem", Context.MODE_PRIVATE);
                                     sp.edit().putString("email", email).apply();
                                 }

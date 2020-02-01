@@ -96,11 +96,11 @@ public class HelperGeneral extends AppCompatActivity {
         dialog.dismiss();
     }
 
-    public static boolean hasInternet(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        assert cm != null;
-        return cm.getActiveNetworkInfo() != null;
-    }
+//    public static boolean hasInternet(Context context) {
+//        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//        assert cm != null;
+//        return cm.getActiveNetworkInfo() != null;
+//    }
 
     public static String getCurrentTime() {
         Date currentTime = Calendar.getInstance().getTime();

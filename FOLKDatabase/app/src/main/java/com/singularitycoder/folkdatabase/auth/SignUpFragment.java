@@ -70,6 +70,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.app.Activity.RESULT_CANCELED;
+import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
 import static com.singularitycoder.folkdatabase.helper.HelperImage.showSettingsDialog;
 import static java.lang.String.valueOf;
 
@@ -166,7 +167,6 @@ public class SignUpFragment extends Fragment {
                 String signUpStatus = helperSharedPreference.getSignupStatus();
 //                    if (null != getActivity()) {
 //                        finishAndGoForApproval();
-//                        Objects.requireNonNull(getActivity()).finish();
 //                    }
 
                 if (null != signUpStatus) {
@@ -209,7 +209,7 @@ public class SignUpFragment extends Fragment {
 
 
     private void createMemberAccountOnClick() {
-        if (HelperGeneral.hasInternet(Objects.requireNonNull(getContext()))) {
+        if (hasInternet()) {
             if (hasValidInput(
                     etSignUpZone,
                     tvSignUpMemberType,
@@ -768,6 +768,11 @@ public class SignUpFragment extends Fragment {
         );
 
         if (null != getActivity()) {
+            // Main Shared Pref
+            HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
+            helperSharedPreference.setEmail(email);
+
+            // Test Shared Pref
             SharedPreferences sp = Objects.requireNonNull(getActivity()).getSharedPreferences("authItem", Context.MODE_PRIVATE);
             sp.edit().putString("profileImage", profileImage).apply();
             sp.edit().putString("firstName", firstName).apply();

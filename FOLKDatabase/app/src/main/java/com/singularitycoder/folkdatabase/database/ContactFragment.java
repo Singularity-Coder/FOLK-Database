@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.singularitycoder.folkdatabase.helper.HelperGeneral.hasInternet;
+import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
 import static java.lang.String.valueOf;
 
 public class ContactFragment extends Fragment {
@@ -130,7 +130,7 @@ public class ContactFragment extends Fragment {
 
 
     private void getData(final Context context) {
-        if (hasInternet(context)) {
+        if (hasInternet()) {
             setUpRecyclerView();
 //                new ReadContactsAsync().execute();
             AsyncTask.execute(this::readContactsData);

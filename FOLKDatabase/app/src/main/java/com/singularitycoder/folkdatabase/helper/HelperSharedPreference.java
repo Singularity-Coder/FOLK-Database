@@ -58,4 +58,15 @@ public class HelperSharedPreference {
     public String getSignupStatus() {
         return sharedPref.getString(KEY_SIGNUP_STATUS, "");
     }
+
+    public void setEmail(String email) {
+        sharedPrefEditor.putString(KEY_EMAIL, email);
+        sharedPrefEditor.commit();
+    }
+
+    public String getEmail() {
+        return sharedPref.getString(KEY_EMAIL, "");
+    }
+
+
 }

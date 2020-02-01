@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.singularitycoder.folkdatabase.helper.HelperGeneral.hasInternet;
+import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
 
 public class ZonalHeadsFragment extends Fragment {
 
@@ -130,7 +130,7 @@ public class ZonalHeadsFragment extends Fragment {
     }
 
     private void getData(final Context context) {
-        if (hasInternet(context)) {
+        if (hasInternet()) {
             Log.d(TAG, "hit 1");
             setUpRecyclerView();
             AsyncTask.execute(this::readZonalHeadsData);

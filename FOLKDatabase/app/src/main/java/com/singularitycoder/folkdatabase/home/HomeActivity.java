@@ -1,16 +1,5 @@
 package com.singularitycoder.folkdatabase.home;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
@@ -44,6 +33,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
@@ -56,7 +56,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.rpc.Help;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -83,7 +82,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.singularitycoder.folkdatabase.helper.HelperGeneral.hasInternet;
+import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
 import static java.lang.String.valueOf;
 
 public class HomeActivity extends AppCompatActivity {
@@ -805,7 +804,7 @@ public class HomeActivity extends AppCompatActivity {
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
             shimmerFrameLayout.setVisibility(View.VISIBLE);
-            if (hasInternet(HomeActivity.this)) {
+            if (hasInternet()) {
                 AsyncTask.execute(this::readContactsData);
                 noInternetText.setVisibility(View.GONE);
                 swipeRefreshLayout.setRefreshing(false);
