@@ -63,6 +63,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,7 +71,7 @@ import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOption
 
 public class HelperGeneral extends AppCompatActivity {
 
-    private static final String TAG = "HelperGeneral";
+    private static final String TAG = HelperGeneral.class.getSimpleName();
     private final static int FADE_DURATION = 550;
 
     // Different Toasts n Snackbars
@@ -304,12 +305,41 @@ public class HelperGeneral extends AppCompatActivity {
                 .setMessage(message)
                 // Specifying a listener allows you to take an action before dismissing the dialog.
                 // The dialog is automatically dismissed when a dialog button is clicked.
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Continue with delete operation
-                    }
+                .setPositiveButton("OK", (dialog, which) -> {
+
                 })
                 .show();
+    }
+
+    public static void dialogActionMessage(Activity activity, String message, String positiveActionWord, String negativeActionWord) {
+        new AlertDialog.Builder(activity)
+                .setMessage(message)
+                // Specifying a listener allows you to take an action before dismissing the dialog.
+                // The dialog is automatically dismissed when a dialog button is clicked.
+                .setPositiveButton(positiveActionWord, (dialog, which) -> {
+
+                })
+                .setNegativeButton(negativeActionWord, (dialog, which) -> {
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
+    public static <T extends Object> T dialogActionMessage(Activity activity, String message, String positiveActionWord, String negativeActionWord, Callable<Void> voidFunction) throws Exception {
+        new AlertDialog.Builder(activity)
+                .setMessage(message)
+                // Specifying a listener allows you to take an action before dismissing the dialog.
+                // The dialog is automatically dismissed when a dialog button is clicked.
+                .setPositiveButton(positiveActionWord, (dialog, which) -> {
+                    try {
+                        voidFunction.call();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                })
+                .setNegativeButton(negativeActionWord, (dialog, which) -> dialog.dismiss())
+                .show();
+        return null;
     }
 
     public static void toast(String msg, Context context, int length) {
@@ -320,12 +350,7 @@ public class HelperGeneral extends AppCompatActivity {
         final String[] single_choice_selected = {stringArray[0]};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(dialogTitle);
-        builder.setSingleChoiceItems(stringArray, 0, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                single_choice_selected[0] = stringArray[i];
-            }
-        });
+        builder.setSingleChoiceItems(stringArray, 0, (dialogInterface, i) -> single_choice_selected[0] = stringArray[i]);
 
         builder.setPositiveButton("okay", new DialogInterface.OnClickListener() {
             @Override
@@ -338,7 +363,7 @@ public class HelperGeneral extends AppCompatActivity {
                         break;
                     case "con 2":
                         TextView s2 = null;
-                        s2.setText(single_choice_selected[0]);
+                        s2.setText(single_choice_selected[1]);
                         break;
                 }
             }

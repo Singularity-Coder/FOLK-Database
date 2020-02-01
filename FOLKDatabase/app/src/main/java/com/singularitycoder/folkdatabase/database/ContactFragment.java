@@ -57,7 +57,7 @@ import static java.lang.String.valueOf;
 
 public class ContactFragment extends Fragment {
 
-    private static final String TAG = "ContactFragment";
+    private static final String TAG = ContactFragment.class.getSimpleName();
 
     private ArrayList<ContactItem> contactList;
     private RecyclerView recyclerView;

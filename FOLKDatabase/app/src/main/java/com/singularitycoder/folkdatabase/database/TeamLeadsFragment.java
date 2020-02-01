@@ -39,7 +39,7 @@ import static com.singularitycoder.folkdatabase.helper.HelperGeneral.hasInternet
 
 public class TeamLeadsFragment extends Fragment {
 
-    private static final String TAG = "TeamLeadsFragment";
+    private static final String TAG = TeamLeadsFragment.class.getSimpleName();
     private ArrayList<TeamLeadItem> teamLeadList;
     private RecyclerView recyclerView;
     private TeamLeadsAdapter teamLeadsAdapter;

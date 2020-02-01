@@ -7,7 +7,6 @@ import retrofit2.http.Url;
 
 public interface ApiEndPoints {
 
-    // All API data we are storing it in the Call data type
     @GET("/populateListOfZones")
     Call<String> getZones();
 

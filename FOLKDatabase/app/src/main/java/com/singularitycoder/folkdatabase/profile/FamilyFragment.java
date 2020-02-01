@@ -11,6 +11,7 @@ import com.singularitycoder.folkdatabase.R;
 
 public class FamilyFragment extends Fragment {
 
+    private static final String TAG = FamilyFragment.class.getSimpleName();
 
     public FamilyFragment() {
     }

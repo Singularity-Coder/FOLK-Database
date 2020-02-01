@@ -75,7 +75,7 @@ import static java.lang.String.valueOf;
 
 public class SignUpFragment extends Fragment {
 
-    private static final String TAG = "SignUpFragment";
+    private static final String TAG = SignUpFragment.class.getSimpleName();
 
     private TextView tvTermsPrivacy;
     private TextView tvDirectAuthorityTitle;
@@ -129,13 +129,6 @@ public class SignUpFragment extends Fragment {
     }
 
 
-    private void checkFunctionExecutionTimings() {
-        TimingLogger timingLogger = new TimingLogger(TAG, "hasValidInput");
-        timingLogger.addSplit("");
-        timingLogger.dumpToLog();
-    }
-
-
     private void init(View view) {
         firebaseAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
@@ -172,19 +165,19 @@ public class SignUpFragment extends Fragment {
                 HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
                 String signUpStatus = helperSharedPreference.getSignupStatus();
 //                    if (null != getActivity()) {
-//                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+//                        goForApproval();
 //                        Objects.requireNonNull(getActivity()).finish();
 //                    }
 
                 if (null != signUpStatus) {
                     if (("false").equals(signUpStatus)) {
                         if (null != getActivity()) {
-                            startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                            goForApproval();
                             Objects.requireNonNull(getActivity()).finish();
                         }
                     } else {
                         if (null != getActivity()) {
-                            startActivity(new Intent(getActivity(), HomeActivity.class));
+                            goForApproval();
                             Objects.requireNonNull(getActivity()).finish();
                         }
                     }
@@ -195,76 +188,83 @@ public class SignUpFragment extends Fragment {
 
 
     private void clickListeners() {
-        ivOpenGallery.setOnClickListener(view14 -> {
-            if (null != getActivity()) {
-                Dexter.withActivity(getActivity())
-                        .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        .withListener(new MultiplePermissionsListener() {
-                            @Override
-                            public void onPermissionsChecked(MultiplePermissionsReport report) {
-                                if (report.areAllPermissionsGranted()) {
-                                    showImagePickerOptions();
-                                }
-                                if (report.isAnyPermissionPermanentlyDenied()) {
-                                    if (null != getActivity()) {
-                                        showSettingsDialog(getActivity());
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                                token.continuePermissionRequest();
-                            }
-                        }).check();
-            }
-        });
-
-
-        tvOpenGallery.setOnClickListener(view15 -> {
-            if (null != getActivity()) {
-                Dexter.withActivity(getActivity())
-                        .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        .withListener(new MultiplePermissionsListener() {
-                            @Override
-                            public void onPermissionsChecked(MultiplePermissionsReport report) {
-                                if (report.areAllPermissionsGranted()) {
-                                    showImagePickerOptions();
-                                }
-                                if (report.isAnyPermissionPermanentlyDenied()) {
-                                    if (null != getActivity()) {
-                                        showSettingsDialog(getActivity());
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                                token.continuePermissionRequest();
-                            }
-                        }).check();
-            }
-        });
-
+        ivOpenGallery.setOnClickListener(view14 -> openGallery());
+        tvOpenGallery.setOnClickListener(view15 -> openGallery());
         tvSignUpMemberType.setOnClickListener(view16 -> dialogSignUpMemberType());
-
-        tvDirectAuthority.setOnClickListener(view -> {
-            if (!("").equals(valueOf(etSignUpZone.getText()))) {
-                AsyncTask.execute(this::getTeamLeadsFromApi);
-            } else {
-                etSignUpZone.setError("Select a Zone first!");
-                Toast.makeText(getActivity(), "Select a Zone first!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        tvDirectAuthority.setOnClickListener(view -> getDirectAuthorityList());
         tvTermsPrivacy.setOnClickListener(view1 -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.iskconbangalore.org/privacy-policy/"))));
-
-        etSignUpZone.setOnClickListener(view12 -> {
-            AsyncTask.execute(this::getZoneDataFromApi);
-        });
-
+        etSignUpZone.setOnClickListener(view12 -> AsyncTask.execute(this::getZoneDataFromApi));
         tvHkmJoiningDate.setOnClickListener(view -> HelperGeneral.showDatePickerOldStyle(tvHkmJoiningDate, getActivity()));
+        checkForShortNameDuplicates();
+        btnCreateAccount.setOnClickListener(view13 -> createMemberAccountOnClick());
+    }
 
+
+    private void getDirectAuthorityList() {
+        if (!("").equals(valueOf(etSignUpZone.getText()))) {
+            AsyncTask.execute(this::getTeamLeadsFromApi);
+        } else {
+            etSignUpZone.setError("Select a Zone first!");
+            Toast.makeText(getActivity(), "Select a Zone first!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    private void createMemberAccountOnClick() {
+        if (HelperGeneral.hasInternet(Objects.requireNonNull(getContext()))) {
+            if (hasValidInput(
+                    etSignUpZone,
+                    tvSignUpMemberType,
+                    tvDirectAuthority,
+                    etShortName,
+                    tvHkmJoiningDate,
+                    etFullName,
+                    etEmail,
+                    etGmail,
+                    etPhone,
+                    etPassword)) {
+
+                loadingBar.setMessage("Creating account...");
+                loadingBar.setCanceledOnTouchOutside(false);
+                loadingBar.show();
+
+                String zone = valueOf(etSignUpZone.getText());
+                String memberType = valueOf(tvSignUpMemberType.getText());
+                String directAuthority = valueOf(tvDirectAuthority.getText());
+                String folkGuideAbbr = valueOf(etShortName.getText()).trim();
+                String kcExperience = valueOf(tvHkmJoiningDate.getText()).trim();
+                String firstName = valueOf(etFullName.getText());
+                String email = valueOf(etEmail.getText()).trim();
+                String gmail = valueOf(etGmail.getText()).trim();
+                String phone = valueOf(etPhone.getText()).trim();
+                String password = valueOf(etPassword.getText());
+
+                // 1. First firebase auth
+                AsyncTask.execute(() -> {
+                    createAccount(
+                            zone,
+                            memberType,
+                            directAuthority,
+                            folkGuideAbbr,
+                            kcExperience,
+                            firstName,
+                            email,
+                            gmail,
+                            phone,
+                            password,
+                            HelperGeneral.currentDateTime(),
+                            valueOf(HelperGeneral.getCurrentEpochTime()));
+                });
+            }
+        } else {
+            if (null != getActivity()) {
+                Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+    private void checkForShortNameDuplicates() {
         etShortName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -299,72 +299,47 @@ public class SignUpFragment extends Fragment {
                 }, 4000);
             }
         });
+    }
 
 
-//            etShortName.setOnFocusChangeListener((view, b) -> {
-//                if (!view.hasFocus()) {
-//                    if (!("").equals(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""))) {
-//                        if (valueOf(etShortName.getText()).trim().replaceAll("\\s+", "").length() >= 4) {
-//                            doesAuthorityShortNameExistApi(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""), "TL");
-//                        }
-//                    } else {
-//                        HelperGeneral.dialogShowMessage(getActivity(), "Short Name cannot be empty!");
-//                    }
-//                }
-//            });
-
-        btnCreateAccount.setOnClickListener(view13 -> {
-            if (HelperGeneral.hasInternet(Objects.requireNonNull(getContext()))) {
-                if (hasValidInput(
-                        etSignUpZone,
-                        tvSignUpMemberType,
-                        tvDirectAuthority,
-                        etShortName,
-                        tvHkmJoiningDate,
-                        etFullName,
-                        etEmail,
-                        etGmail,
-                        etPhone,
-                        etPassword)) {
-
-                    loadingBar.setMessage("Creating account...");
-                    loadingBar.setCanceledOnTouchOutside(false);
-                    loadingBar.show();
-
-                    String zone = valueOf(etSignUpZone.getText());
-                    String memberType = valueOf(tvSignUpMemberType.getText());
-                    String directAuthority = valueOf(tvDirectAuthority.getText());
-                    String folkGuideAbbr = valueOf(etShortName.getText()).trim();
-                    String kcExperience = valueOf(tvHkmJoiningDate.getText()).trim();
-                    String firstName = valueOf(etFullName.getText());
-                    String email = valueOf(etEmail.getText()).trim();
-                    String gmail = valueOf(etGmail.getText()).trim();
-                    String phone = valueOf(etPhone.getText()).trim();
-                    String password = valueOf(etPassword.getText());
-
-                    // 1. First firebase auth
-                    AsyncTask.execute(() -> {
-                        createAccount(
-                                zone,
-                                memberType,
-                                directAuthority,
-                                folkGuideAbbr,
-                                kcExperience,
-                                firstName,
-                                email,
-                                gmail,
-                                phone,
-                                password,
-                                HelperGeneral.currentDateTime(),
-                                valueOf(HelperGeneral.getCurrentEpochTime()));
-                    });
-                }
-            } else {
-                if (null != getActivity()) {
-                    Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
+    private void checkForShortNameDuplicatesOnFocusChange() {
+        etShortName.setOnFocusChangeListener((view, b) -> {
+            if (!view.hasFocus()) {
+                if (!("").equals(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""))) {
+                    if (valueOf(etShortName.getText()).trim().replaceAll("\\s+", "").length() >= 4) {
+                        doesAuthorityShortNameExistApi(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""), "TL");
+                    }
+                } else {
+                    HelperGeneral.dialogShowMessage(getActivity(), "Short Name cannot be empty!");
                 }
             }
         });
+    }
+
+
+    private void openGallery() {
+        if (null != getActivity()) {
+            Dexter.withActivity(getActivity())
+                    .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    .withListener(new MultiplePermissionsListener() {
+                        @Override
+                        public void onPermissionsChecked(MultiplePermissionsReport report) {
+                            if (report.areAllPermissionsGranted()) {
+                                showImagePickerOptions();
+                            }
+                            if (report.isAnyPermissionPermanentlyDenied()) {
+                                if (null != getActivity()) {
+                                    showSettingsDialog(getActivity());
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                            token.continuePermissionRequest();
+                        }
+                    }).check();
+        }
     }
 
 
@@ -401,6 +376,20 @@ public class SignUpFragment extends Fragment {
                 tvShowHidePassword.setText("SHOW");
             }
         });
+    }
+
+
+    private void checkFunctionExecutionTimings() {
+        TimingLogger timingLogger = new TimingLogger(TAG, "hasValidInput");
+        timingLogger.addSplit("");
+        timingLogger.dumpToLog();
+    }
+
+
+    private void goForApproval() {
+        Intent intent = new Intent(getActivity(), AuthApprovalStatusActivity.class);
+        intent.putExtra("authType", "SignUp");
+        startActivity(intent);
     }
 
 
@@ -908,7 +897,7 @@ public class SignUpFragment extends Fragment {
                                     if (null != getActivity()) {
                                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
                                         authUserItem1.setDocId(documentReference1.getId());
-                                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                                        goForApproval();
                                         Objects.requireNonNull(getActivity()).finish();
                                         btnCreateAccount.setEnabled(false);
                                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
@@ -978,7 +967,7 @@ public class SignUpFragment extends Fragment {
                     Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
                     if (null != getActivity()) {
                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                        goForApproval();
                         Objects.requireNonNull(getActivity()).finish();
                         btnCreateAccount.setEnabled(false);
                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
@@ -1039,7 +1028,7 @@ public class SignUpFragment extends Fragment {
                     Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
                     if (null != getActivity()) {
                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                        goForApproval();
                         Objects.requireNonNull(getActivity()).finish();
                         btnCreateAccount.setEnabled(false);
                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
@@ -1100,7 +1089,7 @@ public class SignUpFragment extends Fragment {
                     Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
                     if (null != getActivity()) {
                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
+                        goForApproval();
                         Objects.requireNonNull(getActivity()).finish();
                         btnCreateAccount.setEnabled(false);
                         getActivity().runOnUiThread(() -> loadingBar.dismiss());

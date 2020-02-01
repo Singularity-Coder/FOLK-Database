@@ -88,7 +88,7 @@ import static java.lang.String.valueOf;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private static final String TAG = "HomeActivity";
+    private static final String TAG = HomeActivity.class.getSimpleName();
 
     private Toolbar toolbar;
     private ArrayList<HomeItem> homeList;
@@ -439,7 +439,7 @@ public class HomeActivity extends AppCompatActivity {
         homeList.add(new HomeItem(R.drawable.ic_posting3, "Posting", ""));
         homeList.add(new HomeItem(R.drawable.ic_service3, "Service", ""));
         homeList.add(new HomeItem(R.drawable.ic_payments3, "Payments", ""));
-        homeList.add(new HomeItem(R.drawable.ic_prasadum3, "Prasadum Coupon", ""));
+        homeList.add(new HomeItem(R.drawable.ic_prasadum3, "Prasad Coupon", ""));
 //        homeList.add(new HomeItem(R.drawable.ic_widgets_black_24dp, "Tools", ""));
 
         homeAdapter = new HomeAdapter(homeList, this);
@@ -498,12 +498,14 @@ public class HomeActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_birthdays:
-                dialogNotifications(this);
+//                dialogNotifications(this);
+                HelperGeneral.dialogShowMessage(this, "Birthdays is Coming Soon!");
                 return true;
             case R.id.action_approve_users:
-                SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-                String memberType = sp.getString("memberType", "");
-                dialogApproveUsers(this, memberType);
+//                SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+//                String memberType = sp.getString("memberType", "");
+//                dialogApproveUsers(this, memberType);
+                HelperGeneral.dialogShowMessage(this, "Approving users is Coming Soon!");
                 return true;
             case R.id.action_my_profile:
                 Intent intent = new Intent(this, ProfileActivity.class);

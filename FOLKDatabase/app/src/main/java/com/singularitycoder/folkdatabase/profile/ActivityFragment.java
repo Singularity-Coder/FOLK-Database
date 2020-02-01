@@ -18,6 +18,8 @@ import java.util.ArrayList;
 
 public class ActivityFragment extends Fragment {
 
+    private static final String TAG = ActivityFragment.class.getSimpleName();
+
     RecyclerView recyclerView;
     ProfileActivitiesAdapter mProfileActivitiesAdapter;
     ArrayList<ProfileContactItem> activityList;

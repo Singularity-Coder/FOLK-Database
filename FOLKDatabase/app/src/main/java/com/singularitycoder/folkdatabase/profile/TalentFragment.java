@@ -16,8 +16,9 @@ import com.singularitycoder.folkdatabase.R;
 
 public class TalentFragment extends Fragment {
 
-    private TextView tvTalentText;
+    private static final String TAG = TalentFragment.class.getSimpleName();
 
+    private TextView tvTalentText;
 
     public TalentFragment() {
     }

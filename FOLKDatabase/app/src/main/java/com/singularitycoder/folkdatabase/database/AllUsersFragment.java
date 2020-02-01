@@ -39,7 +39,7 @@ import static com.singularitycoder.folkdatabase.helper.HelperGeneral.hasInternet
 
 public class AllUsersFragment extends Fragment {
 
-    private static final String TAG = "AllUsersFragment";
+    private static final String TAG = AllUsersFragment.class.getSimpleName();
     private ArrayList<AllUsersItem> allUsersList;
     private RecyclerView recyclerView;
     private AllUsersAdapter allUsersAdapter;

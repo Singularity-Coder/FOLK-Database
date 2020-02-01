@@ -71,7 +71,7 @@ import static java.lang.String.valueOf;
 
 public class DatabaseActivity extends AppCompatActivity {
 
-    private static final String TAG = "DatabaseActivity";
+    private static final String TAG = DatabaseActivity.class.getSimpleName();
     private Toolbar toolbar;
     private ViewPager viewPager;
     private TabLayout tabLayout;

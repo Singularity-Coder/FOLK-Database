@@ -45,7 +45,7 @@ import static java.lang.String.valueOf;
 
 public class LoginFragment extends Fragment {
 
-    private static final String TAG = "LoginFragment";
+    private static final String TAG = LoginFragment.class.getSimpleName();
 
     private HelperCustomEditText etEmail;
     private HelperCustomEditText etPassword;
@@ -97,45 +97,50 @@ public class LoginFragment extends Fragment {
                 dialogForgotPassword(Objects.requireNonNull(getActivity()));
             }
         });
-
-        btnLogin.setOnClickListener(view1 -> {
-            if (HelperGeneral.hasInternet(Objects.requireNonNull(getContext()))) {
-                if (hasValidInput(etEmail, etPassword)) {
-                    loadingBar.setMessage("Please wait...");
-                    loadingBar.setCanceledOnTouchOutside(false);
-                    loadingBar.show();
-
-                    String email = valueOf(etEmail.getText()).trim();
-                    String password = valueOf(etPassword.getText());
-
-                    AsyncTask.execute(() -> loginUser(email, password));
-                }
-            } else {
-                if ((null) != getActivity()) {
-                    Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
+        btnLogin.setOnClickListener(view1 -> logIn());
         tvNotMember.setOnClickListener(view13 -> authTabLayout.getTabAt(0).select());
     }
 
 
-    private String readSignUpStatus() {
+    private void logIn() {
+        if (HelperGeneral.hasInternet(Objects.requireNonNull(getContext()))) {
+            if (hasValidInput(etEmail, etPassword)) {
+                loadingBar.setMessage("Please wait...");
+                loadingBar.setCanceledOnTouchOutside(false);
+                loadingBar.show();
+
+                String email = valueOf(etEmail.getText()).trim();
+                String password = valueOf(etPassword.getText());
+
+                AsyncTask.execute(() -> loginUser(email, password));
+            }
+        } else {
+            if ((null) != getActivity()) {
+                Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+    private String readSignUpStatus(String email) {
         // TODO: 2019-12-31 - this also needs checking
         SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
-        String email = sp.getString("email", "");
+//        String email = sp.getString("email", "");
         getActivity().runOnUiThread(() -> {
             loadingBar.setMessage("Checking SignUp Status...");
             loadingBar.setCanceledOnTouchOutside(false);
             loadingBar.show();
         });
 
+        Log.d(TAG, "readSignUpStatus: hit 111");
+
         FirebaseFirestore.getInstance()
                 .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
                 .whereEqualTo("email", email)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    Log.d(TAG, "readSignUpStatus: hit 222");
 
                     if (!queryDocumentSnapshots.isEmpty()) {
                         List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
@@ -148,14 +153,20 @@ public class LoginFragment extends Fragment {
 
                                 if (!("").equals(valueOf(docSnap.getString("signUpStatus")))) {
                                     authUserItem.setSignUpStatus(valueOf(docSnap.getString("signUpStatus")));
-                                    strSignUpStatus = valueOf(docSnap.getString("signUpStatus"));
+//                                    strSignUpStatus = valueOf(docSnap.getString("signUpStatus"));
 
                                     if (docSnap.getString("signUpStatus").equals("true")) {
+                                        Log.d(TAG, "readSignUpStatus: hit 444");
+                                        strSignUpStatus = "true";
+                                        Log.d(TAG, "readSignUpStatus: signupstatus: " + strSignUpStatus);
                                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                         helperSharedPreference.setSignupStatus("true");
+                                        finishAndGoHome();
                                     } else {
+                                        Log.d(TAG, "readSignUpStatus: hit 555");
+                                        strSignUpStatus = "false";
                                         helperSharedPreference.setSignupStatus("false");
-                                        HelperGeneral.dialogShowMessage(getActivity(), "Your account is still not verified. Please call your Authority!");
+                                        finishAndGoForApproval();
                                     }
                                 }
 
@@ -168,6 +179,7 @@ public class LoginFragment extends Fragment {
                     }
                 })
                 .addOnFailureListener(e -> {
+                    Log.d(TAG, "readSignUpStatus: hit 333");
                     Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
                     getActivity().runOnUiThread(() -> loadingBar.dismiss());
                 });
@@ -264,13 +276,7 @@ public class LoginFragment extends Fragment {
                                     sp.edit().putString("email", email).apply();
                                 }
 
-                                if (("true").equals(readSignUpStatus())) {
-                                    Intent intent = new Intent(getActivity(), HomeActivity.class);
-                                    startActivity(intent);
-                                    Objects.requireNonNull(getActivity()).finish();
-                                } else {
-                                    startActivity(new Intent(getActivity(), AuthApprovalStatusActivity.class));
-                                }
+                                AsyncTask.execute(() -> readSignUpStatus(email));
                             }
                         } else {
                             if ((null) != getActivity()) {
@@ -279,6 +285,22 @@ public class LoginFragment extends Fragment {
                         }
                     });
         }
+    }
+
+
+    private void finishAndGoHome() {
+        Intent intent = new Intent(getActivity(), HomeActivity.class);
+        intent.putExtra("authType", "LogIn");
+        startActivity(intent);
+        Objects.requireNonNull(getActivity()).finish();
+    }
+
+
+    private void finishAndGoForApproval() {
+        Intent intent = new Intent(getActivity(), AuthApprovalStatusActivity.class);
+        intent.putExtra("authType", "SignUp");
+        startActivity(intent);
+        Objects.requireNonNull(getActivity()).finish();
     }
 
 

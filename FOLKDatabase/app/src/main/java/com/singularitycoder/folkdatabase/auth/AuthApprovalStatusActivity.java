@@ -29,26 +29,34 @@ import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import com.singularitycoder.folkdatabase.home.HomeActivity;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 
 import static java.lang.String.valueOf;
 
 public class AuthApprovalStatusActivity extends AppCompatActivity {
 
-    private static final String TAG = "AuthApprovalStatusActiv";
+    private static final String TAG = AuthApprovalStatusActivity.class.getSimpleName();
 
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
     private FirebaseFirestore firestore;
+    private HelperSharedPreference helperSharedPreference;
+
+    // Views
     private ProgressDialog loadingBar;
     private Button btnCallAuthority;
     private Button btnCheckStatus;
     private TextView tvFolkGuideGreetingText;
     private AuthUserItem authUserItem;
-    private HelperSharedPreference helperSharedPreference;
+
+    // Vars
     private String strAuthorityPhoneNumber;
     private String strSignUpStatus;
+    private String strAuthTypeIntent;
 
     // this listener is called when there is change in firebase fireUser session
     FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
@@ -72,7 +80,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
         inits();
         authCheck();
         setData();
-        AsyncTask.execute(() -> readAuthUserData());
+        getIntentData();
         clickListeners();
     }
 
@@ -80,9 +88,9 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
     private void setStatuBarColor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = this.getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);  // clear FLAG_TRANSLUCENT_STATUS flag:
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);  // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.bg_light));   // change the color
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.bg_light));
         }
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
@@ -115,28 +123,70 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
 
     private void setData() {
         SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-        tvFolkGuideGreetingText.setText("Hello " + sp.getString("firstName", "") + ",");
+        tvFolkGuideGreetingText.setText(new StringBuilder("Hello ").append(sp.getString("firstName", "")).append(","));
+    }
+
+
+    private void getIntentData() {
+        Intent intent = getIntent();
+        strAuthTypeIntent = intent.getStringExtra("authType");
+        if (!("").equals(strAuthTypeIntent)) {
+            if (("SignUp").equals(strAuthTypeIntent)) {
+                AsyncTask.execute(this::readAuthorityPhoneNumber);
+            }
+        }
     }
 
 
     private void clickListeners() {
-        btnCallAuthority.setOnClickListener(view -> {
-            Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", strAuthorityPhoneNumber, null));
-            callIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-            startActivity(callIntent);
-        });
-
+        btnCallAuthority.setOnClickListener(view -> callAuthority());
         btnCheckStatus.setOnClickListener(view -> {
-            // load progress
-            // check db for yes
-            // if yes then jump to home else toast
-            AsyncTask.execute(() -> readSignUpStatus());
+            AsyncTask.execute(this::readSignUpStatus);    // load progress, check db for yes, if yes then jump to home else toast
         });
     }
 
 
+    private void callAuthority() {
+        // TODO: 2020-02-01 -  We can also get authority name from editText dialog and pass it here. Later.
+        if (null != strAuthorityPhoneNumber) {
+            makePhoneCall(strAuthorityPhoneNumber);
+        } else {
+            if (null != strAuthTypeIntent) {
+                if (("SignUp").equals(strAuthTypeIntent)) {
+                    try {
+                        HelperGeneral.dialogActionMessage(this, "Could not find your Authority's Phone Number. Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (("LogIn").equals(strAuthTypeIntent)) {
+                    try {
+                        HelperGeneral.dialogActionMessage(this, "Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                try {
+                    HelperGeneral.dialogActionMessage(this, "Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private Void makePhoneCall(String phoneNumber) {
+        Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phoneNumber, null));
+        callIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        startActivity(callIntent);
+        return null;
+    }
+
+
     // READ - query that searches team leads or direct authority phone number
-    private void readAuthUserData() {
+    private void readAuthorityPhoneNumber() {
         // TODO: 2019-12-31 Check this properly
         SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
         String email = sp.getString("email", "");
@@ -194,7 +244,6 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
 
     // READ - query that searches team leads or direct authority phone number
     private void readSignUpStatus() {
-        // TODO: 2019-12-31 - this also needs checking
         SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
         String email = sp.getString("email", "");
         runOnUiThread(() -> {
