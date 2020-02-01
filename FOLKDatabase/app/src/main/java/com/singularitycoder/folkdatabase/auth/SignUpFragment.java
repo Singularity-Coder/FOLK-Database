@@ -165,20 +165,18 @@ public class SignUpFragment extends Fragment {
                 HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
                 String signUpStatus = helperSharedPreference.getSignupStatus();
 //                    if (null != getActivity()) {
-//                        goForApproval();
+//                        finishAndGoForApproval();
 //                        Objects.requireNonNull(getActivity()).finish();
 //                    }
 
                 if (null != signUpStatus) {
                     if (("false").equals(signUpStatus)) {
                         if (null != getActivity()) {
-                            goForApproval();
-                            Objects.requireNonNull(getActivity()).finish();
+                            finishAndGoForApproval();
                         }
                     } else {
                         if (null != getActivity()) {
-                            goForApproval();
-                            Objects.requireNonNull(getActivity()).finish();
+                            finishAndGoHome();
                         }
                     }
                 }
@@ -386,10 +384,18 @@ public class SignUpFragment extends Fragment {
     }
 
 
-    private void goForApproval() {
+    private void finishAndGoForApproval() {
         Intent intent = new Intent(getActivity(), AuthApprovalStatusActivity.class);
         intent.putExtra("authType", "SignUp");
         startActivity(intent);
+        Objects.requireNonNull(getActivity()).finish();
+    }
+
+    private void finishAndGoHome() {
+        Intent intent = new Intent(getActivity(), HomeActivity.class);
+        intent.putExtra("authType", "SignUp");
+        startActivity(intent);
+        Objects.requireNonNull(getActivity()).finish();
     }
 
 
@@ -897,8 +903,7 @@ public class SignUpFragment extends Fragment {
                                     if (null != getActivity()) {
                                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
                                         authUserItem1.setDocId(documentReference1.getId());
-                                        goForApproval();
-                                        Objects.requireNonNull(getActivity()).finish();
+                                        finishAndGoForApproval();
                                         btnCreateAccount.setEnabled(false);
                                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                     }
@@ -967,8 +972,7 @@ public class SignUpFragment extends Fragment {
                     Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
                     if (null != getActivity()) {
                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                        goForApproval();
-                        Objects.requireNonNull(getActivity()).finish();
+                        finishAndGoForApproval();
                         btnCreateAccount.setEnabled(false);
                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
                     }
@@ -1028,8 +1032,7 @@ public class SignUpFragment extends Fragment {
                     Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
                     if (null != getActivity()) {
                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                        goForApproval();
-                        Objects.requireNonNull(getActivity()).finish();
+                        finishAndGoForApproval();
                         btnCreateAccount.setEnabled(false);
                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
                     }
@@ -1089,8 +1092,7 @@ public class SignUpFragment extends Fragment {
                     Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
                     if (null != getActivity()) {
                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
-                        goForApproval();
-                        Objects.requireNonNull(getActivity()).finish();
+                        finishAndGoForApproval();
                         btnCreateAccount.setEnabled(false);
                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
                     }

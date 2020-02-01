@@ -156,17 +156,13 @@ public class ContactFragment extends Fragment {
             contactList = new ArrayList<>();
             contactsAdapter = new ContactsAdapter(getContext(), contactList);
             contactsAdapter.setHasStableIds(true);
-            contactsAdapter.setOnItemClickListener(new ContactsAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
-                    Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
-                    // Start activity
-                    ContactItem contactItem = contactList.get(position);
-                    Intent intent = new Intent(getContext(), ProfileActivity.class);
-                    intent.putExtra("profileKey", "CONTACT");
-                    intent.putExtra("contactItem", contactItem);
-                    startActivity(intent);
-                }
+            contactsAdapter.setOnItemClickListener((view, position) -> {
+                Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
+                ContactItem contactItem = contactList.get(position);
+                Intent intent = new Intent(getContext(), ProfileActivity.class);
+                intent.putExtra("profileKey", "CONTACT");
+                intent.putExtra("contactItem", contactItem);
+                startActivity(intent);
             });
             recyclerView.setAdapter(contactsAdapter);
         }
@@ -204,6 +200,9 @@ public class ContactFragment extends Fragment {
             SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
             String folkGuideAbbr = sp.getString("folkGuideAbbr", "");
             String zone = sp.getString("zone", "");
+
+            Log.d(TAG, "readContactsData: folkguide: " + folkGuideAbbr);
+            Log.d(TAG, "readContactsData: zone: " + zone);
 
             FirebaseFirestore.getInstance()
                     .collection(HelperConstants.COLL_FOLK_NEW_MEMBERS)

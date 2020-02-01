@@ -298,7 +298,7 @@ public class LoginFragment extends Fragment {
 
     private void finishAndGoForApproval() {
         Intent intent = new Intent(getActivity(), AuthApprovalStatusActivity.class);
-        intent.putExtra("authType", "SignUp");
+        intent.putExtra("authType", "LogIn");
         startActivity(intent);
         Objects.requireNonNull(getActivity()).finish();
     }
