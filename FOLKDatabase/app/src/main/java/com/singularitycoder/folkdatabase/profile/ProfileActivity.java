@@ -11,8 +11,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.palette.graphics.Palette;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
@@ -32,9 +30,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -280,7 +276,7 @@ public class ProfileActivity extends AppCompatActivity {
             profileActions(this, authUserItem.getPhone(), authUserItem.getPhone(), authUserItem.getEmail());
             conLayProfileActions.setVisibility(View.GONE);
             // Set up Viewpager tabs
-            profileAdapter.addFrag(new AboutFragment(), "BASIC INFO");
+            profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
             profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
             viewPager.setAdapter(profileAdapter);
             tabLayout.setTabMode(TabLayout.MODE_FIXED);
@@ -298,7 +294,7 @@ public class ProfileActivity extends AppCompatActivity {
             profileActions(this, folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
             conLayProfileActions.setVisibility(View.VISIBLE);
             // Set up Viewpager tabs
-            profileAdapter.addFrag(new AboutFragment(), "BASIC INFO");
+            profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
             profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
             viewPager.setAdapter(profileAdapter);
             tabLayout.setTabMode(TabLayout.MODE_FIXED);
@@ -316,7 +312,7 @@ public class ProfileActivity extends AppCompatActivity {
             profileActions(this, teamLeadItem.getStrPhone(), teamLeadItem.getStrWhatsApp(), teamLeadItem.getStrEmail());
             conLayProfileActions.setVisibility(View.VISIBLE);
             // Set up Viewpager tabs
-            profileAdapter.addFrag(new AboutFragment(), "BASIC INFO");
+            profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
             profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
             viewPager.setAdapter(profileAdapter);
             tabLayout.setTabMode(TabLayout.MODE_FIXED);
@@ -334,11 +330,11 @@ public class ProfileActivity extends AppCompatActivity {
             profileActions(this, contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail());
             conLayProfileActions.setVisibility(View.VISIBLE);
             // Set up Viewpager tabs
-            profileAdapter.addFrag(new AboutFragment(), "BASIC INFO");
-            profileAdapter.addFrag(new AboutFragment(), "OCCUPATION");
-            profileAdapter.addFrag(new AboutFragment(), "RESIDENCE");
+            profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
+            profileAdapter.addFrag(new OccupationFragment(), "OCCUPATION");
+            profileAdapter.addFrag(new ResidenceFragment(), "RESIDENCE");
             profileAdapter.addFrag(new TalentFragment(), "TALENT");
-            profileAdapter.addFrag(new TalentFragment(), "FAMILY");
+            profileAdapter.addFrag(new FamilyFragment(), "FAMILY");
             profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
             viewPager.setAdapter(profileAdapter);
         }
@@ -355,7 +351,7 @@ public class ProfileActivity extends AppCompatActivity {
             profileActions(this, zonalHeadItem.getStrPhone(), zonalHeadItem.getStrWhatsApp(), zonalHeadItem.getStrEmail());
             conLayProfileActions.setVisibility(View.VISIBLE);
             // Set up Viewpager tabs
-            profileAdapter.addFrag(new AboutFragment(), "BASIC INFO");
+            profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
             profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
             viewPager.setAdapter(profileAdapter);
             tabLayout.setTabMode(TabLayout.MODE_FIXED);
@@ -373,7 +369,7 @@ public class ProfileActivity extends AppCompatActivity {
             profileActions(this, allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail());
             conLayProfileActions.setVisibility(View.VISIBLE);
             // Set up Viewpager tabs
-            profileAdapter.addFrag(new AboutFragment(), "BASIC INFO");
+            profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
             profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
             viewPager.setAdapter(profileAdapter);
             tabLayout.setTabMode(TabLayout.MODE_FIXED);
@@ -723,182 +719,6 @@ public class ProfileActivity extends AppCompatActivity {
         @Override
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
-        }
-    }
-
-
-    ///////////////////////////////////////////////////////////// FRAGMENT 1
-    public static class AboutFragment extends Fragment {
-
-
-        public AboutFragment() {
-        }
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-//            setHasOptionsMenu(true);
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.fragment_profile_about, container, false);
-
-            return view;
-        }
-
-    }
-
-
-    ///////////////////////////////////////////////////////////// FRAGMENT 2
-    public static class ActivityFragment extends Fragment {
-
-        RecyclerView recyclerView;
-        ProfileActivitiesAdapter mProfileActivitiesAdapter;
-        ArrayList<ProfileContactItem> activityList;
-
-        public ActivityFragment() {
-        }
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-//            setHasOptionsMenu(true);
-        }
-
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.fragment_profile_activity, container, false);
-            init(view);
-            setUpRecyclerView();
-            return view;
-        }
-
-        private void init(View view) {
-            recyclerView = view.findViewById(R.id.recycler_profile_activity);
-        }
-
-        private void setUpRecyclerView() {
-            if (null != getActivity()) {
-                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity().getBaseContext());
-                recyclerView.setLayoutManager(linearLayoutManager);
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setItemViewCacheSize(20);
-                recyclerView.setDrawingCacheEnabled(true);
-                recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
-
-                activityList = new ArrayList<>();
-                activityList.add(new ProfileContactItem(R.drawable.profile_dummy_large, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-                activityList.add(new ProfileContactItem(R.drawable.profile_dummy_large, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-                activityList.add(new ProfileContactItem(R.drawable.profile_dummy_large, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-                activityList.add(new ProfileContactItem(R.drawable.profile_dummy_large, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-                activityList.add(new ProfileContactItem(R.drawable.profile_dummy_large, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-                activityList.add(new ProfileContactItem(R.drawable.profile_dummy_large, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-                activityList.add(new ProfileContactItem(R.drawable.profile_dummy_large, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-                activityList.add(new ProfileContactItem(R.drawable.profile_dummy_large, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-                activityList.add(new ProfileContactItem(R.drawable.profile_dummy_large, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-                activityList.add(new ProfileContactItem(R.drawable.profile_dummy_large, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-                activityList.add(new ProfileContactItem(R.drawable.profile_dummy_large, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-                activityList.add(new ProfileContactItem(R.drawable.profile_dummy_large, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-                activityList.add(new ProfileContactItem(R.drawable.profile_dummy_large, "Catherine Bennet", "12 July, 4819 @ 6:00 AM", "Called", ""));
-
-                mProfileActivitiesAdapter = new ProfileActivitiesAdapter(activityList, getActivity());
-                mProfileActivitiesAdapter.setHasStableIds(true);
-                recyclerView.setAdapter(mProfileActivitiesAdapter);
-            }
-        }
-
-//        @Override
-//        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//            inflater.inflate(R.menu.menu_contacts, menu);
-//            super.onCreateOptionsMenu(menu, inflater);
-//        }
-
-        @Override
-        public void onAttach(@NonNull Context context) {
-            super.onAttach(context);
-        }
-
-        @Override
-        public void onStart() {
-            super.onStart();
-        }
-
-        @Override
-        public void onResume() {
-            super.onResume();
-        }
-
-        @Override
-        public void onDestroy() {
-            super.onDestroy();
-        }
-
-        @Override
-        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
-        }
-    }
-
-    ///////////////////////////////////////////////////////////// FRAGMENT 3
-    public static class TalentFragment extends Fragment {
-
-        private TextView tvTalentText;
-
-
-        public TalentFragment() {
-        }
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-//            setHasOptionsMenu(true);
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.fragment_profile_talent, container, false);
-
-            if (null != getActivity()) {
-                SharedPreferences sp = getActivity().getSharedPreferences("talentItem", Context.MODE_PRIVATE);
-                tvTalentText = view.findViewById(R.id.tv_talent_text);
-                tvTalentText.setText(
-                        "Can Cook: " + sp.getString("canCook", "") +
-                                "\n\nCooking Self Rating: " + sp.getString("cookingSelfRating", "") +
-                                "\n\nCan Cook South Indian: " + sp.getString("canCookSouthIndian", "") +
-                                "\n\nSports College Level: " + sp.getString("sportsCollegeLevel", "") +
-                                "\n\nSports District Level: " + sp.getString("sportsDistrictLevel", "") +
-                                "\n\nDisclose: " + sp.getString("disclose", "")
-                );
-            }
-
-            return view;
-        }
-
-        @Override
-        public void onAttach(@NonNull Context context) {
-            super.onAttach(context);
-        }
-
-        @Override
-        public void onStart() {
-            super.onStart();
-        }
-
-        @Override
-        public void onResume() {
-            super.onResume();
-        }
-
-        @Override
-        public void onDestroy() {
-            super.onDestroy();
-        }
-
-        @Override
-        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
         }
     }
 }

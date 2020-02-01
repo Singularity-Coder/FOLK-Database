@@ -517,46 +517,54 @@ public class HomeActivity extends AppCompatActivity {
                 dialogChangePassword(this);
                 return true;
             case R.id.action_delete_account:
-                AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(this));
-                builder.setTitle("Are you sure?");
-                builder.setMessage("You cannot undo this!");
-
-                builder.setPositiveButton("Yes", (dialog, which) -> {
-                    AsyncTask.execute(() -> deleteAccount());
-                    dialog.dismiss();
-                });
-
-                builder.setNegativeButton("No", (dialog, which) -> {
-                    dialog.dismiss();
-                });
-
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
+                dialogDeleteAccount();
                 return true;
             case R.id.action_log_out:
-                AlertDialog.Builder builderLogOut = new AlertDialog.Builder(Objects.requireNonNull(this));
-                builderLogOut.setMessage("Do you want to Log Out?");
-
-                builderLogOut.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        AsyncTask.execute(() -> logOut());
-                        dialog.dismiss();
-                    }
-                });
-
-                builderLogOut.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-                AlertDialog alertDialogLogOut = builderLogOut.create();
-                alertDialogLogOut.show();
+                dialogLogOut();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void dialogDeleteAccount() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(this));
+        builder.setTitle("Are you sure?");
+        builder.setMessage("You cannot undo this!");
+
+        builder.setPositiveButton("Yes", (dialog, which) -> {
+            AsyncTask.execute(() -> deleteAccount());
+            dialog.dismiss();
+        });
+
+        builder.setNegativeButton("No", (dialog, which) -> {
+            dialog.dismiss();
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void dialogLogOut() {
+        AlertDialog.Builder builderLogOut = new AlertDialog.Builder(Objects.requireNonNull(this));
+        builderLogOut.setMessage("Do you want to Log Out?");
+
+        builderLogOut.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                AsyncTask.execute(() -> logOut());
+                dialog.dismiss();
+            }
+        });
+
+        builderLogOut.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        AlertDialog alertDialogLogOut = builderLogOut.create();
+        alertDialogLogOut.show();
     }
 
 
