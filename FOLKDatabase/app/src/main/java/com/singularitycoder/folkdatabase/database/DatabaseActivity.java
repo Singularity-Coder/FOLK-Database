@@ -33,6 +33,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.helper.HelperFrescoImageViewer;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
+import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -161,8 +162,13 @@ public class DatabaseActivity extends AppCompatActivity {
 
 
     private void showHideTabs() {
-        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-        String memberType = sp.getString("memberType", "");
+        // Main Shared Pref
+        HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(this);
+        String memberType = helperSharedPreference.getMemberType();
+
+
+//        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+//        String memberType = sp.getString("memberType", "");
         Log.d(TAG, "hideTabs: member type: " + memberType);
 
         if (("Folk Guide").toLowerCase().equals(memberType.toLowerCase())) {

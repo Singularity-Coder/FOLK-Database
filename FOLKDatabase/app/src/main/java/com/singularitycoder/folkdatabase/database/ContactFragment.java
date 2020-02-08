@@ -12,6 +12,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,6 +46,7 @@ import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.helper.HelperConstants;
 import com.singularitycoder.folkdatabase.helper.HelperCustomEditText;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
+import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
@@ -197,17 +199,23 @@ public class ContactFragment extends Fragment {
     // READ
     private void readContactsData() {
         if (null != getActivity()) {
-            SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
-            String folkGuideAbbr = sp.getString("folkGuideAbbr", "");
-            String zone = sp.getString("zone", "");
+            // Main Shared Pref
+            HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
+            String folkGuideAbbr = helperSharedPreference.getUserShortName();
+            String zone = helperSharedPreference.getZone();
+
+//            SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
+//            String folkGuideAbbr = sp.getString("folkGuideAbbr", "");
+//            String zone = sp.getString("zone", "");
 
             Log.d(TAG, "readContactsData: folkguide: " + folkGuideAbbr);
             Log.d(TAG, "readContactsData: zone: " + zone);
+            Log.d(TAG, "readContactsData: zone: " + zone.toUpperCase());
 
             FirebaseFirestore.getInstance()
                     .collection(HelperConstants.COLL_FOLK_NEW_MEMBERS)
                     .whereEqualTo("folk_guide", folkGuideAbbr)
-                    .whereEqualTo("zone", zone)
+                    .whereEqualTo("zone", zone.toUpperCase())
                     .get()
 //            FirebaseFirestore.getInstance().collection(HelperConstants.COLL_FOLK_NEW_MEMBERS).get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -329,7 +337,7 @@ public class ContactFragment extends Fragment {
                                 }
                                 Log.d(TAG, "firedoc id: " + docSnap.getId());
                                 contactList.add(personItemModel);
-                                tvListCount.setText(contactList.size() + " Contacts");
+                                tvListCount.setText(new StringBuilder(String.valueOf(contactList.size())).append(" Contacts"));
                             }
                             contactsAdapter.notifyDataSetChanged();
                             if (null != getActivity()) {

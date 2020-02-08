@@ -76,8 +76,8 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
         setContentView(R.layout.activity_approval_status);
         inits();
         authCheck();
-        setData();
         getIntentData();
+        setData();
         clickListeners();
     }
 
@@ -118,18 +118,26 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
     }
 
 
-    private void setData() {
-        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-        tvFolkGuideGreetingText.setText(new StringBuilder("Hello ").append(sp.getString("firstName", "")).append(","));
-    }
-
-
     private void getIntentData() {
         Intent intent = getIntent();
         strAuthTypeIntent = intent.getStringExtra("authType");
         if (!("").equals(strAuthTypeIntent)) {
             if (("SignUp").equals(strAuthTypeIntent)) {
                 AsyncTask.execute(this::readAuthorityPhoneNumber);
+            }
+        }
+    }
+
+
+    private void setData() {
+        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+        if (!("").equals(strAuthTypeIntent)) {
+            if (("SignUp").equals(strAuthTypeIntent)) {
+                tvFolkGuideGreetingText.setText(new StringBuilder("Hello ").append(sp.getString("firstName", "")).append(","));
+            }
+
+            if (("LogIn").equals(strAuthTypeIntent)) {
+                tvFolkGuideGreetingText.setText(new StringBuilder("Hello,"));
             }
         }
     }
@@ -151,7 +159,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
             if (null != strAuthTypeIntent) {
                 if (("SignUp").equals(strAuthTypeIntent)) {
                     try {
-                        HelperGeneral.dialogActionMessage(this, "Could not find your Authority's Phone Number. Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"));
+                        new HelperGeneral().dialogActionMessage(this, "Could not find your Authority's Phone Number. Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -159,14 +167,14 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
 
                 if (("LogIn").equals(strAuthTypeIntent)) {
                     try {
-                        HelperGeneral.dialogActionMessage(this, "Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"));
+                        new HelperGeneral().dialogActionMessage(this, "Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             } else {
                 try {
-                    HelperGeneral.dialogActionMessage(this, "Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"));
+                    new HelperGeneral().dialogActionMessage(this, "Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

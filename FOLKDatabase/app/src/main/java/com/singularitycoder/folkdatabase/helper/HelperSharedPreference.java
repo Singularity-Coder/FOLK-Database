@@ -7,6 +7,9 @@ import android.content.SharedPreferences;
 public class HelperSharedPreference {
     private static final String KEY_DOC_ID = "docId";
     private static final String KEY_EMAIL = "email";
+    private static final String KEY_ZONE = "zone";
+    private static final String KEY_USER_SHORT_NAME = "shortName";
+    private static final String KEY_USER_MEMBER_TYPE = "memberType";
     private static final String KEY_MOBILE = "mobile";
     private static final String KEY_ROLE = "role";
     private static final String KEY_USERNAME = "userName";
@@ -66,6 +69,33 @@ public class HelperSharedPreference {
 
     public String getEmail() {
         return sharedPref.getString(KEY_EMAIL, "");
+    }
+
+    public void setZone(String zone) {
+        sharedPrefEditor.putString(KEY_ZONE, zone);
+        sharedPrefEditor.commit();
+    }
+
+    public String getZone() {
+        return sharedPref.getString(KEY_ZONE, "");
+    }
+
+    public void setUserShortName(String shortName) {
+        sharedPrefEditor.putString(KEY_USER_SHORT_NAME, shortName);
+        sharedPrefEditor.commit();
+    }
+
+    public String getUserShortName() {
+        return sharedPref.getString(KEY_USER_SHORT_NAME, "");
+    }
+
+    public void setMemberType(String memberType) {
+        sharedPrefEditor.putString(KEY_USER_MEMBER_TYPE, memberType);
+        sharedPrefEditor.commit();
+    }
+
+    public String getMemberType() {
+        return sharedPref.getString(KEY_USER_MEMBER_TYPE, "");
     }
 
 

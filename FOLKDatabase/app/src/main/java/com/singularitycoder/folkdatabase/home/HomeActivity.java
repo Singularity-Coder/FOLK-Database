@@ -355,8 +355,13 @@ public class HomeActivity extends AppCompatActivity {
 
     // READ
     private void readAuthUserData() {
-        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-        String email = sp.getString("email", "");
+        // Main Shared Pref
+        HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(this);
+        String email = helperSharedPreference.getEmail();
+
+//        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+//        String email = sp.getString("email", "");
+
         runOnUiThread(() -> {
             loadingBar.setMessage("Please wait...");
             loadingBar.setCanceledOnTouchOutside(false);
@@ -384,6 +389,21 @@ public class HomeActivity extends AppCompatActivity {
 
                                 if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
                                     authUserItem.setProfileImageUrl(valueOf(docSnap.getString("profileImageUrl")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("zone")))) {
+                                    authUserItem.setZone(valueOf(docSnap.getString("zone")));
+                                    helperSharedPreference.setZone(valueOf(docSnap.getString("zone")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("shortName")))) {
+                                    authUserItem.setShortName(valueOf(docSnap.getString("shortName")));
+                                    helperSharedPreference.setUserShortName(valueOf(docSnap.getString("shortName")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("memberType")))) {
+                                    authUserItem.setMemberType(valueOf(docSnap.getString("memberType")));
+                                    helperSharedPreference.setMemberType(valueOf(docSnap.getString("memberType")));
                                 }
 
                                 Map<String, Object> talent = (Map<String, Object>) docSnap.getData().get("talent");
@@ -1111,21 +1131,13 @@ public class HomeActivity extends AppCompatActivity {
                 .getInstance()
                 .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            strOldPassword = queryDocumentSnapshots.getDocuments().get(0).getString("password");
-                            // store user doc id, name, pasword all basic details in shared prefs
-                        }
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        strOldPassword = queryDocumentSnapshots.getDocuments().get(0).getString("password");
+                        // store user doc id, name, pasword all basic details in shared prefs
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "onFailure: got hit");
-                    }
-                });
+                .addOnFailureListener(e -> Log.d(TAG, "onFailure: got hit"));
         return strOldPassword;
     }
 
@@ -1201,6 +1213,7 @@ public class HomeActivity extends AppCompatActivity {
             if (user == null) {
                 // unload all shared prefs
                 helperSharedPreference.setSignupStatus("false");
+                helperSharedPreference.setEmail("");
                 // fireUser fireAuth state is changed - fireUser is null launch login activity
                 startActivity(new Intent(HomeActivity.this, MainActivity.class));
                 Objects.requireNonNull(HomeActivity.this).finish();

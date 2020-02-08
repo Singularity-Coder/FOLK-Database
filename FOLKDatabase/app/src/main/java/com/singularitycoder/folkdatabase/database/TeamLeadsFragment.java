@@ -29,6 +29,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.helper.HelperConstants;
+import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
@@ -148,11 +149,16 @@ public class TeamLeadsFragment extends Fragment {
     // READ
     private void readFolkGuidesData() {
         if (null != getActivity()) {
-            SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
-            String zone = sp.getString("zone", "");
+            HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
+            String zone = helperSharedPreference.getZone();
+            String shortName = helperSharedPreference.getUserShortName();
+
+//            SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
+//            String zone = sp.getString("zone", "");
 
             FirebaseFirestore.getInstance()
                     .collection(HelperConstants.COLL_AUTH_FOLK_TEAM_LEADS)
+                    .whereEqualTo("directAuthority", shortName)
                     .whereEqualTo("zone", zone)
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -166,22 +172,25 @@ public class TeamLeadsFragment extends Fragment {
                                 if (teamLeadItem != null) {
                                     Log.d(TAG, "personItem: " + teamLeadItem);
                                     teamLeadItem.setId(docSnap.getId());
-                                    teamLeadItem.setStrFirstName(docSnap.getString(HelperConstants.KEY_FG_NAME));
-                                    teamLeadItem.setstrTeamLeadAbbr(docSnap.getString(HelperConstants.KEY_FG_ABBR));
-                                    teamLeadItem.setStrZone(docSnap.getString(HelperConstants.KEY_ZONE));
-                                    teamLeadItem.setStrPhone(docSnap.getString(HelperConstants.KEY_MOBILE_NUMBER));
-                                    teamLeadItem.setStrWhatsApp(docSnap.getString(HelperConstants.KEY_MOBILE_NUMBER));
-                                    teamLeadItem.setStrEmail(docSnap.getString(HelperConstants.KEY_EMAIL));
+                                    teamLeadItem.setStrFirstName(docSnap.getString("fullName"));
+                                    teamLeadItem.setstrTeamLeadAbbr(docSnap.getString("shortName"));
+                                    teamLeadItem.setStrZone(docSnap.getString("zone"));
+                                    teamLeadItem.setStrPhone(docSnap.getString("phone"));
+                                    teamLeadItem.setStrWhatsApp(docSnap.getString("phone"));
+                                    teamLeadItem.setStrEmail(docSnap.getString("email"));
                                 }
                                 Log.d(TAG, "firedoc id: " + docSnap.getId());
                                 teamLeadList.add(teamLeadItem);
-                                tvListCount.setText(teamLeadList.size() + " Team Leads");
+                                tvListCount.setText(new StringBuilder(String.valueOf(teamLeadList.size())).append(" Team Leads"));
                             }
                             teamLeadsAdapter.notifyDataSetChanged();
                             if (null != getActivity()) {
                                 Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
                             }
+                        } else {
+                            Toast.makeText(getActivity(), "Nothing to show!", Toast.LENGTH_SHORT).show();
                         }
+
                         if (teamLeadList.size() == 0) {
                             noFeedImage.setVisibility(View.VISIBLE);
                             noFeedText.setVisibility(View.VISIBLE);

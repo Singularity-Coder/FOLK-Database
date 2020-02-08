@@ -29,6 +29,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.helper.HelperConstants;
+import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
@@ -147,40 +148,52 @@ public class FolkGuidesFragment extends Fragment {
     // READ
     private void readFolkGuidesData() {
         if (null != getActivity()) {
-            SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
-            String zone = sp.getString("zone", "");
+            // Main Shared Pref
+            HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
+            String zone = helperSharedPreference.getZone();
+            String shortName = helperSharedPreference.getUserShortName();
+
+            Log.d(TAG, "readFolkGuidesData: shortName: " + shortName);
+            Log.d(TAG, "readFolkGuidesData: zone: " + zone);
+            Log.d(TAG, "readFolkGuidesData: zone: " + zone.toUpperCase());
+
+//            SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
+//            String zone = sp.getString("zone", "");
 
             FirebaseFirestore.getInstance()
                     .collection(HelperConstants.COLL_AUTH_FOLK_GUIDES)
+                    .whereEqualTo("directAuthority", shortName)
                     .whereEqualTo("zone", zone)
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         shimmerFrameLayout.setVisibility(View.GONE);
                         if (!queryDocumentSnapshots.isEmpty()) {
                             List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
-                            Log.d(TAG, "docList: " + docList);
-
+                            Log.d(TAG, "docList fg: " + docList);
                             for (DocumentSnapshot docSnap : docList) {
                                 folkGuideItem = docSnap.toObject(FolkGuideItem.class);
                                 if (folkGuideItem != null) {
                                     Log.d(TAG, "personItem: " + folkGuideItem);
                                     folkGuideItem.setId(docSnap.getId());
-                                    folkGuideItem.setStrFirstName(docSnap.getString(HelperConstants.KEY_FG_NAME));
-                                    folkGuideItem.setStrFolkGuideAbbr(docSnap.getString(HelperConstants.KEY_FG_ABBR));
-                                    folkGuideItem.setStrZone(docSnap.getString(HelperConstants.KEY_ZONE));
-                                    folkGuideItem.setStrPhone(docSnap.getString(HelperConstants.KEY_MOBILE_NUMBER));
-                                    folkGuideItem.setStrWhatsApp(docSnap.getString(HelperConstants.KEY_MOBILE_NUMBER));
-                                    folkGuideItem.setStrEmail(docSnap.getString(HelperConstants.KEY_EMAIL));
+                                    folkGuideItem.setStrFirstName(docSnap.getString("fullName"));
+                                    folkGuideItem.setStrFolkGuideAbbr(docSnap.getString("shortName"));
+                                    folkGuideItem.setStrZone(docSnap.getString("zone"));
+                                    folkGuideItem.setStrPhone(docSnap.getString("phone"));
+                                    folkGuideItem.setStrWhatsApp(docSnap.getString("phone"));
+                                    folkGuideItem.setStrEmail(docSnap.getString("email"));
                                 }
                                 Log.d(TAG, "firedoc id: " + docSnap.getId());
                                 folkGuidesList.add(folkGuideItem);
-                                tvListCount.setText(folkGuidesList.size() + " FOLK Guides");
+                                tvListCount.setText(new StringBuilder(String.valueOf(folkGuidesList.size())).append(" FOLK Guides"));
                             }
                             folkGuidesAdapter.notifyDataSetChanged();
                             if (null != getActivity()) {
                                 Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
                             }
+                        } else {
+                            Toast.makeText(getActivity(), "Nothing to show!", Toast.LENGTH_SHORT).show();
                         }
+                         
                         if (folkGuidesList.size() == 0) {
                             noFeedImage.setVisibility(View.VISIBLE);
                             noFeedText.setVisibility(View.VISIBLE);
@@ -193,6 +206,7 @@ public class FolkGuidesFragment extends Fragment {
                         if (null != getActivity()) {
                             Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
                         }
+                        Log.d(TAG, "readFolkGuidesData: faled");
                         noFeedImage.setVisibility(View.VISIBLE);
                         noFeedText.setVisibility(View.VISIBLE);
                     });

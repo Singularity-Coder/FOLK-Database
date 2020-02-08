@@ -325,11 +325,9 @@ public class HelperGeneral extends AppCompatActivity {
                 .show();
     }
 
-    public static <T extends Object> T dialogActionMessage(Activity activity, String message, String positiveActionWord, String negativeActionWord, Callable<Void> voidFunction) throws Exception {
+    public <T extends Object> T dialogActionMessage(Activity activity, String message, String positiveActionWord, String negativeActionWord, Callable<Void> voidFunction) throws Exception {
         new AlertDialog.Builder(activity)
                 .setMessage(message)
-                // Specifying a listener allows you to take an action before dismissing the dialog.
-                // The dialog is automatically dismissed when a dialog button is clicked.
                 .setPositiveButton(positiveActionWord, (dialog, which) -> {
                     try {
                         voidFunction.call();
@@ -352,20 +350,17 @@ public class HelperGeneral extends AppCompatActivity {
         builder.setTitle(dialogTitle);
         builder.setSingleChoiceItems(stringArray, 0, (dialogInterface, i) -> single_choice_selected[0] = stringArray[i]);
 
-        builder.setPositiveButton("okay", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Log.d("TAG", "selected language is-->>" + single_choice_selected[0]);
-                switch (dialogTitle) {
-                    case "con 1":
-                        TextView s1 = null;
-                        s1.setText(single_choice_selected[0]);
-                        break;
-                    case "con 2":
-                        TextView s2 = null;
-                        s2.setText(single_choice_selected[1]);
-                        break;
-                }
+        builder.setPositiveButton("okay", (dialogInterface, i) -> {
+            Log.d("TAG", "selected language is-->>" + single_choice_selected[0]);
+            switch (dialogTitle) {
+                case "con 1":
+                    TextView s1 = null;
+                    s1.setText(single_choice_selected[0]);
+                    break;
+                case "con 2":
+                    TextView s2 = null;
+                    s2.setText(single_choice_selected[1]);
+                    break;
             }
         });
 
