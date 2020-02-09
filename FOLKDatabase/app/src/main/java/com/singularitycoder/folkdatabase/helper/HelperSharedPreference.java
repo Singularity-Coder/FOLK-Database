@@ -17,7 +17,6 @@ public class HelperSharedPreference {
 
     private static final String KEY_SIGNUP_STATUS = "signUpStatus";
 
-
     private static HelperSharedPreference _instance;
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor sharedPrefEditor;

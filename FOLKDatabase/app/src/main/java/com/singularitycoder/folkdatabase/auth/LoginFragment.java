@@ -60,6 +60,7 @@ public class LoginFragment extends Fragment {
     private HelperSharedPreference helperSharedPreference;
     private AuthUserItem authUserItem;
     private String strSignUpStatus;
+    private HelperGeneral helperObject = new HelperGeneral();
 
 
     public LoginFragment() {
@@ -312,16 +313,7 @@ public class LoginFragment extends Fragment {
 
     private void dialogForgotPassword(Activity activity) {
         final Dialog dialog = new Dialog(activity);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(false);
-        dialog.setContentView(R.layout.dialog_forgot_password);
-
-        Rect displayRectangle = new Rect();
-        Window window = activity.getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-        Objects.requireNonNull(dialog.getWindow()).setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
-
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        helperObject.dialogCustomBuild(activity, R.layout.dialog_forgot_password, dialog, false);
 
         ImageView imgClose = dialog.findViewById(R.id.img_close);
         HelperCustomEditText etResetEmail = dialog.findViewById(R.id.et_reset_email);

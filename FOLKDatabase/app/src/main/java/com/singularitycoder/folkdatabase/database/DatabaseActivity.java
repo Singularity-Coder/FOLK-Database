@@ -1,28 +1,11 @@
 package com.singularitycoder.folkdatabase.database;
 
-import android.app.Activity;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -31,13 +14,11 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.singularitycoder.folkdatabase.R;
-import com.singularitycoder.folkdatabase.helper.HelperFrescoImageViewer;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 
 public class DatabaseActivity extends AppCompatActivity {
@@ -48,11 +29,12 @@ public class DatabaseActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private FloatingActionButton fab1;
     private ViewPagerAdapter viewPagerAdapter;
+    private HelperGeneral helperObject = new HelperGeneral();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setUpStatusBar();
+        new HelperGeneral().setStatuBarColor(this, R.color.colorPrimaryDark);
         setContentView(R.layout.activity_database);
         inits();
         initToolBar();
@@ -68,19 +50,6 @@ public class DatabaseActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewpager_home);
         tabLayout = findViewById(R.id.tabs_home);
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-    }
-
-
-    private void setUpStatusBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = this.getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);  // clear FLAG_TRANSLUCENT_STATUS flag:
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);  // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));   // change the color
-        }
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
 
@@ -238,92 +207,6 @@ public class DatabaseActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
-    }
-
-
-    public void showQuickInfoDialog(Context context, String fullName, String imageUrl, String phone, String whatsApp, String email) {
-        final Dialog dialog = new Dialog(context);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(true);
-        dialog.setContentView(R.layout.dialog_quick_profile);
-
-        Rect displayRectangle = new Rect();
-        Window window = ((Activity) context).getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-        Objects.requireNonNull(dialog.getWindow()).setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
-
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        TextView tvFullName = dialog.findViewById(R.id.tv_name);
-        tvFullName.setText(fullName);
-
-        ImageView imgProfilePic = dialog.findViewById(R.id.img_profile_image);
-        HelperGeneral.glideProfileImage(context, imageUrl, imgProfilePic);
-        imgProfilePic.setOnClickListener(v -> {
-//            SimpleDraweeView draweeView = findViewById(R.id.img_fresco_full_image);
-//            draweeView.setImageURI(imageUrl);
-            Intent intent = new Intent(context, HelperFrescoImageViewer.class);
-            intent.putExtra("image_url", imageUrl);
-            context.startActivity(intent);
-        });
-
-        ImageView imgCall = dialog.findViewById(R.id.img_quick_call);
-        imgCall.setOnClickListener(v -> {
-            Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
-            callIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-            context.startActivity(callIntent);
-        });
-
-        ImageView imgSms = dialog.findViewById(R.id.img_quick_message);
-        imgSms.setOnClickListener(v -> {
-            Intent smsIntent = new Intent(Intent.ACTION_VIEW);
-            smsIntent.setType("vnd.android-dir/mms-sms");
-            smsIntent.putExtra("address", phone);
-            smsIntent.putExtra("sms_body", "Message Body check");
-            smsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-            if (smsIntent.resolveActivity(context.getPackageManager()) != null) {
-                context.startActivity(smsIntent);
-            }
-        });
-
-        ImageView imgWhatsApp = dialog.findViewById(R.id.img_quick_whatsapp);
-        imgWhatsApp.setOnClickListener(v -> {
-            PackageManager packageManager = context.getPackageManager();
-            try {
-                // checks if such an app exists or not
-                packageManager.getPackageInfo("com.whatsapp", PackageManager.GET_ACTIVITIES);
-                Uri uri = Uri.parse("smsto:" + whatsApp);
-                Intent whatsAppIntent = new Intent(Intent.ACTION_SENDTO, uri);
-                whatsAppIntent.setPackage("com.whatsapp");
-                context.startActivity(Intent.createChooser(whatsAppIntent, "Dummy Title"));
-            } catch (PackageManager.NameNotFoundException e) {
-                new HelperGeneral().toast("WhatsApp not found. Install from playstore.", context, 1);
-                Uri uri = Uri.parse("market://details?id=com.whatsapp");
-                Intent openPlayStore = new Intent(Intent.ACTION_VIEW, uri);
-                openPlayStore.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                context.startActivity(openPlayStore);
-            }
-        });
-
-        ImageView imgEmail = dialog.findViewById(R.id.img_quick_email);
-        imgEmail.setOnClickListener(v -> {
-            Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", email, null));
-            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Follow Up");
-            emailIntent.putExtra(Intent.EXTRA_TEXT, "Hi Contact, this is telecaller...");
-            context.startActivity(Intent.createChooser(emailIntent, "Send email..."));
-        });
-
-        ImageView imgShare = dialog.findViewById(R.id.img_quick_share);
-        imgShare.setOnClickListener(v -> {
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Full Name");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "https://www.singularitycoder.com");
-            shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-            context.startActivity(Intent.createChooser(shareIntent, "Share to"));
-        });
-
-        dialog.show();
     }
 
 

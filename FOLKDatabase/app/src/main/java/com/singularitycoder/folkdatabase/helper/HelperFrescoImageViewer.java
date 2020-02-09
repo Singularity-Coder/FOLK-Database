@@ -57,25 +57,12 @@ public class HelperFrescoImageViewer extends Activity implements View.OnTouchLis
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setUpStatusBar();
+        new HelperGeneral().setStatuBarColor(this, R.color.colorPureBlack);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_helper_fresco_image_viewer);
         init();
         setImageView();
         listeners();
-    }
-
-
-    private void setUpStatusBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = this.getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);  // clear FLAG_TRANSLUCENT_STATUS flag:
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);  // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPureBlack));   // change the color
-        }
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
 

@@ -15,7 +15,6 @@ import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
-import android.util.TimingLogger;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,11 +33,6 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.gson.Gson;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.database.ContactItem;
 import com.singularitycoder.folkdatabase.helper.ApiEndPoints;
@@ -60,7 +54,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import droidninja.filepicker.FilePickerBuilder;
@@ -71,7 +64,6 @@ import retrofit2.Response;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
-import static com.singularitycoder.folkdatabase.helper.HelperImage.showSettingsDialog;
 import static java.lang.String.valueOf;
 
 public class SignUpFragment extends Fragment {
@@ -112,6 +104,7 @@ public class SignUpFragment extends Fragment {
     private ProgressDialog loadingBar;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firestore;
+    private HelperGeneral helperObject = new HelperGeneral();
 
     public SignUpFragment() {
     }
@@ -120,17 +113,17 @@ public class SignUpFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_signup, container, false);
         if ((null) != getActivity()) {
-            init(view);
+            inits(view);
             authCheck();
             clickListeners();
             showHidePassword();
-            checkFunctionExecutionTimings();
+            helperObject.checkFunctionExecutionTimings();
         }
         return view;
     }
 
 
-    private void init(View view) {
+    private void inits(View view) {
         firebaseAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
         Log.d(TAG, "init: firebase instance: " + firestore + " auth: " + firebaseAuth);
@@ -159,9 +152,6 @@ public class SignUpFragment extends Fragment {
         if (firebaseAuth.getCurrentUser() != null) {
             // check if key is false. If ture then send to main activity
             // if shared pref value is not null n if true or false
-
-            Log.d(TAG, "authCheck: isAuthing");
-
             if (null != getActivity()) {
                 HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
                 String signUpStatus = helperSharedPreference.getSignupStatus();
@@ -308,7 +298,7 @@ public class SignUpFragment extends Fragment {
                         doesAuthorityShortNameExistApi(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""), "TL");
                     }
                 } else {
-                    HelperGeneral.dialogShowMessage(getActivity(), "Short Name cannot be empty!");
+                    new HelperGeneral().dialogActionMessage(getActivity(), null,  "Short Name cannot be empty!", "OK", "", null, null, true);
                 }
             }
         });
@@ -317,26 +307,7 @@ public class SignUpFragment extends Fragment {
 
     private void openGallery() {
         if (null != getActivity()) {
-            Dexter.withActivity(getActivity())
-                    .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    .withListener(new MultiplePermissionsListener() {
-                        @Override
-                        public void onPermissionsChecked(MultiplePermissionsReport report) {
-                            if (report.areAllPermissionsGranted()) {
-                                showImagePickerOptions();
-                            }
-                            if (report.isAnyPermissionPermanentlyDenied()) {
-                                if (null != getActivity()) {
-                                    showSettingsDialog(getActivity());
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                            token.continuePermissionRequest();
-                        }
-                    }).check();
+            helperObject.checkPermissions(getActivity(), () -> showImagePickerOptions(), Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
     }
 
@@ -374,13 +345,6 @@ public class SignUpFragment extends Fragment {
                 tvShowHidePassword.setText("SHOW");
             }
         });
-    }
-
-
-    private void checkFunctionExecutionTimings() {
-        TimingLogger timingLogger = new TimingLogger(TAG, "hasValidInput");
-        timingLogger.addSplit("");
-        timingLogger.dumpToLog();
     }
 
 
@@ -1152,7 +1116,7 @@ public class SignUpFragment extends Fragment {
                                         }
 
                                         if (jsonObject.getString("status").equals("Failure")) {
-                                            HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                            new HelperGeneral().dialogActionMessage(getActivity(), null,  jsonObject.getString("message"), "OK", "", null, null, true);
                                         }
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -1295,7 +1259,7 @@ public class SignUpFragment extends Fragment {
 
                                             if (jsonObject.getString("status").equals("Failure")) {
                                                 Log.d(TAG, "onResponse: h2");
-                                                HelperGeneral.dialogShowMessage(getActivity(), jsonObject.getString("message"));
+                                                new HelperGeneral().dialogActionMessage(getActivity(), null, jsonObject.getString("message"), "OK", "", null, null, true);
                                             }
                                         } catch (JSONException e) {
                                             e.printStackTrace();
@@ -1367,12 +1331,13 @@ public class SignUpFragment extends Fragment {
     }
 
 
-    private void showImagePickerOptions() {
+    private Void showImagePickerOptions() {
         FilePickerBuilder.getInstance()
                 .setSelectedFiles(imageFilePathsStringArray)
                 .setActivityTheme(R.style.LibAppTheme)
                 .setMaxCount(1)
                 .pickPhoto(this);
+        return null;
     }
 
 

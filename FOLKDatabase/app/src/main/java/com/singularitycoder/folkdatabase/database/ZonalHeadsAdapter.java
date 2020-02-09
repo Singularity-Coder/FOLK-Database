@@ -22,6 +22,7 @@ public class ZonalHeadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private Context context;
     private ArrayList<ZonalHeadItem> zonalHeadsList;
     private OnItemClickListener clickListener;
+    private HelperGeneral helperObject = new HelperGeneral();
 
     public ZonalHeadsAdapter() {
     }
@@ -48,12 +49,12 @@ public class ZonalHeadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             String fullName = zonalHeadItem.getStrFirstName() + " " + zonalHeadItem.getStrLastName();
             zonalHeadsViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();
-                databaseActivity.showQuickInfoDialog(context, fullName, zonalHeadItem.getStrProfileImage(), zonalHeadItem.getStrPhone(), zonalHeadItem.getStrWhatsApp(), zonalHeadItem.getStrEmail());
+                helperObject.showQuickInfoDialog(context, fullName, zonalHeadItem.getStrProfileImage(), zonalHeadItem.getStrPhone(), zonalHeadItem.getStrWhatsApp(), zonalHeadItem.getStrEmail());
             });
 
-            zonalHeadsViewHolder.tvName.setText(zonalHeadItem.getStrFirstName() + " " + zonalHeadItem.getStrLastName());
-            zonalHeadsViewHolder.tvSubTitle1.setText("Experience in KC: " + zonalHeadItem.getStrKcExperience() + " Years");
-            zonalHeadsViewHolder.tvSubTitle2.setText("Member Type: " + zonalHeadItem.getStrMemberType());
+            zonalHeadsViewHolder.tvName.setText(new StringBuilder(zonalHeadItem.getStrFirstName()).append(" ").append(zonalHeadItem.getStrLastName()));
+            zonalHeadsViewHolder.tvSubTitle1.setText(new StringBuilder("Experience in KC: ").append(zonalHeadItem.getStrKcExperience()).append(" Years"));
+            zonalHeadsViewHolder.tvSubTitle2.setText(new StringBuilder("Member Type: ").append(zonalHeadItem.getStrMemberType()));
         }
     }
 

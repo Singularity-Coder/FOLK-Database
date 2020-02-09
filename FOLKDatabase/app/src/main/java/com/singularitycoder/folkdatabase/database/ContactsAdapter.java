@@ -22,6 +22,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private Context context;
     private ArrayList<ContactItem> contactsList;
     private OnItemClickListener clickListener;
+    private HelperGeneral helperObject = new HelperGeneral();
 
     public ContactsAdapter() {
     }
@@ -56,7 +57,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             HelperGeneral.glideProfileImage(context, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
             contactsViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();
-                databaseActivity.showQuickInfoDialog(context, contactItem.getFirstName(), contactItem.getStrProfileImage(), contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail());
+                helperObject.showQuickInfoDialog(context, contactItem.getFirstName(), contactItem.getStrProfileImage(), contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail());
             });
 
             contactsViewHolder.tvName.setText(contactItem.getFirstName());

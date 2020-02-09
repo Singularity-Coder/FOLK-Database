@@ -22,6 +22,7 @@ public class TeamLeadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private Context context;
     private ArrayList<TeamLeadItem> teamLeadsList;
     private OnItemClickListener clickListener;
+    private HelperGeneral helperObject = new HelperGeneral();
 
     public TeamLeadsAdapter() {
     }
@@ -47,7 +48,7 @@ public class TeamLeadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             HelperGeneral.glideProfileImage(context, teamLeadItem.getStrProfileImage(), TeamLeadsViewHolder.imgProfileImage);
             TeamLeadsViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();
-                databaseActivity.showQuickInfoDialog(context, teamLeadItem.getStrFirstName(), teamLeadItem.getStrProfileImage(), teamLeadItem.getStrPhone(), teamLeadItem.getStrWhatsApp(), teamLeadItem.getStrEmail());
+                helperObject.showQuickInfoDialog(context, teamLeadItem.getStrFirstName(), teamLeadItem.getStrProfileImage(), teamLeadItem.getStrPhone(), teamLeadItem.getStrWhatsApp(), teamLeadItem.getStrEmail());
             });
 
             TeamLeadsViewHolder.tvName.setText(teamLeadItem.getstrTeamLeadAbbr());

@@ -22,6 +22,8 @@ public class FolkGuidesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private Context context;
     private ArrayList<FolkGuideItem> folkGuidesList;
     private OnItemClickListener clickListener;
+    private HelperGeneral helperObject = new HelperGeneral();
+
 
     public FolkGuidesAdapter() {
     }
@@ -47,7 +49,7 @@ public class FolkGuidesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             HelperGeneral.glideProfileImage(context, folkGuideItem.getStrProfileImage(), folkGuidesViewHolder.imgProfileImage);
             folkGuidesViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();
-                databaseActivity.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
+                helperObject.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
             });
 
             folkGuidesViewHolder.tvName.setText(folkGuideItem.getStrFolkGuideAbbr());

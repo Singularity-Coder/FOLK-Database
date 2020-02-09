@@ -1,66 +1,36 @@
 package com.singularitycoder.folkdatabase.home;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.facebook.shimmer.ShimmerFrameLayout;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.AuthApprovalStatusActivity;
 import com.singularitycoder.folkdatabase.auth.AuthUserApprovalItem;
@@ -74,8 +44,6 @@ import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +76,7 @@ public class HomeActivity extends AppCompatActivity {
     private boolean setSignUpStatus = true;
     private boolean setRedFlagStatus = true;
     private HelperSharedPreference helperSharedPreference;
+    private HelperGeneral helperObject = new HelperGeneral();
 
 
     // this listener is called when there is change in firebase fireUser session
@@ -126,7 +95,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setUpStatusBar();
+        new HelperGeneral().setStatuBarColor(this, R.color.colorPrimaryDark);
         setContentView(R.layout.activity_home);
         init();
         authCheck();
@@ -158,19 +127,6 @@ public class HomeActivity extends AppCompatActivity {
                 Objects.requireNonNull(this).finish();
             }
         };
-    }
-
-
-    private void setUpStatusBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = this.getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);  // clear FLAG_TRANSLUCENT_STATUS flag:
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);  // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));   // change the color
-        }
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
 
@@ -446,12 +402,6 @@ public class HomeActivity extends AppCompatActivity {
         recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
         homeList = new ArrayList<>();
-
-//        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-//        String imgUrl = sp.getString("profileImage", "");
-//        String fullName = sp.getString("firstName", "") + " " + sp.getString("lastName", "");
-//        String memberType = sp.getString("memberType", "");
-
         homeList.add(new HomeItem(authUserItem.getProfileImageUrl(), authUserItem.getFullName()));
         homeList.add(new HomeItem(R.drawable.ic_accomodation3, "Accomodation", ""));
         homeList.add(new HomeItem(R.drawable.ic_database3, "Database", ""));
@@ -459,17 +409,16 @@ public class HomeActivity extends AppCompatActivity {
         homeList.add(new HomeItem(R.drawable.ic_service3, "Service", ""));
         homeList.add(new HomeItem(R.drawable.ic_payments3, "Payments", ""));
         homeList.add(new HomeItem(R.drawable.ic_prasadum3, "Prasad Coupon", ""));
-//        homeList.add(new HomeItem(R.drawable.ic_widgets_black_24dp, "Tools", ""));
 
         homeAdapter = new HomeAdapter(homeList, this);
         homeAdapter.setHasStableIds(true);
         homeAdapter.setOnItemClickListener((view, position) -> {
             if (position == 0) {
-                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
+                new HelperGeneral().dialogActionMessage(HomeActivity.this, null, "Coming Soon", "OK", "", null, null, true);
             }
 
             if (position == 1) {
-                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
+                new HelperGeneral().dialogActionMessage(HomeActivity.this, null, "Coming Soon", "OK", "", null, null, true);
             }
 
             if (position == 2) {
@@ -477,24 +426,20 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             if (position == 3) {
-                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
+                new HelperGeneral().dialogActionMessage(HomeActivity.this, null, "Coming Soon", "OK", "", null, null, true);
             }
 
             if (position == 4) {
-                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
+                new HelperGeneral().dialogActionMessage(HomeActivity.this, null, "Coming Soon", "OK", "", null, null, true);
             }
 
             if (position == 5) {
-                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
+                new HelperGeneral().dialogActionMessage(HomeActivity.this, null, "Coming Soon", "OK", "", null, null, true);
             }
 
             if (position == 6) {
-                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
+                new HelperGeneral().dialogActionMessage(HomeActivity.this, null, "Coming Soon", "OK", "", null, null, true);
             }
-//
-//            if (position == 7) {
-//                HelperGeneral.dialogShowMessage(HomeActivity.this, "Coming Soon");
-//            }
         });
         recyclerView.setAdapter(homeAdapter);
     }
@@ -518,13 +463,13 @@ public class HomeActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_birthdays:
 //                dialogNotifications(this);
-                HelperGeneral.dialogShowMessage(this, "Birthdays is Coming Soon!");
+                new HelperGeneral().dialogActionMessage(HomeActivity.this, null, "Birthdays is Coming Soon!", "OK", "", null, null, true);
                 return true;
             case R.id.action_approve_users:
 //                SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
 //                String memberType = sp.getString("memberType", "");
 //                dialogApproveUsers(this, memberType);
-                HelperGeneral.dialogShowMessage(this, "Approving users is Coming Soon!");
+                new HelperGeneral().dialogActionMessage(HomeActivity.this, null, "Approving users is Coming Soon!", "OK", "", null, null, true);
                 return true;
             case R.id.action_my_profile:
                 Intent intent = new Intent(this, ProfileActivity.class);
@@ -538,221 +483,58 @@ public class HomeActivity extends AppCompatActivity {
                 dialogChangePassword(this);
                 return true;
             case R.id.action_delete_account:
-                dialogDeleteAccount();
+                new HelperGeneral().dialogActionMessage(this, "Are you sure?", "You cannot undo this!", "Yes", "No", () -> deleteAccount(), null, true);
                 return true;
             case R.id.action_log_out:
-                dialogLogOut();
+                new HelperGeneral().dialogActionMessage(this, null, "Do you want to Log Out?", "Yes", "No", () -> logOut(), null, true);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void dialogDeleteAccount() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(this));
-        builder.setTitle("Are you sure?");
-        builder.setMessage("You cannot undo this!");
-
-        builder.setPositiveButton("Yes", (dialog, which) -> {
-            AsyncTask.execute(() -> deleteAccount());
-            dialog.dismiss();
-        });
-
-        builder.setNegativeButton("No", (dialog, which) -> {
-            dialog.dismiss();
-        });
-
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
-
-    private void dialogLogOut() {
-        AlertDialog.Builder builderLogOut = new AlertDialog.Builder(Objects.requireNonNull(this));
-        builderLogOut.setMessage("Do you want to Log Out?");
-
-        builderLogOut.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                AsyncTask.execute(() -> logOut());
-                dialog.dismiss();
-            }
-        });
-
-        builderLogOut.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        AlertDialog alertDialogLogOut = builderLogOut.create();
-        alertDialogLogOut.show();
-    }
-
 
     private void aboutDialog(Activity activity) {
         final Dialog dialog = new Dialog(activity);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(true);
-        dialog.setContentView(R.layout.dialog_about);
-
-        Rect displayRectangle = new Rect();
-        Window window = activity.getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-        dialog.getWindow().setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
-
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT)); // for rounded corners
+        new HelperGeneral().dialogCustomBuild(activity, R.layout.dialog_about, dialog, true);
 
         ImageView ivLogo = dialog.findViewById(R.id.img_about_logo);
-
         TextView tvContactUs = dialog.findViewById(R.id.tv_contact_us);
+        TextView tvRateUs = dialog.findViewById(R.id.tv_rate_us);
+        TextView tvVolunteer = dialog.findViewById(R.id.tv_volunteer_appdev);
+        TextView tvDedicated = dialog.findViewById(R.id.tv_dedicated_to);
+        TextView tvShareApk = dialog.findViewById(R.id.tv_share_app_apk);
+        TextView tvShareLink = dialog.findViewById(R.id.tv_share_app_link);
+
         tvContactUs.setOnClickListener(view -> {
             Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "name@emailaddress.com", null));
             emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Contact Us");
             emailIntent.putExtra(Intent.EXTRA_TEXT, "Feedback, Help, Report Bugs etc.");
             activity.startActivity(Intent.createChooser(emailIntent, "Send email..."));
         });
-
-        TextView tvRateUs = dialog.findViewById(R.id.tv_rate_us);
         tvRateUs.setOnClickListener(view -> activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=org.srilaprabhupadalila&hl=en"))));
-
-        TextView tvVolunteer = dialog.findViewById(R.id.tv_volunteer_appdev);
         tvVolunteer.setOnClickListener(view -> activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://forms.gle/WCBV2q4b1ZBgDf3B9"))));
-
-        TextView tvDedicated = dialog.findViewById(R.id.tv_dedicated_to);
         tvDedicated.setOnClickListener(view -> activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.srilaprabhupadalila.org/who-is-srila-prabhupada"))));
-
-        TextView tvShareApk = dialog.findViewById(R.id.tv_share_app_apk);
         tvShareApk.setOnClickListener(view -> {
             try {
-                sendApp(HomeActivity.this);
+                helperObject.sendApp(HomeActivity.this);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
-
-        TextView tvShareLink = dialog.findViewById(R.id.tv_share_app_link);
-        tvShareLink.setOnClickListener(view -> {
-            shareProfile(getResources().getDrawable(R.drawable.logo192), ivLogo, "FOLK Database App", "Get the FOLK Database App from Playstore!");
-        });
+        tvShareLink.setOnClickListener(view -> helperObject.shareData(activity, getResources().getDrawable(R.drawable.logo192), ivLogo, "FOLK Database App", "Get the FOLK Database App from Playstore!"));
         dialog.show();
-    }
-
-
-    private void shareProfile(Drawable imageDrawable, ImageView imageView, String title, String subtitle) {
-        if ((null) != imageDrawable) {
-            Dexter.withActivity(this)
-                    .withPermissions(
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    .withListener(new MultiplePermissionsListener() {
-                        @Override
-                        public void onPermissionsChecked(MultiplePermissionsReport report) {
-                            if (report.areAllPermissionsGranted()) {
-
-                                Glide.with(HomeActivity.this)
-                                        .asBitmap()
-                                        .load(imageDrawable)
-                                        .into(new CustomTarget<Bitmap>() {
-                                            @Override
-                                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                                imageView.setImageBitmap(resource);
-                                            }
-
-                                            @Override
-                                            public void onLoadCleared(@Nullable Drawable placeholder) {
-                                            }
-                                        });
-
-                                Uri bmpUri = getLocalBitmapUri(imageView);
-                                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-                                sharingIntent.setType("image/.*");
-                                sharingIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
-                                sharingIntent.putExtra(Intent.EXTRA_SUBJECT, title);
-                                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, subtitle);
-                                sharingIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                                startActivity(Intent.createChooser(sharingIntent, "Share Image Using"));
-                            }
-                        }
-
-                        @Override
-                        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                            token.continuePermissionRequest();
-                        }
-                    }).check();
-        } else {
-            Intent share = new Intent(Intent.ACTION_SEND);
-            share.setType("text/plain");
-            share.putExtra(Intent.EXTRA_SUBJECT, title);
-            share.putExtra(Intent.EXTRA_TEXT, subtitle);
-//                share.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-            share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-            startActivity(Intent.createChooser(share, "Share to"));
-        }
-    }
-
-
-    private Uri getLocalBitmapUri(ImageView imageView) {
-        // Extract Bitmap from ImageView drawable
-        Drawable drawable = imageView.getDrawable();
-        Bitmap bmp;
-        if (drawable instanceof BitmapDrawable) {
-            bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-        } else {
-            return null;
-        }
-        // Store image to default external storage directory
-        Uri bmpUri = null;
-        try {
-            // Use methods on Context to access package-specific directories on external storage. This way, you don't need to request external read/write permission.
-            File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
-            FileOutputStream out = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
-            out.close();
-            // Warning: This will fail for API >= 24, use a FileProvider as shown below instead.
-            bmpUri = Uri.fromFile(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return bmpUri;
-    }
-
-
-    public static void sendApp(Activity activity) throws IOException {
-        PackageManager pm = activity.getPackageManager();
-        ApplicationInfo appInfo;
-        try {
-            appInfo = pm.getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("*/*");
-            intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + appInfo.publicSourceDir));
-            intent.putExtra(android.content.Intent.EXTRA_TEXT, "FOLK Database APK");
-            activity.startActivity(Intent.createChooser(intent, "Share it using"));
-        } catch (PackageManager.NameNotFoundException e1) {
-            e1.printStackTrace();
-        }
     }
 
 
     private void dialogNotifications(Activity activity) {
         final Dialog dialog = new Dialog(activity);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(true);
-        dialog.setContentView(R.layout.dialog_notifications);
-
-        Rect displayRectangle = new Rect();
-        Window window = activity.getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-        Objects.requireNonNull(dialog.getWindow()).setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
-
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        new HelperGeneral().dialogCustomBuild(activity, R.layout.dialog_notifications, dialog, true);
 
         // if today's date matches birthday - show notif badge
         // Show all birthday's in the notifications
 
         ImageView imgCloseBtn = dialog.findViewById(R.id.img_dialog_close);
-        imgCloseBtn.setOnClickListener(view -> {
-            dialog.dismiss();
-        });
+        imgCloseBtn.setOnClickListener(view -> dialog.dismiss());
 
         ArrayList<ContactItem> notificationList = new ArrayList<>();
         notificationList.add(new ContactItem("Michael Marvin", "", "Team Gauranga sold 8 million books today! Hari Bol!", "19/2/20"));
@@ -782,16 +564,7 @@ public class HomeActivity extends AppCompatActivity {
     // Get All sub collection details
     private void dialogApproveUsers(Activity activity, String memberType) {
         final Dialog dialog = new Dialog(activity);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(true);
-        dialog.setContentView(R.layout.dialog_approve_users);
-
-        Rect displayRectangle = new Rect();
-        Window window = activity.getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-        Objects.requireNonNull(dialog.getWindow()).setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
-
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        new HelperGeneral().dialogCustomBuild(activity, R.layout.dialog_approve_users, dialog, true);
 
         // if today's date matches birthday - show notif badge
         // Show all birthday's in the notifications
@@ -1041,16 +814,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void dialogChangePassword(Activity activity) {
         final Dialog dialog = new Dialog(activity);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(false);
-        dialog.setContentView(R.layout.dialog_change_password);
-
-        Rect displayRectangle = new Rect();
-        Window window = activity.getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-        Objects.requireNonNull(dialog.getWindow()).setLayout((int) (displayRectangle.width() * 0.8f), dialog.getWindow().getAttributes().height);
-
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        new HelperGeneral().dialogCustomBuild(activity, R.layout.dialog_change_password, dialog, false);
 
         ImageView imgClose = dialog.findViewById(R.id.img_close);
         HelperCustomEditText etOldPassword = dialog.findViewById(R.id.et_old_password);
@@ -1171,7 +935,7 @@ public class HomeActivity extends AppCompatActivity {
                                         Toast.makeText(HomeActivity.this, "Failed to create AuthUserItem", Toast.LENGTH_SHORT).show();
                                     });
 
-                            AsyncTask.execute(this::logOut);
+                            logOut();
                             runOnUiThread(() -> loadingBar.dismiss());
                         } else {
                             Toast.makeText(HomeActivity.this, "Failed to update Password!", Toast.LENGTH_SHORT).show();
@@ -1182,43 +946,49 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    private void deleteAccount() {
-        runOnUiThread(() -> {
-            loadingBar.setMessage("Please wait...");
-            loadingBar.setCanceledOnTouchOutside(false);
-            loadingBar.show();
+    private Void deleteAccount() {
+        AsyncTask.execute(() -> {
+            runOnUiThread(() -> {
+                loadingBar.setMessage("Please wait...");
+                loadingBar.setCanceledOnTouchOutside(false);
+                loadingBar.show();
+            });
+            if (firebaseUser != null) {
+                firebaseUser.delete()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(HomeActivity.this, "Your profile is deleted :( Create an account now!", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(HomeActivity.this, MainActivity.class));
+                                Objects.requireNonNull(HomeActivity.this).finish();
+                                runOnUiThread(() -> loadingBar.dismiss());
+                            } else {
+                                Toast.makeText(HomeActivity.this, "Failed to delete your account!", Toast.LENGTH_SHORT).show();
+                                runOnUiThread(() -> loadingBar.dismiss());
+                            }
+                        });
+            }
         });
-        if (firebaseUser != null) {
-            firebaseUser.delete()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(HomeActivity.this, "Your profile is deleted :( Create an account now!", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(HomeActivity.this, MainActivity.class));
-                            Objects.requireNonNull(HomeActivity.this).finish();
-                            runOnUiThread(() -> loadingBar.dismiss());
-                        } else {
-                            Toast.makeText(HomeActivity.this, "Failed to delete your account!", Toast.LENGTH_SHORT).show();
-                            runOnUiThread(() -> loadingBar.dismiss());
-                        }
-                    });
-        }
+        return null;
     }
 
 
-    private void logOut() {
-        firebaseAuth.signOut();
-        // this listener will be called when there is change in firebase fireUser session
-        FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
-            FirebaseUser user = firebaseAuth.getCurrentUser();
-            if (user == null) {
-                // unload all shared prefs
-                helperSharedPreference.setSignupStatus("false");
-                helperSharedPreference.setEmail("");
-                // fireUser fireAuth state is changed - fireUser is null launch login activity
-                startActivity(new Intent(HomeActivity.this, MainActivity.class));
-                Objects.requireNonNull(HomeActivity.this).finish();
-            }
-        };
+    private Void logOut() {
+        AsyncTask.execute(() -> {
+            firebaseAuth.signOut();
+            // this listener will be called when there is change in firebase fireUser session
+            FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
+                    // unload all shared prefs
+                    helperSharedPreference.setSignupStatus("false");
+                    helperSharedPreference.setEmail("");
+                    // fireUser fireAuth state is changed - fireUser is null launch login activity
+                    startActivity(new Intent(HomeActivity.this, MainActivity.class));
+                    Objects.requireNonNull(HomeActivity.this).finish();
+                }
+            };
+        });
+        return null;
     }
 
 

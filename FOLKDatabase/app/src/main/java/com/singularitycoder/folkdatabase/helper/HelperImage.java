@@ -1,6 +1,7 @@
 package com.singularitycoder.folkdatabase.helper;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -61,10 +62,11 @@ public class HelperImage extends AppCompatActivity {
 
     private static String imageStoragePath;
 
-    VideoView mVideoView;
-    ImageView mImageView;
-    Button btnTakeImage, btnTakeVideo;
-    Uri finalUri;
+    private HelperGeneral helperObject = new HelperGeneral();
+    private VideoView mVideoView;
+    private ImageView mImageView;
+    private Button btnTakeImage, btnTakeVideo;
+    private Uri finalUri;
 
 
     // Requesting permissions using Dexter library
@@ -193,28 +195,13 @@ public class HelperImage extends AppCompatActivity {
     }
 
     public Uri getOutputMediaFileUri(final Context context, final File file) {
-
-        Dexter.withActivity(this)
-                .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        if (report.areAllPermissionsGranted()) {
-                            finalUri = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", file);
-                        }
-
-                        if (report.isAnyPermissionPermanentlyDenied()) {
-                            showSettingsDialog(context);
-                        }
-                    }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                        token.continuePermissionRequest();
-                    }
-                }).check();
-
+        helperObject.checkPermissions((Activity) context, () -> getFileUri(context, file), Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         return finalUri;
+    }
+
+    private Void getFileUri(final Context context, final File file) {
+        finalUri = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", file);
+        return null;
     }
 
     // Downsizing the bitmap to avoid OutOfMemory exceptions

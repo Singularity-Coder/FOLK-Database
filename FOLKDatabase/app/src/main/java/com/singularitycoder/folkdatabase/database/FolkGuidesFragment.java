@@ -3,7 +3,6 @@ package com.singularitycoder.folkdatabase.database;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -114,17 +113,13 @@ public class FolkGuidesFragment extends Fragment {
 
             folkGuidesAdapter = new FolkGuidesAdapter(getContext(), folkGuidesList);
             folkGuidesAdapter.setHasStableIds(true);
-            folkGuidesAdapter.setOnItemClickListener(new FolkGuidesAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
-                    Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
-                    // Start activity
-                    Intent intent = new Intent(getContext(), ProfileActivity.class);
-                    FolkGuideItem folkGuideItem = folkGuidesList.get(position);
-                    intent.putExtra("profileKey", "FOLKGUIDE");
-                    intent.putExtra("folkguideItem", folkGuideItem);
-                    startActivity(intent);
-                }
+            folkGuidesAdapter.setOnItemClickListener((view, position) -> {
+                Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(getContext(), ProfileActivity.class);
+                FolkGuideItem folkGuideItem = folkGuidesList.get(position);
+                intent.putExtra("profileKey", "FOLKGUIDE");
+                intent.putExtra("folkguideItem", folkGuideItem);
+                startActivity(intent);
             });
             recyclerView.setAdapter(folkGuidesAdapter);
         }
@@ -181,6 +176,7 @@ public class FolkGuidesFragment extends Fragment {
                                     folkGuideItem.setStrPhone(docSnap.getString("phone"));
                                     folkGuideItem.setStrWhatsApp(docSnap.getString("phone"));
                                     folkGuideItem.setStrEmail(docSnap.getString("email"));
+                                    folkGuideItem.setStrProfileImage(docSnap.getString("profileImageUrl"));
                                 }
                                 Log.d(TAG, "firedoc id: " + docSnap.getId());
                                 folkGuidesList.add(folkGuideItem);

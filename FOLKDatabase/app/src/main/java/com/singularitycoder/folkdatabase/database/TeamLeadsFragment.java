@@ -3,7 +3,6 @@ package com.singularitycoder.folkdatabase.database;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -178,6 +177,8 @@ public class TeamLeadsFragment extends Fragment {
                                     teamLeadItem.setStrPhone(docSnap.getString("phone"));
                                     teamLeadItem.setStrWhatsApp(docSnap.getString("phone"));
                                     teamLeadItem.setStrEmail(docSnap.getString("email"));
+                                    teamLeadItem.setStrProfileImage(docSnap.getString("profileImageUrl"));
+
                                 }
                                 Log.d(TAG, "firedoc id: " + docSnap.getId());
                                 teamLeadList.add(teamLeadItem);

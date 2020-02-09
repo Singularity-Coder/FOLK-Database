@@ -1,7 +1,20 @@
 package com.singularitycoder.folkdatabase.profile;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -13,65 +26,31 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.palette.graphics.Palette;
 import androidx.viewpager.widget.ViewPager;
 
-import android.Manifest;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.AuthUserItem;
 import com.singularitycoder.folkdatabase.auth.MainActivity;
+import com.singularitycoder.folkdatabase.database.AllUsersItem;
+import com.singularitycoder.folkdatabase.database.ContactItem;
+import com.singularitycoder.folkdatabase.database.FolkGuideItem;
 import com.singularitycoder.folkdatabase.database.TeamLeadItem;
 import com.singularitycoder.folkdatabase.database.ZonalHeadItem;
 import com.singularitycoder.folkdatabase.helper.HelperConstants;
 import com.singularitycoder.folkdatabase.helper.HelperFrescoImageViewer;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
-import com.singularitycoder.folkdatabase.database.AllUsersItem;
-import com.singularitycoder.folkdatabase.database.ContactItem;
-import com.singularitycoder.folkdatabase.database.FolkGuideItem;
+import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 
 import static java.lang.String.valueOf;
 
@@ -87,6 +66,9 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView ivProfileImage;
     private TextView tvName, tvSubTitle;
     private ConstraintLayout conLayProfileActions;
+    private ViewPagerAdapter profileAdapter;
+    private ProgressDialog loadingBar;
+    private HelperGeneral helperObject = new HelperGeneral();
 
     private ContactItem contactItem;
     private FolkGuideItem folkGuideItem;
@@ -94,9 +76,6 @@ public class ProfileActivity extends AppCompatActivity {
     private AllUsersItem allUsersItem;
     private ZonalHeadItem zonalHeadItem;
     private AuthUserItem authUserItem;
-    private ViewPagerAdapter profileAdapter;
-    private ProgressDialog loadingBar;
-
 
     // Create a firebase auth object
     private FirebaseAuth mAuth;
@@ -104,7 +83,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStatuBarColor();
+        new HelperGeneral().setStatuBarColor(this, R.color.colorPrimaryDark);
         setContentView(R.layout.activity_profile);
         inits();
         getIntentData();
@@ -113,80 +92,21 @@ public class ProfileActivity extends AppCompatActivity {
         setUpToolbar();
         setUpAppbarLayout();
         setUpCollapsingToolbar();
-
-        // Initialize Firebase Auth.
-        mAuth = FirebaseAuth.getInstance();
     }
 
+
     private void inits() {
-        // Set ViewPager
+        mAuth = FirebaseAuth.getInstance();
+        loadingBar = new ProgressDialog(this);
+        profileAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+
         tabLayout = findViewById(R.id.tablayout_profile);
         viewPager = findViewById(R.id.viewpager_profile);
-        profileAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         mCoordinatorLayout = findViewById(R.id.coordinator_profile);
         ivProfileImage = findViewById(R.id.img_profile_header);
         tvName = findViewById(R.id.tv_main_title);
         tvSubTitle = findViewById(R.id.tv_main_subtitle);
         conLayProfileActions = findViewById(R.id.con_lay_profile_action_icons);
-        loadingBar = new ProgressDialog(this);
-    }
-
-
-    // READ
-    private void readAuthUserData() {
-        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-        String email = sp.getString("email", "");
-        runOnUiThread(() -> {
-            loadingBar.setMessage("Please wait...");
-            loadingBar.setCanceledOnTouchOutside(false);
-            loadingBar.show();
-        });
-
-        FirebaseFirestore.getInstance()
-                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
-                .whereEqualTo("email", email)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
-                        Log.d(TAG, "docList: " + docList);
-
-                        for (DocumentSnapshot docSnap : docList) {
-                            authUserItem = docSnap.toObject(AuthUserItem.class);
-                            if (authUserItem != null) {
-                                Log.d(TAG, "AuthItem: " + authUserItem);
-
-                                if (!("").equals(valueOf(docSnap.getString("fullName")))) {
-                                    authUserItem.setFullName(valueOf(docSnap.getString("fullName")));
-                                    Log.d(TAG, "readAuthUserData: fullname: " + valueOf(docSnap.getString("fullName")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
-                                    authUserItem.setProfileImageUrl(valueOf(docSnap.getString("profileImageUrl")));
-                                    Log.d(TAG, "readAuthUserData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("memberType")))) {
-                                    authUserItem.setMemberType(valueOf(docSnap.getString("memberType")));
-                                    Log.d(TAG, "readAuthUserData: memberType: " + valueOf(docSnap.getString("memberType")));
-                                }
-
-                                Map<String, Object> talent = (Map<String, Object>) docSnap.getData().get("talent");
-                                Log.d(TAG, "readContactsData: talent map: " + talent);
-                            }
-                            Log.d(TAG, "firedoc id: " + docSnap.getId());
-                        }
-                        Toast.makeText(ProfileActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
-                        runOnUiThread(() -> {
-                            loadingBar.dismiss();
-                        });
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(ProfileActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
-                    runOnUiThread(() -> loadingBar.dismiss());
-                });
     }
 
 
@@ -250,133 +170,144 @@ public class ProfileActivity extends AppCompatActivity {
 //        updateUI(currentUser);
     }
 
-    private void setStatuBarColor() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = this.getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);  // clear FLAG_TRANSLUCENT_STATUS flag:
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);  // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));   // change the color
-        }
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-    }
-
-
     private void initProfiles() {
         if (("AUTHUSER").equals(profileKey)) {
-            HelperGeneral.glideProfileImage(this, authUserItem.getProfileImageUrl(), ivProfileImage);
-            ivProfileImage.setOnClickListener(view -> {
-                Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
-                intent.putExtra("image_url", authUserItem.getProfileImageUrl());
-                startActivity(intent);
-            });
-            tvName.setText(authUserItem.getFullName());
-            tvSubTitle.setText(authUserItem.getMemberType());
-            profileActions(this, authUserItem.getPhone(), authUserItem.getPhone(), authUserItem.getEmail());
-            conLayProfileActions.setVisibility(View.GONE);
-            // Set up Viewpager tabs
-            profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
-            profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
-            viewPager.setAdapter(profileAdapter);
-            tabLayout.setTabMode(TabLayout.MODE_FIXED);
+            initAuthUserProfile();
         }
 
         if (("FOLKGUIDE").equals(profileKey)) {
-            HelperGeneral.glideProfileImage(this, folkGuideItem.getStrProfileImage(), ivProfileImage);
-            ivProfileImage.setOnClickListener(view -> {
-                Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
-                intent.putExtra("image_url", folkGuideItem.getStrProfileImage());
-                startActivity(intent);
-            });
-            tvName.setText(folkGuideItem.getStrFolkGuideAbbr());
-            tvSubTitle.setText("Full Name: " + folkGuideItem.getStrFirstName());
-            profileActions(this, folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
-            conLayProfileActions.setVisibility(View.VISIBLE);
-            // Set up Viewpager tabs
-            profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
-            profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
-            viewPager.setAdapter(profileAdapter);
-            tabLayout.setTabMode(TabLayout.MODE_FIXED);
+            initFolkGuideProfile();
         }
 
         if (("TEAMLEAD").equals(profileKey)) {
-            HelperGeneral.glideProfileImage(this, teamLeadItem.getStrProfileImage(), ivProfileImage);
-            ivProfileImage.setOnClickListener(view -> {
-                Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
-                intent.putExtra("image_url", teamLeadItem.getStrProfileImage());
-                startActivity(intent);
-            });
-            tvName.setText(teamLeadItem.getstrTeamLeadAbbr());
-            tvSubTitle.setText("Full Name: " + teamLeadItem.getStrFirstName());
-            profileActions(this, teamLeadItem.getStrPhone(), teamLeadItem.getStrWhatsApp(), teamLeadItem.getStrEmail());
-            conLayProfileActions.setVisibility(View.VISIBLE);
-            // Set up Viewpager tabs
-            profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
-            profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
-            viewPager.setAdapter(profileAdapter);
-            tabLayout.setTabMode(TabLayout.MODE_FIXED);
+            initTeamLeadProfile();
         }
 
         if (("CONTACT").equals(profileKey)) {
-            HelperGeneral.glideProfileImage(this, contactItem.getStrProfileImage(), ivProfileImage);
-            ivProfileImage.setOnClickListener(view -> {
-                Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
-                intent.putExtra("image_url", contactItem.getStrProfileImage());
-                startActivity(intent);
-            });
-            tvName.setText(contactItem.getFirstName());
-            tvSubTitle.setText(contactItem.getStrFolkGuide());
-            profileActions(this, contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail());
-            conLayProfileActions.setVisibility(View.VISIBLE);
-            // Set up Viewpager tabs
-            profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
-            profileAdapter.addFrag(new OccupationFragment(), "OCCUPATION");
-            profileAdapter.addFrag(new ResidenceFragment(), "RESIDENCE");
-            profileAdapter.addFrag(new TalentFragment(), "TALENT");
-            profileAdapter.addFrag(new FamilyFragment(), "FAMILY");
-            profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
-            viewPager.setAdapter(profileAdapter);
+            initContactProfile();
         }
 
         if (("ZONALHEAD").equals(profileKey)) {
-            HelperGeneral.glideProfileImage(this, zonalHeadItem.getStrProfileImage(), ivProfileImage);
-            ivProfileImage.setOnClickListener(view -> {
-                Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
-                intent.putExtra("image_url", zonalHeadItem.getStrProfileImage());
-                startActivity(intent);
-            });
-            tvName.setText(zonalHeadItem.getStrFirstName() + " " + zonalHeadItem.getStrLastName());
-            tvSubTitle.setText(zonalHeadItem.getStrMemberType());
-            profileActions(this, zonalHeadItem.getStrPhone(), zonalHeadItem.getStrWhatsApp(), zonalHeadItem.getStrEmail());
-            conLayProfileActions.setVisibility(View.VISIBLE);
-            // Set up Viewpager tabs
-            profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
-            profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
-            viewPager.setAdapter(profileAdapter);
-            tabLayout.setTabMode(TabLayout.MODE_FIXED);
+            initZonalHeadProfile();
         }
 
         if (("ALLUSER").equals(profileKey)) {
-            HelperGeneral.glideProfileImage(this, allUsersItem.getStrProfileImage(), ivProfileImage);
-            ivProfileImage.setOnClickListener(view -> {
-                Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
-                intent.putExtra("image_url", allUsersItem.getStrProfileImage());
-                startActivity(intent);
-            });
-            tvName.setText(allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName());
-            tvSubTitle.setText(allUsersItem.getStrMemberType());
-            profileActions(this, allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail());
-            conLayProfileActions.setVisibility(View.VISIBLE);
-            // Set up Viewpager tabs
-            profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
-            profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
-            viewPager.setAdapter(profileAdapter);
-            tabLayout.setTabMode(TabLayout.MODE_FIXED);
+            initAllUsersProfile();
         }
     }
 
-    public void profileActions(Context context, String phone, String whatsApp, String email) {
+    private void initAuthUserProfile() {
+        HelperGeneral.glideProfileImage(this, authUserItem.getProfileImageUrl(), ivProfileImage);
+        ivProfileImage.setOnClickListener(view -> {
+            Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
+            intent.putExtra("image_url", authUserItem.getProfileImageUrl());
+            startActivity(intent);
+        });
+        tvName.setText(authUserItem.getFullName());
+        tvSubTitle.setText(authUserItem.getMemberType());
+        profileActions(this, authUserItem.getPhone(), authUserItem.getPhone(), authUserItem.getEmail(), () -> helperObject.shareData(this, authUserItem.getProfileImageUrl(), ivProfileImage, authUserItem.getFullName(), authUserItem.getMemberType()));
+        conLayProfileActions.setVisibility(View.GONE);
+        // Set up Viewpager tabs
+        profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
+        profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
+        viewPager.setAdapter(profileAdapter);
+        tabLayout.setTabMode(TabLayout.MODE_FIXED);
+    }
+
+    private void initFolkGuideProfile() {
+        HelperGeneral.glideProfileImage(this, folkGuideItem.getStrProfileImage(), ivProfileImage);
+        ivProfileImage.setOnClickListener(view -> {
+            Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
+            intent.putExtra("image_url", folkGuideItem.getStrProfileImage());
+            startActivity(intent);
+        });
+        tvName.setText(folkGuideItem.getStrFolkGuideAbbr());
+        tvSubTitle.setText("Full Name: " + folkGuideItem.getStrFirstName());
+        profileActions(this, folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail(), () -> helperObject.shareData(this, folkGuideItem.getStrProfileImage(), ivProfileImage, folkGuideItem.getStrFirstName(), folkGuideItem.getStrFirstName()));
+        conLayProfileActions.setVisibility(View.VISIBLE);
+        // Set up Viewpager tabs
+        profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
+        profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
+        viewPager.setAdapter(profileAdapter);
+        tabLayout.setTabMode(TabLayout.MODE_FIXED);
+    }
+
+    private void initTeamLeadProfile() {
+        HelperGeneral.glideProfileImage(this, teamLeadItem.getStrProfileImage(), ivProfileImage);
+        ivProfileImage.setOnClickListener(view -> {
+            Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
+            intent.putExtra("image_url", teamLeadItem.getStrProfileImage());
+            startActivity(intent);
+        });
+        tvName.setText(teamLeadItem.getstrTeamLeadAbbr());
+        tvSubTitle.setText("Full Name: " + teamLeadItem.getStrFirstName());
+        profileActions(this, teamLeadItem.getStrPhone(), teamLeadItem.getStrWhatsApp(), teamLeadItem.getStrEmail(), () -> helperObject.shareData(this, teamLeadItem.getStrProfileImage(), ivProfileImage, teamLeadItem.getStrFirstName(), teamLeadItem.getStrFirstName()));
+        conLayProfileActions.setVisibility(View.VISIBLE);
+        // Set up Viewpager tabs
+        profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
+        profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
+        viewPager.setAdapter(profileAdapter);
+        tabLayout.setTabMode(TabLayout.MODE_FIXED);
+    }
+
+    private void initContactProfile() {
+        HelperGeneral.glideProfileImage(this, contactItem.getStrProfileImage(), ivProfileImage);
+        ivProfileImage.setOnClickListener(view -> {
+            Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
+            intent.putExtra("image_url", contactItem.getStrProfileImage());
+            startActivity(intent);
+        });
+        tvName.setText(contactItem.getFirstName());
+        tvSubTitle.setText(contactItem.getStrFolkGuide());
+        profileActions(this, contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail(), () -> helperObject.shareData(this, contactItem.getStrProfileImage(), ivProfileImage, contactItem.getFirstName(), contactItem.getStrFolkGuide()));
+        conLayProfileActions.setVisibility(View.VISIBLE);
+        // Set up Viewpager tabs
+        profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
+        profileAdapter.addFrag(new OccupationFragment(), "OCCUPATION");
+        profileAdapter.addFrag(new ResidenceFragment(), "RESIDENCE");
+        profileAdapter.addFrag(new TalentFragment(), "TALENT");
+        profileAdapter.addFrag(new FamilyFragment(), "FAMILY");
+        profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
+        viewPager.setAdapter(profileAdapter);
+    }
+
+    private void initZonalHeadProfile() {
+        HelperGeneral.glideProfileImage(this, zonalHeadItem.getStrProfileImage(), ivProfileImage);
+        ivProfileImage.setOnClickListener(view -> {
+            Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
+            intent.putExtra("image_url", zonalHeadItem.getStrProfileImage());
+            startActivity(intent);
+        });
+        tvName.setText(zonalHeadItem.getStrFirstName() + " " + zonalHeadItem.getStrLastName());
+        tvSubTitle.setText(zonalHeadItem.getStrMemberType());
+        profileActions(this, zonalHeadItem.getStrPhone(), zonalHeadItem.getStrWhatsApp(), zonalHeadItem.getStrEmail(), () -> helperObject.shareData(this, zonalHeadItem.getStrProfileImage(), ivProfileImage, zonalHeadItem.getStrFirstName() + " " + zonalHeadItem.getStrLastName(), zonalHeadItem.getStrMemberType()));
+        conLayProfileActions.setVisibility(View.VISIBLE);
+        // Set up Viewpager tabs
+        profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
+        profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
+        viewPager.setAdapter(profileAdapter);
+        tabLayout.setTabMode(TabLayout.MODE_FIXED);
+    }
+
+    private void initAllUsersProfile() {
+        HelperGeneral.glideProfileImage(this, allUsersItem.getStrProfileImage(), ivProfileImage);
+        ivProfileImage.setOnClickListener(view -> {
+            Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
+            intent.putExtra("image_url", allUsersItem.getStrProfileImage());
+            startActivity(intent);
+        });
+        tvName.setText(allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName());
+        tvSubTitle.setText(allUsersItem.getStrMemberType());
+        profileActions(this, allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail(), () -> helperObject.shareData(this, allUsersItem.getStrProfileImage(), ivProfileImage, allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName(), allUsersItem.getStrMemberType()));
+        conLayProfileActions.setVisibility(View.VISIBLE);
+        // Set up Viewpager tabs
+        profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
+        profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
+        viewPager.setAdapter(profileAdapter);
+        tabLayout.setTabMode(TabLayout.MODE_FIXED);
+    }
+
+    public void profileActions(Context context, String phone, String whatsApp, String email, Callable<Void> shareFunction) {
         ImageView imgCall = findViewById(R.id.img_call);
         imgCall.setOnClickListener(v -> {
             Intent callIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
@@ -407,7 +338,7 @@ public class ProfileActivity extends AppCompatActivity {
                 whatsAppIntent.setPackage("com.whatsapp");
                 startActivity(Intent.createChooser(whatsAppIntent, "Dummy Title"));
             } catch (PackageManager.NameNotFoundException e) {
-                new HelperGeneral().toast("WhatsApp not found. Install from playstore.", context, 1);
+                Toast.makeText(context, "WhatsApp not found. Install from playstore.", Toast.LENGTH_SHORT).show();
                 Uri uri = Uri.parse("market://details?id=com.whatsapp");
                 Intent openPlayStore = new Intent(Intent.ACTION_VIEW, uri);
                 openPlayStore.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
@@ -425,110 +356,13 @@ public class ProfileActivity extends AppCompatActivity {
 
         ImageView imgShare = findViewById(R.id.img_share);
         imgShare.setOnClickListener(v -> {
-            if (("AUTHUSER").equals(profileKey)) {
-                shareProfile(authUserItem.getProfileImageUrl(), ivProfileImage, authUserItem.getFullName(), authUserItem.getMemberType());
-            }
-
-            if (("FOLKGUIDE").equals(profileKey)) {
-                shareProfile(folkGuideItem.getStrProfileImage(), ivProfileImage, folkGuideItem.getStrFirstName(), folkGuideItem.getStrFirstName());
-            }
-
-            if (("TEAMLEAD").equals(profileKey)) {
-                shareProfile(teamLeadItem.getStrProfileImage(), ivProfileImage, teamLeadItem.getStrFirstName(), teamLeadItem.getStrFirstName());
-            }
-
-            if (("CONTACT").equals(profileKey)) {
-                shareProfile(contactItem.getStrProfileImage(), ivProfileImage, contactItem.getFirstName(), contactItem.getStrFolkGuide());
-            }
-
-            if (("ZONALHEAD").equals(profileKey)) {
-                shareProfile(zonalHeadItem.getStrProfileImage(), ivProfileImage, zonalHeadItem.getStrFirstName() + " " + zonalHeadItem.getStrLastName(), zonalHeadItem.getStrMemberType());
-            }
-
-            if (("ALLUSER").equals(profileKey)) {
-                shareProfile(allUsersItem.getStrProfileImage(), ivProfileImage, allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName(), allUsersItem.getStrMemberType());
+            try {
+                shareFunction.call();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }
-
-    private void shareProfile(String imageUrl, ImageView imageView, String title, String subtitle) {
-        if (!("").equals(imageUrl)) {
-            Dexter.withActivity(this)
-                    .withPermissions(
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    .withListener(new MultiplePermissionsListener() {
-                        @Override
-                        public void onPermissionsChecked(MultiplePermissionsReport report) {
-                            if (report.areAllPermissionsGranted()) {
-
-                                Glide.with(ProfileActivity.this)
-                                        .asBitmap()
-                                        .load(imageUrl)
-                                        .into(new CustomTarget<Bitmap>() {
-                                            @Override
-                                            public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                                                imageView.setImageBitmap(resource);
-                                            }
-
-                                            @Override
-                                            public void onLoadCleared(@Nullable Drawable placeholder) {
-                                            }
-                                        });
-
-                                Uri bmpUri = getLocalBitmapUri(imageView);
-                                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-                                sharingIntent.setType("image/.*");
-                                sharingIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
-                                sharingIntent.putExtra(Intent.EXTRA_SUBJECT, title);
-                                sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, "Name: " + title + " and other info: " + subtitle + ". Sent using FOLK Database App!");
-                                sharingIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-                                startActivity(Intent.createChooser(sharingIntent, "Share Image Using"));
-                            }
-                        }
-
-                        @Override
-                        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                            token.continuePermissionRequest();
-                        }
-                    }).check();
-        } else {
-            Intent share = new Intent(Intent.ACTION_SEND);
-            share.setType("text/plain");
-            share.putExtra(Intent.EXTRA_SUBJECT, title);
-            share.putExtra(Intent.EXTRA_TEXT, "Name: " + title + " and other info: " + subtitle + ". Sent using FOLK Database App!");
-//                share.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-            share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-            startActivity(Intent.createChooser(share, "Share to"));
-        }
-    }
-
-
-    private Uri getLocalBitmapUri(ImageView imageView) {
-        // Extract Bitmap from ImageView drawable
-        Drawable drawable = imageView.getDrawable();
-        Bitmap bmp;
-        if (drawable instanceof BitmapDrawable) {
-            bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-        } else {
-            return null;
-        }
-        // Store image to default external storage directory
-        Uri bmpUri = null;
-        try {
-            // Use methods on Context to access package-specific directories on external storage. This way, you don't need to request external read/write permission.
-            File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
-            FileOutputStream out = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
-            out.close();
-            // Warning: This will fail for API >= 24, use a FileProvider as shown below instead.
-            bmpUri = Uri.fromFile(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return bmpUri;
-    }
-
 
     private void setUpTabLayout() {
         // Set TabLayout
@@ -544,10 +378,10 @@ public class ProfileActivity extends AppCompatActivity {
 
                 switch (tab.getPosition()) {
                     case 0:
-                        Toast.makeText(getApplicationContext(), "You clciked this 1", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), "You clciked this 1", Toast.LENGTH_LONG).show();
                         break;
                     case 1:
-                        Toast.makeText(getApplicationContext(), "You clciked this 2", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), "You clciked this 2", Toast.LENGTH_LONG).show();
                         break;
                 }
             }
@@ -556,10 +390,10 @@ public class ProfileActivity extends AppCompatActivity {
             public void onTabUnselected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
-                        Snackbar.make(mCoordinatorLayout, "1 got away", Snackbar.LENGTH_SHORT).show();
+//                        Snackbar.make(mCoordinatorLayout, "1 got away", Snackbar.LENGTH_SHORT).show();
                         break;
                     case 1:
-                        Snackbar.make(mCoordinatorLayout, "2 got away", Snackbar.LENGTH_SHORT).show();
+//                        Snackbar.make(mCoordinatorLayout, "2 got away", Snackbar.LENGTH_SHORT).show();
                         break;
                 }
 
@@ -569,10 +403,10 @@ public class ProfileActivity extends AppCompatActivity {
             public void onTabReselected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
-                        Toast.makeText(getApplicationContext(), "You clciked 1 again", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), "You clciked 1 again", Toast.LENGTH_LONG).show();
                         break;
                     case 1:
-                        Toast.makeText(getApplicationContext(), "You clciked 2 again", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), "You clciked 2 again", Toast.LENGTH_LONG).show();
                         break;
                 }
             }
@@ -581,10 +415,8 @@ public class ProfileActivity extends AppCompatActivity {
 
 
     private void setUpToolbar() {
-        // Set Toolbar
         toolbar = findViewById(R.id.toolbar_profile);
         setSupportActionBar(toolbar);
-// For back navigation button use this
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
@@ -640,38 +472,33 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        appBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                if (Math.abs(verticalOffset) - appBarLayout.getTotalScrollRange() == 0) {
-                    // COLLAPSED STATE
+        appBarLayout.addOnOffsetChangedListener((appBarLayout1, verticalOffset) -> {
+            if (Math.abs(verticalOffset) - appBarLayout1.getTotalScrollRange() == 0) {
+                // COLLAPSED STATE
 //                    Toast.makeText(getApplicationContext(), "Collapsed", Toast.LENGTH_LONG).show();
 //                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.colorPrimary));
 //                    tabLayout.setTabTextColors(ContextCompat.getColorStateList(getApplicationContext(), R.color.colorBlack));
-                    toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                    tabLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                    toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
-                    tabLayout.setTabTextColors(getResources().getColor(R.color.white_70), getResources().getColor(R.color.colorWhite));
-                    getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.drawable.ic_back_white));
-                } else {
-                    // EXPANDED STATE
+                toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                tabLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
+                tabLayout.setTabTextColors(getResources().getColor(R.color.white_70), getResources().getColor(R.color.colorWhite));
+                getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.drawable.ic_back_white));
+            } else {
+                // EXPANDED STATE
 //                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.colorWhite));
 //                    tabLayout.setTabTextColors(ContextCompat.getColorStateList(getApplicationContext(), R.color.colorWhite));
-                    toolbar.setBackgroundColor(Color.TRANSPARENT);
-                    tabLayout.setBackgroundColor(Color.TRANSPARENT);
-                    tabLayout.setTabTextColors(getResources().getColor(R.color.colorAccent), getResources().getColor(R.color.colorAccent));
-                    getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.drawable.ic_back));
-                    // toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
-                }
+                toolbar.setBackgroundColor(Color.TRANSPARENT);
+                tabLayout.setBackgroundColor(Color.TRANSPARENT);
+                tabLayout.setTabTextColors(getResources().getColor(R.color.colorAccent), getResources().getColor(R.color.colorAccent));
+                getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.drawable.ic_back));
+                // toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
             }
         });
     }
 
 
     private void setUpCollapsingToolbar() {
-        // Set CollapsingToolbar
         final CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar_profile);
-
         // Set color of CollaspongToolbar when collapsing
         try {
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.header);
@@ -720,5 +547,68 @@ public class ProfileActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
+    }
+
+
+    // READ
+    private void readAuthUserData() {
+        // Main Shared Pref
+        HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(this);
+        String email = helperSharedPreference.getEmail();
+
+//        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
+//        String email = sp.getString("email", "");
+
+        runOnUiThread(() -> {
+            loadingBar.setMessage("Please wait...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+        });
+
+        FirebaseFirestore.getInstance()
+                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
+                .whereEqualTo("email", email)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                        Log.d(TAG, "docList: " + docList);
+
+                        for (DocumentSnapshot docSnap : docList) {
+                            authUserItem = docSnap.toObject(AuthUserItem.class);
+                            if (authUserItem != null) {
+                                Log.d(TAG, "AuthItem: " + authUserItem);
+
+                                if (!("").equals(valueOf(docSnap.getString("fullName")))) {
+                                    authUserItem.setFullName(valueOf(docSnap.getString("fullName")));
+                                    Log.d(TAG, "readAuthUserData: fullname: " + valueOf(docSnap.getString("fullName")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
+                                    authUserItem.setProfileImageUrl(valueOf(docSnap.getString("profileImageUrl")));
+                                    Log.d(TAG, "readAuthUserData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("memberType")))) {
+                                    authUserItem.setMemberType(valueOf(docSnap.getString("memberType")));
+                                    Log.d(TAG, "readAuthUserData: memberType: " + valueOf(docSnap.getString("memberType")));
+                                }
+
+                                Map<String, Object> talent = (Map<String, Object>) docSnap.getData().get("talent");
+                                Log.d(TAG, "readContactsData: talent map: " + talent);
+                            }
+                            Log.d(TAG, "firedoc id: " + docSnap.getId());
+                        }
+                        Toast.makeText(ProfileActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> {
+                            loadingBar.dismiss();
+                        });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(ProfileActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(() -> loadingBar.dismiss());
+                });
     }
 }

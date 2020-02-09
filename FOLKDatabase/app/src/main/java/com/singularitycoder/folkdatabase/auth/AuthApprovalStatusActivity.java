@@ -54,6 +54,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
     private String strAuthorityPhoneNumber;
     private String strSignUpStatus;
     private String strAuthTypeIntent;
+    private HelperGeneral helperObject = new HelperGeneral();
 
     // this listener is called when there is change in firebase fireUser session
     FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
@@ -72,26 +73,13 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStatuBarColor();
+        helperObject.setStatuBarColor(this, R.color.bg_light);
         setContentView(R.layout.activity_approval_status);
         inits();
         authCheck();
         getIntentData();
         setData();
         clickListeners();
-    }
-
-
-    private void setStatuBarColor() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = this.getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.bg_light));
-        }
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN, WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
 
@@ -159,7 +147,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
             if (null != strAuthTypeIntent) {
                 if (("SignUp").equals(strAuthTypeIntent)) {
                     try {
-                        new HelperGeneral().dialogActionMessage(this, "Could not find your Authority's Phone Number. Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"));
+                        helperObject.dialogActionMessage(this, null, "Could not find your Authority's Phone Number. Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"), null, true);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -167,14 +155,14 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
 
                 if (("LogIn").equals(strAuthTypeIntent)) {
                     try {
-                        new HelperGeneral().dialogActionMessage(this, "Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"));
+                        helperObject.dialogActionMessage(this, null, "Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"), null, true);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             } else {
                 try {
-                    new HelperGeneral().dialogActionMessage(this, "Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"));
+                    helperObject.dialogActionMessage(this, null, "Call Shresta Rupa Dasa (Super Admin) for the details!", "CALL", "CANCEL", () -> makePhoneCall("9342336283"), null, true);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -283,7 +271,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
                                         finish();
                                     } else {
                                         helperSharedPreference.setSignupStatus("false");
-                                        HelperGeneral.dialogShowMessage(AuthApprovalStatusActivity.this, "Your account is still not verified. Please call your Authority!");
+                                        helperObject.dialogActionMessage(AuthApprovalStatusActivity.this, null, "Your account is still not verified. Please call your Authority!", "OK", "", null, null, false);
                                     }
                                 }
 

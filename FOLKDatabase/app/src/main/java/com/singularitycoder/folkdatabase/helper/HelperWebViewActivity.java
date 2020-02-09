@@ -26,6 +26,7 @@ public class HelperWebViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        new HelperGeneral().setStatuBarColor(this, R.color.colorPrimaryDark);
         setContentView(R.layout.activity_helper_web_view);
 
         mProgressBar = findViewById(R.id.load_progress);
