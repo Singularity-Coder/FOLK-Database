@@ -85,7 +85,7 @@
                     android:drawableTint="@color/colorAccent"
                     android:gravity="center_vertical"
                     android:text="Contact Us"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/colorBlack"
                     android:textSize="16sp" />
 
                 <View
@@ -106,7 +106,7 @@
                     android:drawableTint="@color/colorAccent"
                     android:gravity="center_vertical"
                     android:text="Rate on Google Play"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/colorBlack"
                     android:textSize="16sp" />
 
                 <View
@@ -127,7 +127,7 @@
                     android:drawableTint="@color/colorAccent"
                     android:gravity="center_vertical"
                     android:text="Volunteer to App Development"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/colorBlack"
                     android:textSize="16sp" />
 
                 <View
@@ -148,7 +148,7 @@
                     android:drawableTint="@color/colorAccent"
                     android:gravity="center_vertical"
                     android:text="Dedicated to"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/colorBlack"
                     android:textSize="16sp" />
 
                 <View
@@ -168,7 +168,7 @@
                     android:drawableTint="@color/colorAccent"
                     android:gravity="center_vertical"
                     android:text="Share App APK file"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/colorBlack"
                     android:textSize="16sp" />
 
                 <View
@@ -189,7 +189,7 @@
                     android:drawableTint="@color/colorAccent"
                     android:gravity="center_vertical"
                     android:text="Share App Link"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@color/colorBlack"
                     android:textSize="16sp" />
 
                 <View

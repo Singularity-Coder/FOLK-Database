@@ -170,8 +170,8 @@ public class FolkGuidesFragment extends Fragment {
                                 if (folkGuideItem != null) {
                                     Log.d(TAG, "personItem: " + folkGuideItem);
                                     folkGuideItem.setId(docSnap.getId());
-                                    folkGuideItem.setStrFirstName(docSnap.getString("fullName"));
-                                    folkGuideItem.setStrFolkGuideAbbr(docSnap.getString("shortName"));
+                                    folkGuideItem.setStrName(docSnap.getString("fullName"));
+                                    folkGuideItem.setStrFolkGuideShortName(docSnap.getString("shortName"));
                                     folkGuideItem.setStrZone(docSnap.getString("zone"));
                                     folkGuideItem.setStrPhone(docSnap.getString("phone"));
                                     folkGuideItem.setStrWhatsApp(docSnap.getString("phone"));
@@ -248,7 +248,7 @@ public class FolkGuidesFragment extends Fragment {
     private void searchFolkGuides(String text) {
         ArrayList<FolkGuideItem> filterdUsers = new ArrayList<>();
         for (FolkGuideItem folkGuide : folkGuidesList) {
-            if (folkGuide.getStrFirstName().toLowerCase().trim().contains(text.toLowerCase())) {
+            if (folkGuide.getStrName().toLowerCase().trim().contains(text.toLowerCase())) {
                 filterdUsers.add(folkGuide);
             }
         }

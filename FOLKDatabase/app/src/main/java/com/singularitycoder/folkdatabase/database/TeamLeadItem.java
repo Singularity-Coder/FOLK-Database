@@ -10,22 +10,24 @@ public class TeamLeadItem implements Serializable {
     private String id;
 
     private String strProfileImage;
-    private String strFirstName;
-    private String strLastName;
-    private String strTeamLeadAbbr;
+    private String strName;
+    private String strTeamLeadShortName;
     private String strZone;
-
     private String strPhone;
     private String strWhatsApp;
     private String strEmail;
+    private String strGmail;
+    private String strCreationTimeStamp;
+    private String strMemberType;
+    private String strDirectAuthority;
+    private String strHkmJoiningDate;
 
     public TeamLeadItem() {
     }
 
-    public TeamLeadItem(String strProfileImage, String strFirstName, String strLastName) {
+    public TeamLeadItem(String strProfileImage, String strName) {
         this.strProfileImage = strProfileImage;
-        this.strFirstName = strFirstName;
-        this.strLastName = strLastName;
+        this.strName = strName;
     }
 
     public String getId() {
@@ -44,20 +46,12 @@ public class TeamLeadItem implements Serializable {
         this.strProfileImage = strProfileImage;
     }
 
-    public String getStrFirstName() {
-        return strFirstName;
+    public String getStrName() {
+        return strName;
     }
 
-    public void setStrFirstName(String strFirstName) {
-        this.strFirstName = strFirstName;
-    }
-
-    public String getStrLastName() {
-        return strLastName;
-    }
-
-    public void setStrLastName(String strLastName) {
-        this.strLastName = strLastName;
+    public void setStrName(String strName) {
+        this.strName = strName;
     }
 
     public String getStrPhone() {
@@ -85,11 +79,11 @@ public class TeamLeadItem implements Serializable {
     }
 
     public String getstrTeamLeadAbbr() {
-        return strTeamLeadAbbr;
+        return strTeamLeadShortName;
     }
 
     public void setstrTeamLeadAbbr(String strTeamLeadAbbr) {
-        this.strTeamLeadAbbr = strTeamLeadAbbr;
+        this.strTeamLeadShortName = strTeamLeadAbbr;
     }
 
     public String getStrZone() {
@@ -98,5 +92,53 @@ public class TeamLeadItem implements Serializable {
 
     public void setStrZone(String strZone) {
         this.strZone = strZone;
+    }
+
+    public String getStrTeamLeadShortName() {
+        return strTeamLeadShortName;
+    }
+
+    public void setStrTeamLeadShortName(String strTeamLeadShortName) {
+        this.strTeamLeadShortName = strTeamLeadShortName;
+    }
+
+    public String getStrGmail() {
+        return strGmail;
+    }
+
+    public void setStrGmail(String strGmail) {
+        this.strGmail = strGmail;
+    }
+
+    public String getStrCreationTimeStamp() {
+        return strCreationTimeStamp;
+    }
+
+    public void setStrCreationTimeStamp(String strCreationTimeStamp) {
+        this.strCreationTimeStamp = strCreationTimeStamp;
+    }
+
+    public String getStrMemberType() {
+        return strMemberType;
+    }
+
+    public void setStrMemberType(String strMemberType) {
+        this.strMemberType = strMemberType;
+    }
+
+    public String getStrDirectAuthority() {
+        return strDirectAuthority;
+    }
+
+    public void setStrDirectAuthority(String strDirectAuthority) {
+        this.strDirectAuthority = strDirectAuthority;
+    }
+
+    public String getStrHkmJoiningDate() {
+        return strHkmJoiningDate;
+    }
+
+    public void setStrHkmJoiningDate(String strHkmJoiningDate) {
+        this.strHkmJoiningDate = strHkmJoiningDate;
     }
 }

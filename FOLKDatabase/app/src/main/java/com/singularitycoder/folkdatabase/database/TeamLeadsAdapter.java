@@ -45,14 +45,14 @@ public class TeamLeadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         if (null != holder) {
             TeamLeadsViewHolder TeamLeadsViewHolder = (TeamLeadsViewHolder) holder;
-            HelperGeneral.glideProfileImage(context, teamLeadItem.getStrProfileImage(), TeamLeadsViewHolder.imgProfileImage);
+            helperObject.glideProfileImage(context, teamLeadItem.getStrProfileImage(), TeamLeadsViewHolder.imgProfileImage);
             TeamLeadsViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();
-                helperObject.showQuickInfoDialog(context, teamLeadItem.getStrFirstName(), teamLeadItem.getStrProfileImage(), teamLeadItem.getStrPhone(), teamLeadItem.getStrWhatsApp(), teamLeadItem.getStrEmail());
+                helperObject.showQuickInfoDialog(context, teamLeadItem.getStrName(), teamLeadItem.getStrProfileImage(), teamLeadItem.getStrPhone(), teamLeadItem.getStrWhatsApp(), teamLeadItem.getStrEmail());
             });
 
             TeamLeadsViewHolder.tvName.setText(teamLeadItem.getstrTeamLeadAbbr());
-            TeamLeadsViewHolder.tvSubTitle1.setText("Full Name: " + teamLeadItem.getStrFirstName());
+            TeamLeadsViewHolder.tvSubTitle1.setText("Name: " + teamLeadItem.getStrName());
             TeamLeadsViewHolder.tvSubTitle2.setText("Zone: " + teamLeadItem.getStrZone());
         }
     }

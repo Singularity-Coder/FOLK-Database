@@ -26,6 +26,7 @@ public class ApproveUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private Context context;
     public ApproveMember approveMemberListener;
     public RejectMember rejectMemberListener;
+    private HelperGeneral helperObject = new HelperGeneral();
 
     public ApproveUsersAdapter(ArrayList<AuthUserApprovalItem> approveUsersList, Context context) {
         this.approveUsersList = approveUsersList;
@@ -44,7 +45,7 @@ public class ApproveUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         AuthUserApprovalItem authUserApprovalItem = approveUsersList.get(position);
         if (null != holder) {
             ApproveUsersViewHolder approveUsersViewHolder = ((ApproveUsersViewHolder) holder);
-            HelperGeneral.glideProfileImage(context, authUserApprovalItem.getProfileImageUrl(), approveUsersViewHolder.imgProfileImage);
+            helperObject.glideProfileImage(context, authUserApprovalItem.getProfileImageUrl(), approveUsersViewHolder.imgProfileImage);
             approveUsersViewHolder.tvName.setText(authUserApprovalItem.getFullName());
             approveUsersViewHolder.tvSubTitle1.setText("Short Name: " + authUserApprovalItem.getShortName());
             approveUsersViewHolder.tvSubTitle2.setText("Requested on: " + authUserApprovalItem.getApproveRequestTimeStamp());

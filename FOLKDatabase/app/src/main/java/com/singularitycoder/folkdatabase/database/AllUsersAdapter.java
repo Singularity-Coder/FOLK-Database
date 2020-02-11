@@ -43,7 +43,7 @@ public class AllUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         if (holder != null) {
             AllUsersViewHolder allUsersViewHolder = (AllUsersViewHolder) holder;
-            HelperGeneral.glideProfileImage(context, allUsersItem.getStrProfileImage(), allUsersViewHolder.imgProfileImage);
+            helperObject.glideProfileImage(context, allUsersItem.getStrProfileImage(), allUsersViewHolder.imgProfileImage);
             String fullName = allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName();
             allUsersViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();

@@ -171,7 +171,7 @@ public class TeamLeadsFragment extends Fragment {
                                 if (teamLeadItem != null) {
                                     Log.d(TAG, "personItem: " + teamLeadItem);
                                     teamLeadItem.setId(docSnap.getId());
-                                    teamLeadItem.setStrFirstName(docSnap.getString("fullName"));
+                                    teamLeadItem.setStrName(docSnap.getString("fullName"));
                                     teamLeadItem.setstrTeamLeadAbbr(docSnap.getString("shortName"));
                                     teamLeadItem.setStrZone(docSnap.getString("zone"));
                                     teamLeadItem.setStrPhone(docSnap.getString("phone"));
@@ -249,7 +249,7 @@ public class TeamLeadsFragment extends Fragment {
     private void searchFolkGuides(String text) {
         ArrayList<TeamLeadItem> filterdUsers = new ArrayList<>();
         for (TeamLeadItem teamLead : teamLeadList) {
-            if (teamLead.getStrFirstName().toLowerCase().trim().contains(text.toLowerCase())) {
+            if (teamLead.getStrName().toLowerCase().trim().contains(text.toLowerCase())) {
                 filterdUsers.add(teamLead);
             }
         }

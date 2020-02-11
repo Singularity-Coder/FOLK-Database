@@ -54,7 +54,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 //                HelperGeneral.glideProfileImage(context, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
 //            }
 
-            HelperGeneral.glideProfileImage(context, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
+            helperObject.glideProfileImage(context, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
             contactsViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();
                 helperObject.showQuickInfoDialog(context, contactItem.getFirstName(), contactItem.getStrProfileImage(), contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail());

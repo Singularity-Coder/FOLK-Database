@@ -10,22 +10,25 @@ public class FolkGuideItem implements Serializable {
     private String id;
 
     private String strProfileImage;
-    private String strFirstName;
-    private String strLastName;
-    private String strFolkGuideAbbr;
+    private String strName;
+    private String strFolkGuideShortName;
     private String strZone;
-
     private String strPhone;
     private String strWhatsApp;
     private String strEmail;
+    private String strGmail;
+    private String strCreationTimeStamp;
+    private String strMemberType;
+    private String strDirectAuthority;
+    private String strHkmJoiningDate;
+
 
     public FolkGuideItem() {
     }
 
-    public FolkGuideItem(String strProfileImage, String strFirstName, String strLastName) {
+    public FolkGuideItem(String strProfileImage, String strName, String strLastName) {
         this.strProfileImage = strProfileImage;
-        this.strFirstName = strFirstName;
-        this.strLastName = strLastName;
+        this.strName = strName;
     }
 
     public String getId() {
@@ -44,20 +47,12 @@ public class FolkGuideItem implements Serializable {
         this.strProfileImage = strProfileImage;
     }
 
-    public String getStrFirstName() {
-        return strFirstName;
+    public String getStrName() {
+        return strName;
     }
 
-    public void setStrFirstName(String strFirstName) {
-        this.strFirstName = strFirstName;
-    }
-
-    public String getStrLastName() {
-        return strLastName;
-    }
-
-    public void setStrLastName(String strLastName) {
-        this.strLastName = strLastName;
+    public void setStrName(String strName) {
+        this.strName = strName;
     }
 
     public String getStrPhone() {
@@ -84,12 +79,12 @@ public class FolkGuideItem implements Serializable {
         this.strEmail = strEmail;
     }
 
-    public String getStrFolkGuideAbbr() {
-        return strFolkGuideAbbr;
+    public String getStrFolkGuideShortName() {
+        return strFolkGuideShortName;
     }
 
-    public void setStrFolkGuideAbbr(String strFolkGuideAbbr) {
-        this.strFolkGuideAbbr = strFolkGuideAbbr;
+    public void setStrFolkGuideShortName(String strFolkGuideShortName) {
+        this.strFolkGuideShortName = strFolkGuideShortName;
     }
 
     public String getStrZone() {
@@ -98,5 +93,45 @@ public class FolkGuideItem implements Serializable {
 
     public void setStrZone(String strZone) {
         this.strZone = strZone;
+    }
+
+    public String getStrGmail() {
+        return strGmail;
+    }
+
+    public void setStrGmail(String strGmail) {
+        this.strGmail = strGmail;
+    }
+
+    public String getStrCreationTimeStamp() {
+        return strCreationTimeStamp;
+    }
+
+    public void setStrCreationTimeStamp(String strCreationTimeStamp) {
+        this.strCreationTimeStamp = strCreationTimeStamp;
+    }
+
+    public String getStrMemberType() {
+        return strMemberType;
+    }
+
+    public void setStrMemberType(String strMemberType) {
+        this.strMemberType = strMemberType;
+    }
+
+    public String getStrDirectAuthority() {
+        return strDirectAuthority;
+    }
+
+    public void setStrDirectAuthority(String strDirectAuthority) {
+        this.strDirectAuthority = strDirectAuthority;
+    }
+
+    public String getStrHkmJoiningDate() {
+        return strHkmJoiningDate;
+    }
+
+    public void setStrHkmJoiningDate(String strHkmJoiningDate) {
+        this.strHkmJoiningDate = strHkmJoiningDate;
     }
 }

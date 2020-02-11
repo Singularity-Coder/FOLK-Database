@@ -46,14 +46,14 @@ public class FolkGuidesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         if (null != holder) {
             FolkGuidesViewHolder folkGuidesViewHolder = (FolkGuidesViewHolder) holder;
-            HelperGeneral.glideProfileImage(context, folkGuideItem.getStrProfileImage(), folkGuidesViewHolder.imgProfileImage);
+            helperObject.glideProfileImage(context, folkGuideItem.getStrProfileImage(), folkGuidesViewHolder.imgProfileImage);
             folkGuidesViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();
-                helperObject.showQuickInfoDialog(context, folkGuideItem.getStrFirstName(), folkGuideItem.getStrProfileImage(), folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
+                helperObject.showQuickInfoDialog(context, folkGuideItem.getStrName(), folkGuideItem.getStrProfileImage(), folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail());
             });
 
-            folkGuidesViewHolder.tvName.setText(folkGuideItem.getStrFolkGuideAbbr());
-            folkGuidesViewHolder.tvSubTitle1.setText("Full Name: " + folkGuideItem.getStrFirstName());
+            folkGuidesViewHolder.tvName.setText(folkGuideItem.getStrFolkGuideShortName());
+            folkGuidesViewHolder.tvSubTitle1.setText("Name: " + folkGuideItem.getStrName());
             folkGuidesViewHolder.tvSubTitle2.setText("Zone: " + folkGuideItem.getStrZone());
         }
     }

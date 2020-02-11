@@ -73,6 +73,7 @@ public class ContactFragment extends Fragment {
     private ShimmerFrameLayout shimmerFrameLayout;
     private LottieAnimationView noFeedImage;
     private TextView noFeedText;
+    private HelperGeneral helperObject = new HelperGeneral();
 
     public ContactFragment() {
     }
@@ -91,7 +92,7 @@ public class ContactFragment extends Fragment {
             setRefreshLayout();
             getData(getActivity());
             setUpRecyclerView();
-            Log.d(TAG, "onCreateView: current date: " + HelperGeneral.currentDate());
+            Log.d(TAG, "onCreateView: current date: " + helperObject.currentDate());
         }
         return view;
     }

@@ -24,6 +24,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private ArrayList<HomeItem> homeList;
     private Context context;
     private OnItemClickListener clickListener;
+    private HelperGeneral helperObject = new HelperGeneral();
 
     public HomeAdapter(ArrayList<HomeItem> homeList, Context context) {
         this.homeList = homeList;
@@ -57,7 +58,7 @@ public class HomeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         else if (holder instanceof HomeHeaderViewHolder) {
-            HelperGeneral.glideProfileImage(context, homeItem.getStrImageUrl(), ((HomeHeaderViewHolder) holder).imgUserImage);
+            helperObject.glideProfileImage(context, homeItem.getStrImageUrl(), ((HomeHeaderViewHolder) holder).imgUserImage);
             ((HomeHeaderViewHolder) holder).tvUserName.setText(homeItem.getStrUserName());
         }
     }

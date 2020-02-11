@@ -45,7 +45,7 @@ public class ZonalHeadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         if (holder != null) {
             ZonalHeadsViewHolder zonalHeadsViewHolder = (ZonalHeadsViewHolder) holder;
-            HelperGeneral.glideProfileImage(context, zonalHeadItem.getStrProfileImage(), zonalHeadsViewHolder.imgProfileImage);
+            helperObject.glideProfileImage(context, zonalHeadItem.getStrProfileImage(), zonalHeadsViewHolder.imgProfileImage);
             String fullName = zonalHeadItem.getStrFirstName() + " " + zonalHeadItem.getStrLastName();
             zonalHeadsViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();

@@ -1,27 +1,19 @@
 package com.singularitycoder.folkdatabase.helper;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.content.pm.ActivityInfo;
-import android.gesture.GestureOverlayView;
 import android.graphics.Point;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -76,8 +68,10 @@ public class HelperFrescoImageViewer extends Activity implements View.OnTouchLis
 
     private void setImageView() {
         // Set Image URL
-        uri = Uri.parse(getIntent().getStringExtra("image_url"));
-        draweeView.setImageURI(uri);
+        if (null != getIntent().getStringExtra("image_url")) {
+            uri = Uri.parse(getIntent().getStringExtra("image_url"));
+            draweeView.setImageURI(uri);
+        }
     }
 
 

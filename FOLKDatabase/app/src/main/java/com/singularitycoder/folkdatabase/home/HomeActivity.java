@@ -843,7 +843,7 @@ public class HomeActivity extends AppCompatActivity {
             return false;
         }
 
-        if (!HelperGeneral.hasValidPassword(valueOf(etOldPassword.getText()).trim())) {
+        if (!helperObject.hasValidPassword(valueOf(etOldPassword.getText()).trim())) {
             etOldPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
             etOldPassword.requestFocus();
             return false;
@@ -861,7 +861,7 @@ public class HomeActivity extends AppCompatActivity {
             return false;
         }
 
-        if (!HelperGeneral.hasValidPassword(valueOf(etNewPassword.getText()).trim())) {
+        if (!helperObject.hasValidPassword(valueOf(etNewPassword.getText()).trim())) {
             etNewPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
             etNewPassword.requestFocus();
             return false;
@@ -873,7 +873,7 @@ public class HomeActivity extends AppCompatActivity {
             return false;
         }
 
-        if (!HelperGeneral.hasValidPassword(valueOf(etNewPasswordAgain.getText()).trim())) {
+        if (!helperObject.hasValidPassword(valueOf(etNewPasswordAgain.getText()).trim())) {
             etNewPasswordAgain.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
             etNewPasswordAgain.requestFocus();
             return false;

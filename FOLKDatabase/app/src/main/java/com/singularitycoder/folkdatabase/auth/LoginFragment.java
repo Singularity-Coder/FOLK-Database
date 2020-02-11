@@ -236,7 +236,7 @@ public class LoginFragment extends Fragment {
             return false;
         }
 
-        if (!HelperGeneral.hasValidEmail(email)) {
+        if (!helperObject.hasValidEmail(email)) {
             etEmail.setError("Invalid Email!");
             etEmail.requestFocus();
             return false;
@@ -248,7 +248,7 @@ public class LoginFragment extends Fragment {
             return false;
         }
 
-        if (!HelperGeneral.hasValidPassword(password)) {
+        if (!helperObject.hasValidPassword(password)) {
             etPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
             etPassword.requestFocus();
             return false;
@@ -326,7 +326,7 @@ public class LoginFragment extends Fragment {
             if (valueOf(etResetEmail.getText()).trim().equals("")) {
                 etResetEmail.setError("Email cannot be empty!");
                 etResetEmail.requestFocus();
-            } else if (!HelperGeneral.hasValidEmail(valueOf(etResetEmail.getText()).trim())) {
+            } else if (!helperObject.hasValidEmail(valueOf(etResetEmail.getText()).trim())) {
                 etResetEmail.setError("Invalid Email!");
                 etResetEmail.requestFocus();
             } else {

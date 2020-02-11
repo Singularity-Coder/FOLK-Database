@@ -9,7 +9,6 @@ import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
@@ -85,8 +84,8 @@ import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOption
 
 public class HelperGeneral extends AppCompatActivity {
 
-    private static final String TAG = HelperGeneral.class.getSimpleName();
-    private final static int FADE_DURATION = 550;
+    private final String TAG = HelperGeneral.class.getSimpleName();
+    private final int FADE_DURATION = 550;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -153,19 +152,11 @@ public class HelperGeneral extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Give Permissions!");
         builder.setMessage("We need you to grant the permissions for the camera feature to work!");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                openSettings(context);
-            }
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            dialog.cancel();
+            openSettings(context);
         });
-        builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        builder.setNegativeButton("CANCEL", (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
@@ -214,7 +205,7 @@ public class HelperGeneral extends AppCompatActivity {
         tvFullName.setText(fullName);
 
         ImageView imgProfilePic = dialog.findViewById(R.id.img_profile_image);
-        HelperGeneral.glideProfileImage(context, imageUrl, imgProfilePic);
+        glideProfileImage(context, imageUrl, imgProfilePic);
         imgProfilePic.setOnClickListener(v -> {
 //            SimpleDraweeView draweeView = findViewById(R.id.img_fresco_full_image);
 //            draweeView.setImageURI(imageUrl);
@@ -401,7 +392,7 @@ public class HelperGeneral extends AppCompatActivity {
         }
     }
 
-    public static void progressDialog(Context context) {
+    public void progressDialog(Context context) {
         ProgressDialog dialog;
         dialog = new ProgressDialog(context);
         dialog.setMessage("Loading...");
@@ -415,7 +406,7 @@ public class HelperGeneral extends AppCompatActivity {
 //        loadingBar.show();
     }
 
-    public static void dismissDialog(Context context) {
+    public void dismissDialog(Context context) {
         ProgressDialog dialog;
         dialog = new ProgressDialog(context);
         dialog.dismiss();
@@ -427,7 +418,7 @@ public class HelperGeneral extends AppCompatActivity {
 //        return cm.getActiveNetworkInfo() != null;
 //    }
 
-    public static String getCurrentTime() {
+    public String getCurrentTime() {
         Date currentTime = Calendar.getInstance().getTime();
 //        String formatTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
         SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
@@ -435,12 +426,12 @@ public class HelperGeneral extends AppCompatActivity {
         return formattedTime;
     }
 
-    public static long getCurrentEpochTime() {
+    public long getCurrentEpochTime() {
         long time = System.currentTimeMillis();
         return time;
     }
 
-    public static boolean isThisTimeGreater(String currentTime, String EndTime) {
+    public boolean isThisTimeGreater(String currentTime, String EndTime) {
         try {
 //            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
             SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
@@ -456,7 +447,7 @@ public class HelperGeneral extends AppCompatActivity {
         return false;
     }
 
-    public static String getCurrentDate() {
+    public String getCurrentDate() {
         Date c = Calendar.getInstance().getTime();
         SimpleDateFormat df = new SimpleDateFormat("dd MMM yyyy");
 //        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -464,7 +455,7 @@ public class HelperGeneral extends AppCompatActivity {
         return formattedDate;
     }
 
-    public static boolean isThisDateGreater(String currentDate, String EndDate) {
+    public boolean isThisDateGreater(String currentDate, String EndDate) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy");
 //            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -480,7 +471,7 @@ public class HelperGeneral extends AppCompatActivity {
         return false;
     }
 
-    public static String convertDateFormat(String inputDate) {
+    public String convertDateFormat(String inputDate) {
         if (inputDate != null) {
             DateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
             DateFormat outputFormat = new SimpleDateFormat("dd MMM yyyy");
@@ -497,13 +488,13 @@ public class HelperGeneral extends AppCompatActivity {
     }
 
     @SuppressLint("SimpleDateFormat")
-    public static String currentDate() {
+    public String currentDate() {
         String date = new SimpleDateFormat("MM-dd").format(new Date());
         return date;
     }
 
     @SuppressLint("SimpleDateFormat")
-    public static String currentDateTime() {
+    public String currentDateTime() {
         String dateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
         // split date and time for event created date
@@ -533,7 +524,7 @@ public class HelperGeneral extends AppCompatActivity {
         return outputDate + " at " + outputTime;
     }
 
-    public static void showDatePicker(final TextView datefield, Context context) {
+    public void showDatePicker(final TextView datefield, Context context) {
         // Get Current Date
         final Calendar c = Calendar.getInstance();
         int mYear = c.get(Calendar.YEAR);
@@ -562,7 +553,7 @@ public class HelperGeneral extends AppCompatActivity {
 //    android.R.style.Theme_DeviceDefault_Light_Dialog_Alert
 //    android.R.style.Theme_Material_Light_Dialog_Alert
 //    android.R.style.Theme_Material_Dialog_Alert
-    public static void showDatePickerOldStyle(final TextView datefield, Context context) {
+    public void showDatePickerOldStyle(final TextView datefield, Context context) {
 // Get Current Date
         final Calendar c = Calendar.getInstance();
         int mYear = c.get(Calendar.YEAR);
@@ -590,7 +581,7 @@ public class HelperGeneral extends AppCompatActivity {
         dialog.show();
     }
 
-    public static void showTimePicker(final TextView timeField, Activity activity) {
+    public void showTimePicker(final TextView timeField, Activity activity) {
         // Get Current Time
         final Calendar c = Calendar.getInstance();
         int mHour = c.get(Calendar.HOUR_OF_DAY);
@@ -623,7 +614,7 @@ public class HelperGeneral extends AppCompatActivity {
     }
 
 
-    public static Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {
+    public Bitmap getRoundedCornerBitmap(Bitmap bitmap, int pixels) {
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap
                 .getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
@@ -645,7 +636,7 @@ public class HelperGeneral extends AppCompatActivity {
         return output;
     }
 
-    public static boolean hasValidPassword(final String password) {
+    public boolean hasValidPassword(final String password) {
         Pattern pattern;
         Matcher matcher;
         final String PASSWORD_PATTERN = "^(?=.*[a-z])(?=.*[A-Z]).{8,}$";
@@ -656,7 +647,7 @@ public class HelperGeneral extends AppCompatActivity {
         return matcher.matches();
     }
 
-    public static boolean hasValidEmail(final String email) {
+    public boolean hasValidEmail(final String email) {
         Pattern pattern;
         Matcher matcher;
         final String EMAIL_PATTERN = "^[\\w-\\+]+(\\.[\\w]+)*@[\\w-]+(\\.[\\w]+)*(\\.[a-z]{2,})$";
@@ -667,7 +658,7 @@ public class HelperGeneral extends AppCompatActivity {
         return matcher.matches();
     }
 
-    public static void glideLargeImage(Context context, String imgUrl, ImageView imageView, String empty1) {
+    public void glideLargeImage(Context context, String imgUrl, ImageView imageView, String empty1) {
         RequestOptions requestOptions = new RequestOptions()
                 .fitCenter()
                 .placeholder(R.color.colorAccent)
@@ -680,7 +671,7 @@ public class HelperGeneral extends AppCompatActivity {
                 .into(imageView);
     }
 
-    public static void glideProfileImage(Context context, String imgUrl, ImageView imageView) {
+    public void glideProfileImage(Context context, String imgUrl, ImageView imageView) {
         RequestOptions requestOptions = new RequestOptions()
                 .placeholder(R.color.colorAccent)
                 .error(R.drawable.profile_dummy_large)
@@ -691,7 +682,7 @@ public class HelperGeneral extends AppCompatActivity {
                 .into(imageView);
     }
 
-    public static void glideSmallImageWithErrHandle(Context context, String imgUrl, ImageView imageView) {
+    public void glideSmallImageWithErrHandle(Context context, String imgUrl, ImageView imageView) {
         Glide.with(context)
                 .load(imgUrl)
                 .apply(
@@ -720,7 +711,7 @@ public class HelperGeneral extends AppCompatActivity {
     }
 
     // Glide Big with error handling
-    public static void glideImageWithErrHandle(Context context, String imgUrl, ImageView imageView, String empty1) {
+    public void glideImageWithErrHandle(Context context, String imgUrl, ImageView imageView, String empty1) {
         Glide.with(context)
                 .load(imgUrl)
                 .apply(
@@ -748,7 +739,7 @@ public class HelperGeneral extends AppCompatActivity {
                 .into(imageView);
     }
 
-    public static void setFadeAnimation(View view) {
+    public void setFadeAnimation(View view) {
         AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
         anim.setDuration(FADE_DURATION);
         view.startAnimation(anim);

@@ -182,7 +182,7 @@ public class SignUpFragment extends Fragment {
         tvDirectAuthority.setOnClickListener(view -> getDirectAuthorityList());
         tvTermsPrivacy.setOnClickListener(view1 -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.iskconbangalore.org/privacy-policy/"))));
         etSignUpZone.setOnClickListener(view12 -> AsyncTask.execute(this::getZoneDataFromApi));
-        tvHkmJoiningDate.setOnClickListener(view -> HelperGeneral.showDatePickerOldStyle(tvHkmJoiningDate, getActivity()));
+        tvHkmJoiningDate.setOnClickListener(view -> helperObject.showDatePickerOldStyle(tvHkmJoiningDate, getActivity()));
         checkForShortNameDuplicates();
         btnCreateAccount.setOnClickListener(view13 -> createMemberAccountOnClick());
     }
@@ -240,8 +240,8 @@ public class SignUpFragment extends Fragment {
                             gmail,
                             phone,
                             password,
-                            HelperGeneral.currentDateTime(),
-                            valueOf(HelperGeneral.getCurrentEpochTime()));
+                            helperObject.currentDateTime(),
+                            valueOf(helperObject.getCurrentEpochTime()));
                 });
             }
         } else {
@@ -450,7 +450,7 @@ public class SignUpFragment extends Fragment {
             return false;
         }
 
-        if (!HelperGeneral.hasValidEmail(email)) {
+        if (!helperObject.hasValidEmail(email)) {
             etEmail.setError("Invalid Email!");
             etEmail.requestFocus();
             return false;
@@ -474,7 +474,7 @@ public class SignUpFragment extends Fragment {
             return false;
         }
 
-        if (!HelperGeneral.hasValidPassword(password)) {
+        if (!helperObject.hasValidPassword(password)) {
             etPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
             etPassword.requestFocus();
             return false;
@@ -788,8 +788,8 @@ public class SignUpFragment extends Fragment {
                                     // Create another collection for FolkGuideApprovals -> to Team Leads
                                     authUserItem1.setDocId(documentReference13.getId());
                                     btnCreateAccount.setEnabled(false);
-                                    approveFolkGuides(documentReference13.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime(), valueOf(HelperGeneral.getCurrentEpochTime()));
-                                    approveUsers(documentReference13.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime(), valueOf(HelperGeneral.getCurrentEpochTime()));
+                                    approveFolkGuides(documentReference13.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", helperObject.currentDateTime(), valueOf(helperObject.getCurrentEpochTime()));
+                                    approveUsers(documentReference13.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", helperObject.currentDateTime(), valueOf(helperObject.getCurrentEpochTime()));
                                 })
                                 .addOnFailureListener(e -> {
                                     Log.w(TAG, "Error adding document", e);
@@ -832,8 +832,8 @@ public class SignUpFragment extends Fragment {
                                     // Collection for Team Lead approvals -> to Zonal Heads
                                     authUserItem1.setDocId(documentReference12.getId());
                                     btnCreateAccount.setEnabled(false);
-                                    approveTeamLeads(documentReference12.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime(), valueOf(HelperGeneral.getCurrentEpochTime()));
-                                    approveUsers(documentReference12.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", HelperGeneral.currentDateTime(), valueOf(HelperGeneral.getCurrentEpochTime()));
+                                    approveTeamLeads(documentReference12.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", helperObject.currentDateTime(), valueOf(helperObject.getCurrentEpochTime()));
+                                    approveUsers(documentReference12.getId(), zone, memberType, directAuthority, email, folkGuideAbbr, firstName, profileImage, signUpStatus, "false", helperObject.currentDateTime(), valueOf(helperObject.getCurrentEpochTime()));
                                 })
                                 .addOnFailureListener(e -> {
                                     Log.w(TAG, "Error adding document", e);
