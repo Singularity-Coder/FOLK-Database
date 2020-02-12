@@ -12,8 +12,6 @@ public class ContactItem implements Serializable {
     private String id;
 
     private String strProfileImage;
-    private String firstName;
-    private String lastName;
     private String strName;
     private String strSubTitle1;
     private String strSubTitle2;
@@ -157,22 +155,6 @@ public class ContactItem implements Serializable {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
     }
 
     public String getStrFolkGuide() {

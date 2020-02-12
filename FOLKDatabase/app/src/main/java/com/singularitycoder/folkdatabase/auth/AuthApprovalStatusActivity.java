@@ -180,7 +180,6 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
 
     // READ - query that searches team leads or direct authority phone number
     private void readAuthorityPhoneNumber() {
-        // TODO: 2019-12-31 Check this properly
         SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
         String email = sp.getString("email", "");
         String directAuthority = sp.getString("directAuthority", "");

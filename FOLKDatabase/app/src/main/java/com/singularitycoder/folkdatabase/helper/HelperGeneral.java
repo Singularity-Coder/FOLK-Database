@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.TimingLogger;
@@ -63,9 +64,12 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.singularitycoder.folkdatabase.BuildConfig;
 import com.singularitycoder.folkdatabase.R;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -93,7 +97,7 @@ public class HelperGeneral extends AppCompatActivity {
     }
 
     public void showSnack(View view, String message, int snackTextColor, String actionBtnText, Callable<Void> voidFunction) {
-        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG);
+        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE);
         View snackbarView = snackbar.getView();
         TextView textView = snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
         textView.setTextColor(snackTextColor);
@@ -377,7 +381,7 @@ public class HelperGeneral extends AppCompatActivity {
         return bmpUri;
     }
 
-    public void sendApp(Activity activity) throws IOException {
+    public void shareApp(Activity activity) throws IOException {
         PackageManager pm = activity.getPackageManager();
         ApplicationInfo appInfo;
         try {
@@ -396,8 +400,6 @@ public class HelperGeneral extends AppCompatActivity {
         ProgressDialog dialog;
         dialog = new ProgressDialog(context);
         dialog.setMessage("Loading...");
-
-//
 //        loadingBar = new ProgressDialog(getActivity());
 //        loadingBar.show();
 //        loadingBar.setMessage("Setting Approval Values...");
@@ -412,7 +414,7 @@ public class HelperGeneral extends AppCompatActivity {
         dialog.dismiss();
     }
 
-//    public static boolean hasInternet(Context context) {
+//    public boolean hasInternet(Context context) {
 //        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 //        assert cm != null;
 //        return cm.getActiveNetworkInfo() != null;
@@ -635,6 +637,55 @@ public class HelperGeneral extends AppCompatActivity {
 
         return output;
     }
+
+    private byte[] getBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+        return byteBuffer.toByteArray();
+    }
+
+    public Uri getBitmapImageUri(Context context, Bitmap bitmap) {
+        // Stores saved image
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "CompressedImage", null);
+        return Uri.parse(path);
+    }
+
+    public Uri getTempBitmapImageUri(Bitmap bitmap) {
+        // Stores image temporarily
+        File tempDir = Environment.getExternalStorageDirectory();
+        tempDir = new File(tempDir.getAbsolutePath() + "/.temp/");
+        tempDir.mkdir();
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("CompressedImage", ".jpg", tempDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, bytes);
+        byte[] bitmapData = bytes.toByteArray();
+
+        // Write bytes in file
+        try {
+            FileOutputStream fos = new FileOutputStream(tempFile);
+            fos.write(bitmapData);
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return Uri.fromFile(tempFile);
+    }
+
 
     public boolean hasValidPassword(final String password) {
         Pattern pattern;

@@ -235,7 +235,7 @@ public class ContactFragment extends Fragment {
                                     }
 
                                     if (!("").equals(valueOf(docSnap.getString("name")))) {
-                                        personItemModel.setFirstName(valueOf(docSnap.getString("name")));
+                                        personItemModel.setStrName(valueOf(docSnap.getString("name")));
                                     }
 
                                     if (("").equals(valueOf(docSnap.getString("folk_guide")))) {
@@ -409,7 +409,7 @@ public class ContactFragment extends Fragment {
         ArrayList<ContactItem> filterdUsers = new ArrayList<>();
         //looping through existing elements
         for (ContactItem user : contactList) {
-            if (user.getFirstName().toLowerCase().trim().contains(text.toLowerCase())) {
+            if (user.getStrName().toLowerCase().trim().contains(text.toLowerCase())) {
                 filterdUsers.add(user);
             }
         }

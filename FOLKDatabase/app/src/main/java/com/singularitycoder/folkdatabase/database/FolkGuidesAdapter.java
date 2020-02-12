@@ -97,6 +97,7 @@ public class FolkGuidesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             Intent intent = new Intent(context, ProfileActivity.class);
             intent.putExtra("profileKey", "FOLKGUIDE");
             intent.putExtra("folkguideItem", folkGuideItem);
+            intent.putExtra("email", folkGuideItem.getStrEmail());
             context.startActivity(intent);
         }
     }

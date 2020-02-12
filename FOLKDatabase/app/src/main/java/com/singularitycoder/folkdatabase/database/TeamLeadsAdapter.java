@@ -96,6 +96,7 @@ public class TeamLeadsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             Intent intent = new Intent(context, ProfileActivity.class);
             intent.putExtra("profileKey", "TEAMLEAD");
             intent.putExtra("teamleadItem", teamLeadItem);
+            intent.putExtra("email", teamLeadItem.getStrEmail());
             context.startActivity(intent);
         }
     }

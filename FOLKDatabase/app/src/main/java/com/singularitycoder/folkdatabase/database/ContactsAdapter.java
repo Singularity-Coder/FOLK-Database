@@ -57,10 +57,10 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             helperObject.glideProfileImage(context, contactItem.getStrProfileImage(), contactsViewHolder.imgProfileImage);
             contactsViewHolder.imgProfileImage.setOnClickListener(view -> {
                 DatabaseActivity databaseActivity = new DatabaseActivity();
-                helperObject.showQuickInfoDialog(context, contactItem.getFirstName(), contactItem.getStrProfileImage(), contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail());
+                helperObject.showQuickInfoDialog(context, contactItem.getStrName(), contactItem.getStrProfileImage(), contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail());
             });
 
-            contactsViewHolder.tvName.setText(contactItem.getFirstName());
+            contactsViewHolder.tvName.setText(contactItem.getStrName());
             contactsViewHolder.tvSubTitle1.setText("FOLK Guide: " + contactItem.getStrFolkGuide());
             contactsViewHolder.tvSubTitle2.setText("Occupation: " + contactItem.getStrOccupation());
         }
@@ -105,6 +105,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             Intent contactIntent = new Intent(context, ProfileActivity.class);
             contactIntent.putExtra("profileKey", "CONTACT");
             contactIntent.putExtra("contactItem", contactItem);
+            contactIntent.putExtra("email", contactItem.getStrEmail());
             context.startActivity(contactIntent);
 
         }

@@ -125,9 +125,6 @@ public class LoginFragment extends Fragment {
 
 
     private String readSignUpStatus(String email) {
-        // TODO: 2019-12-31 - this also needs checking
-        SharedPreferences sp = getActivity().getSharedPreferences("authItem", Context.MODE_PRIVATE);
-//        String email = sp.getString("email", "");
         getActivity().runOnUiThread(() -> {
             loadingBar.setMessage("Checking SignUp Status...");
             loadingBar.setCanceledOnTouchOutside(false);
@@ -257,7 +254,6 @@ public class LoginFragment extends Fragment {
     }
 
 
-    // Login using Firebase Auth
     private void loginUser(String email, String password) {
         if ((null) != getActivity()) {
             loadingBar.show();
@@ -267,26 +263,14 @@ public class LoginFragment extends Fragment {
                     .addOnCompleteListener(Objects.requireNonNull(getActivity()), task -> {
                         loadingBar.dismiss();
                         if (task.isSuccessful()) {
-                            if ((null) != getActivity()) {
-                                // get data of document with the email id
-                                // pass that data through serializable intent or
-                                // store it in shared prefs
-                                // or get the doc id and load the details in the home page live
-
-                                if (null != getActivity()) {
-                                    // Main Shared Pref
-                                    HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
-                                    helperSharedPreference.setEmail(email);
-
-                                    // Test Shared Pref
-                                    SharedPreferences sp = Objects.requireNonNull(getActivity()).getSharedPreferences("authItem", Context.MODE_PRIVATE);
-                                    sp.edit().putString("email", email).apply();
-                                }
-
+                            if (null != getActivity()) {
+                                // Main Shared Pref
+                                HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
+                                helperSharedPreference.setEmail(email);
                                 AsyncTask.execute(() -> readSignUpStatus(email));
                             }
                         } else {
-                            if ((null) != getActivity()) {
+                            if (null != getActivity()) {
                                 Toast.makeText(getActivity(), "Failed to login. Please try again", Toast.LENGTH_LONG).show();
                             }
                         }

@@ -47,7 +47,6 @@ import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
@@ -67,14 +66,15 @@ public class ProfileActivity extends AppCompatActivity {
     private ConstraintLayout conLayProfileActions;
     private ViewPagerAdapter profileAdapter;
     private ProgressDialog loadingBar;
+    private CoordinatorLayout coordinatorProfile;
     private HelperGeneral helperObject = new HelperGeneral();
 
-    private ContactItem contactItem;
-    private FolkGuideItem folkGuideItem;
-    private TeamLeadItem teamLeadItem;
-    private AllUsersItem allUsersItem;
-    private ZonalHeadItem zonalHeadItem;
-    private AuthUserItem authUserItem;
+    private AuthUserItem authUserItem = new AuthUserItem();
+    private ContactItem contactItem = new ContactItem();
+    private FolkGuideItem folkGuideItem = new FolkGuideItem();
+    private TeamLeadItem teamLeadItem = new TeamLeadItem();
+    private AllUsersItem allUsersItem = new AllUsersItem();
+    private ZonalHeadItem zonalHeadItem = new ZonalHeadItem();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,65 +83,60 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         inits();
         getIntentData();
-        setUpTabLayout();
-        setUpToolbar();
-        setUpAppbarLayout();
-        setUpCollapsingToolbar();
+//        setUpTabLayout();
+//        setUpToolbar();
+//        setUpAppbarLayout();
+//        setUpCollapsingToolbar();
     }
-
 
     private void inits() {
         loadingBar = new ProgressDialog(this);
         profileAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
+        coordinatorProfile = findViewById(R.id.coordinator_profile);
         tabLayout = findViewById(R.id.tablayout_profile);
         viewPager = findViewById(R.id.viewpager_profile);
-        mCoordinatorLayout = findViewById(R.id.coordinator_profile);
         ivProfileImage = findViewById(R.id.img_profile_header);
         tvName = findViewById(R.id.tv_main_title);
         tvSubTitle = findViewById(R.id.tv_main_subtitle);
         conLayProfileActions = findViewById(R.id.con_lay_profile_action_icons);
     }
 
-
     private void getIntentData() {
         Intent intent = getIntent();
         profileKey = intent.getStringExtra("profileKey");
         Log.d(TAG, "getIntentData: profileKey: " + profileKey);
         if (("AUTHUSER").equals(profileKey)) {
-            // load ur own profile data from firestore
-            authUserItem = new AuthUserItem();
-            Log.d(TAG, "getIntentData: auth prof hit");
-            AsyncTask.execute(() -> readAuthUserData());
-            initAuthUserProfile();
+            // Main Shared Pref
+            HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(this);
+            String email = helperSharedPreference.getEmail();
+            AsyncTask.execute(() -> readAuthUserData(email));
         }
 
         if (("FOLKGUIDE").equals(profileKey)) {
-            // load registered folk guide data from firestore
-            folkGuideItem = (FolkGuideItem) intent.getSerializableExtra("folkguideItem");
-            initFolkGuideProfile();
+//            folkGuideItem = (FolkGuideItem) intent.getSerializableExtra("folkguideItem");
+            String email = intent.getStringExtra("email");
+            AsyncTask.execute(() -> readFolkGuideData(email));
         }
 
         if (("TEAMLEAD").equals(profileKey)) {
-            // load registered folk guide data from firestore
-            teamLeadItem = (TeamLeadItem) intent.getSerializableExtra("teamleadItem");
-            initTeamLeadProfile();
+//            teamLeadItem = (TeamLeadItem) intent.getSerializableExtra("teamleadItem");
+            String email = intent.getStringExtra("email");
+            AsyncTask.execute(() -> readTeamLeadData(email));
         }
 
         if (("CONTACT").equals(profileKey)) {
-            // load contact data from firestore
-            contactItem = (ContactItem) intent.getSerializableExtra("contactItem");
-            initContactProfile();
+//            contactItem = (ContactItem) intent.getSerializableExtra("contactItem");
+            String email = intent.getStringExtra("email");
+            AsyncTask.execute(() -> readContactData(email));
         }
 
         if (("ZONALHEAD").equals(profileKey)) {
-            // load contact data from firestore
             zonalHeadItem = (ZonalHeadItem) intent.getSerializableExtra("zonalheadItem");
             initZonalHeadProfile();
         }
 
         if (("ALLUSER").equals(profileKey)) {
-            // load contact data from firestore
             allUsersItem = (AllUsersItem) intent.getSerializableExtra("alluserItem");
             initAllUsersProfile();
         }
@@ -209,9 +204,9 @@ public class ProfileActivity extends AppCompatActivity {
             intent.putExtra("image_url", contactItem.getStrProfileImage());
             startActivity(intent);
         });
-        tvName.setText(contactItem.getFirstName());
+        tvName.setText(contactItem.getStrName());
         tvSubTitle.setText(contactItem.getStrFolkGuide());
-        profileActions(this, contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail(), () -> helperObject.shareData(this, contactItem.getStrProfileImage(), ivProfileImage, contactItem.getFirstName(), contactItem.getStrFolkGuide()));
+        profileActions(this, contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail(), () -> helperObject.shareData(this, contactItem.getStrProfileImage(), ivProfileImage, contactItem.getStrName(), contactItem.getStrName()));
         conLayProfileActions.setVisibility(View.VISIBLE);
         // Set up Viewpager tabs
         profileAdapter.addFrag(new BasicInfoContactFragment(), "BASIC INFO");
@@ -383,7 +378,7 @@ public class ProfileActivity extends AppCompatActivity {
                         }
 
                         if (("CONTACT").equals(profileKey)) {
-                            getSupportActionBar().setTitle(contactItem.getFirstName());
+                            getSupportActionBar().setTitle(contactItem.getStrName());
                             Objects.requireNonNull(getSupportActionBar()).setSubtitle(contactItem.getStrFolkGuide());
                         }
 
@@ -478,11 +473,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     // READ
-    private void readAuthUserData() {
-        // Main Shared Pref
-        HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(this);
-        String email = helperSharedPreference.getEmail();
-
+    private Void readAuthUserData(String email) {
         runOnUiThread(() -> {
             loadingBar.setMessage("Please wait...");
             loadingBar.setCanceledOnTouchOutside(false);
@@ -518,31 +509,244 @@ public class ProfileActivity extends AppCompatActivity {
                                     authUserItem.setProfileImageUrl(valueOf(docSnap.getString("profileImageUrl")));
                                     Log.d(TAG, "readAuthUserData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
                                 }
-
-                                Map<String, Object> talent = (Map<String, Object>) docSnap.getData().get("talent");
-                                Log.d(TAG, "readContactsData: talent map: " + talent);
-
-                                // Set Title and Subtitle - again here - concurrency sequence headache
-                                helperObject.glideProfileImage(this, authUserItem.getProfileImageUrl(), ivProfileImage);
-                                ivProfileImage.setOnClickListener(view -> {
-                                    Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
-                                    intent.putExtra("image_url", authUserItem.getProfileImageUrl());
-                                    startActivity(intent);
-                                });
-                                tvName.setText(authUserItem.getShortName());
-                                tvSubTitle.setText(authUserItem.getFullName());
                             }
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
-                        Toast.makeText(ProfileActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
                         runOnUiThread(() -> {
+                            initAuthUserProfile();
+                            setUpTabLayout();
+                            setUpToolbar();
+                            setUpAppbarLayout();
+                            setUpCollapsingToolbar();
+                        });
+                        Toast.makeText(ProfileActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> loadingBar.dismiss());
+                    }
+                })
+                .addOnFailureListener(e -> runOnUiThread(() -> {
+                    helperObject.showSnack(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", () -> readAuthUserData(email));
+                    loadingBar.dismiss();
+                }));
+        return null;
+    }
+
+    // READ
+    private Void readFolkGuideData(String email) {
+        runOnUiThread(() -> {
+            loadingBar.setMessage("Please wait...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+        });
+
+        FirebaseFirestore.getInstance()
+                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
+                .whereEqualTo("email", email)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                        Log.d(TAG, "docList: " + docList);
+
+                        for (DocumentSnapshot docSnap : docList) {
+                            folkGuideItem = docSnap.toObject(FolkGuideItem.class);
+                            if (folkGuideItem != null) {
+                                Log.d(TAG, "FolkGuideItem: " + folkGuideItem);
+
+                                if (!("").equals(valueOf(docSnap.getString("shortName")))) {
+                                    folkGuideItem.setStrFolkGuideShortName(valueOf(docSnap.getString("shortName")));
+                                    Log.d(TAG, "readFolkGuideData: shortName: " + valueOf(docSnap.getString("shortName")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("fullName")))) {
+                                    folkGuideItem.setStrName(valueOf(docSnap.getString("fullName")));
+                                    Log.d(TAG, "readFolkGuideData: fullname: " + valueOf(docSnap.getString("fullName")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
+                                    folkGuideItem.setStrProfileImage(valueOf(docSnap.getString("profileImageUrl")));
+                                    Log.d(TAG, "readFolkGuideData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("email")))) {
+                                    folkGuideItem.setStrEmail(valueOf(docSnap.getString("email")));
+                                    Log.d(TAG, "readFolkGuideData: email: " + valueOf(docSnap.getString("email")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("phone")))) {
+                                    folkGuideItem.setStrPhone(valueOf(docSnap.getString("phone")));
+                                    Log.d(TAG, "readFolkGuideData: phone: " + valueOf(docSnap.getString("phone")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("phone")))) {
+                                    folkGuideItem.setStrWhatsApp(valueOf(docSnap.getString("phone")));
+                                    Log.d(TAG, "readFolkGuideData: whatsapp: " + valueOf(docSnap.getString("phone")));
+                                }
+                            }
+                            Log.d(TAG, "firedoc id: " + docSnap.getId());
+                        }
+                        runOnUiThread(() -> {
+                            initFolkGuideProfile();
+                            setUpTabLayout();
+                            setUpToolbar();
+                            setUpAppbarLayout();
+                            setUpCollapsingToolbar();
+                        });
+                        Toast.makeText(ProfileActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> loadingBar.dismiss());
+                    }
+                })
+                .addOnFailureListener(e -> runOnUiThread(() -> {
+                    helperObject.showSnack(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", () -> readFolkGuideData(email));
+                    loadingBar.dismiss();
+                }));
+        return null;
+    }
+
+    // READ
+    private Void readTeamLeadData(String email) {
+        runOnUiThread(() -> {
+            loadingBar.setMessage("Please wait...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+        });
+
+        FirebaseFirestore.getInstance()
+                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
+                .whereEqualTo("email", email)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                        Log.d(TAG, "docList: " + docList);
+
+                        for (DocumentSnapshot docSnap : docList) {
+                            teamLeadItem = docSnap.toObject(TeamLeadItem.class);
+                            if (teamLeadItem != null) {
+                                Log.d(TAG, "TeamLeadItem: " + teamLeadItem);
+
+                                if (!("").equals(valueOf(docSnap.getString("shortName")))) {
+                                    teamLeadItem.setStrTeamLeadShortName(valueOf(docSnap.getString("shortName")));
+                                    Log.d(TAG, "readTeamLeadData: shortName: " + valueOf(docSnap.getString("shortName")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("fullName")))) {
+                                    teamLeadItem.setStrName(valueOf(docSnap.getString("fullName")));
+                                    Log.d(TAG, "readTeamLeadData: fullname: " + valueOf(docSnap.getString("fullName")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
+                                    teamLeadItem.setStrProfileImage(valueOf(docSnap.getString("profileImageUrl")));
+                                    Log.d(TAG, "readTeamLeadData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("email")))) {
+                                    teamLeadItem.setStrEmail(valueOf(docSnap.getString("email")));
+                                    Log.d(TAG, "readFolkGuideData: email: " + valueOf(docSnap.getString("email")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("phone")))) {
+                                    teamLeadItem.setStrPhone(valueOf(docSnap.getString("phone")));
+                                    Log.d(TAG, "readFolkGuideData: phone: " + valueOf(docSnap.getString("phone")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("phone")))) {
+                                    teamLeadItem.setStrWhatsApp(valueOf(docSnap.getString("phone")));
+                                    Log.d(TAG, "readFolkGuideData: whatsapp: " + valueOf(docSnap.getString("phone")));
+                                }
+                            }
+                            Log.d(TAG, "firedoc id: " + docSnap.getId());
+                        }
+                        runOnUiThread(() -> {
+                            initTeamLeadProfile();
+                            setUpTabLayout();
+                            setUpToolbar();
+                            setUpAppbarLayout();
+                            setUpCollapsingToolbar();
+                        });
+                        Toast.makeText(ProfileActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> loadingBar.dismiss());
+                    }
+                })
+                .addOnFailureListener(e -> runOnUiThread(() -> {
+                    helperObject.showSnack(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", () -> readTeamLeadData(email));
+                    loadingBar.dismiss();
+                }));
+        return null;
+    }
+
+    // READ
+    private Void readContactData(String email) {
+        runOnUiThread(() -> {
+            loadingBar.setMessage("Please wait...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+        });
+
+        FirebaseFirestore.getInstance()
+                .collection(HelperConstants.COLL_FOLK_NEW_MEMBERS)
+                .whereEqualTo("email", email)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                        Log.d(TAG, "docList: " + docList);
+
+                        for (DocumentSnapshot docSnap : docList) {
+                            contactItem = docSnap.toObject(ContactItem.class);
+                            if (contactItem != null) {
+                                Log.d(TAG, "ContactItem: " + contactItem);
+
+                                if (!("").equals(valueOf(docSnap.getString("folk_guide")))) {
+                                    contactItem.setStrFolkGuide(valueOf(docSnap.getString("folk_guide")));
+                                    Log.d(TAG, "readContactData: folkGuide: " + valueOf(docSnap.getString("folk_guide")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("name")))) {
+                                    contactItem.setStrName(valueOf(docSnap.getString("name")));
+                                    Log.d(TAG, "readContactData: name: " + valueOf(docSnap.getString("name")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
+                                    contactItem.setStrProfileImage(valueOf(docSnap.getString("profileImageUrl")));
+                                    Log.d(TAG, "readContactData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("email")))) {
+                                    contactItem.setStrEmail(valueOf(docSnap.getString("email")));
+                                    Log.d(TAG, "readFolkGuideData: email: " + valueOf(docSnap.getString("email")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("mobile")))) {
+                                    contactItem.setStrPhone(valueOf(docSnap.getString("mobile")));
+                                    Log.d(TAG, "readFolkGuideData: phone: " + valueOf(docSnap.getString("phone")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("whatsapp")))) {
+                                    contactItem.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
+                                    Log.d(TAG, "readFolkGuideData: whatsapp: " + valueOf(docSnap.getString("phone")));
+                                }
+                            }
+                            Log.d(TAG, "firedoc id: " + docSnap.getId());
+                        }
+
+                        runOnUiThread(() -> {
+                            initContactProfile();
+                            setUpTabLayout();
+                            setUpToolbar();
+                            setUpAppbarLayout();
+                            setUpCollapsingToolbar();
+                            Toast.makeText(ProfileActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
                             loadingBar.dismiss();
                         });
                     }
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(ProfileActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
-                    runOnUiThread(() -> loadingBar.dismiss());
-                });
+                .addOnFailureListener(e -> runOnUiThread(() -> {
+                    helperObject.showSnack(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", () -> readContactData(email));
+                    loadingBar.dismiss();
+                }));
+        return null;
     }
 }

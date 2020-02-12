@@ -194,7 +194,7 @@ public class HomeActivity extends AppCompatActivity {
                                 }
 
                                 if (!("").equals(valueOf(docSnap.getString("name")))) {
-                                    personItemModel.setFirstName(valueOf(docSnap.getString("name")));
+                                    personItemModel.setStrName(valueOf(docSnap.getString("name")));
                                 }
 
                                 if (("").equals(valueOf(docSnap.getString("folk_guide")))) {
@@ -516,7 +516,7 @@ public class HomeActivity extends AppCompatActivity {
         tvDedicated.setOnClickListener(view -> activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.srilaprabhupadalila.org/who-is-srila-prabhupada"))));
         tvShareApk.setOnClickListener(view -> {
             try {
-                helperObject.sendApp(HomeActivity.this);
+                helperObject.shareApp(HomeActivity.this);
             } catch (IOException e) {
                 e.printStackTrace();
             }

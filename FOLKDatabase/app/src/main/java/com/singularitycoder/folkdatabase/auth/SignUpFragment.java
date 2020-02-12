@@ -6,10 +6,14 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
@@ -26,6 +30,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -49,11 +54,9 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 
 import droidninja.filepicker.FilePickerBuilder;
@@ -87,6 +90,7 @@ public class SignUpFragment extends Fragment {
     private TextView tvSignUpMemberType;
     private ImageView ivOpenGallery;
     private ImageView ivSetProfileImage;
+    private ConstraintLayout conLaySignup;
 
     private String adminKey;
     private String lastFourDigits;
@@ -145,6 +149,7 @@ public class SignUpFragment extends Fragment {
         tvSignUpMemberType = view.findViewById(R.id.et_member_type);
         tvHkmJoiningDate = view.findViewById(R.id.tv_signup_hkm_joining_date_picker);
         tvShowHidePassword = view.findViewById(R.id.tv_show_password);
+        conLaySignup = view.findViewById(R.id.con_lay_signup);
     }
 
 
@@ -298,7 +303,7 @@ public class SignUpFragment extends Fragment {
                         doesAuthorityShortNameExistApi(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""), "TL");
                     }
                 } else {
-                    new HelperGeneral().dialogActionMessage(getActivity(), null,  "Short Name cannot be empty!", "OK", "", null, null, true);
+                    new HelperGeneral().dialogActionMessage(getActivity(), null, "Short Name cannot be empty!", "OK", "", null, null, true);
                 }
             }
         });
@@ -1116,7 +1121,7 @@ public class SignUpFragment extends Fragment {
                                         }
 
                                         if (jsonObject.getString("status").equals("Failure")) {
-                                            new HelperGeneral().dialogActionMessage(getActivity(), null,  jsonObject.getString("message"), "OK", "", null, null, true);
+                                            new HelperGeneral().dialogActionMessage(getActivity(), null, jsonObject.getString("message"), "OK", "", null, null, true);
                                         }
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -1359,19 +1364,6 @@ public class SignUpFragment extends Fragment {
     }
 
 
-    private byte[] getBytes(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-        int bufferSize = 1024;
-        byte[] buffer = new byte[bufferSize];
-
-        int len = 0;
-        while ((len = inputStream.read(buffer)) != -1) {
-            byteBuffer.write(buffer, 0, len);
-        }
-        return byteBuffer.toByteArray();
-    }
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -1382,9 +1374,7 @@ public class SignUpFragment extends Fragment {
         }
 
         // Gallery Result
-        // TODO: 2020-01-03 - Do conversions in background thread. Byte code conversion is wrong. Only works for files and not images and other stuff.
         if (data != null && requestCode == FilePickerConst.REQUEST_CODE_PHOTO && resultCode == Activity.RESULT_OK) {
-
             imageFilePathsStringArray.addAll(Objects.requireNonNull(data.getStringArrayListExtra(FilePickerConst.KEY_SELECTED_MEDIA)));
             newImagePath = imageFilePathsStringArray.get(0);
 
@@ -1394,9 +1384,7 @@ public class SignUpFragment extends Fragment {
             }
 
             File file = null;
-            byte[] bytesArray = new byte[0];
-            final ByteArrayOutputStream[] stream = {null};
-            lastFourDigits = "";     //substring containing last 4 characters
+            lastFourDigits = "";
             int fileSize = 0;
             String imageName = null;
 
@@ -1404,68 +1392,46 @@ public class SignUpFragment extends Fragment {
             if (newImagePath.length() > 4) {
                 lastFourDigits = newImagePath.substring(newImagePath.length() - 3);
             }
-            System.out.println("Image name: " + newImagePath);
-            System.out.println("Last 4 digits: " + lastFourDigits);
-            System.out.println("img path nnn: " + newImagePath);
 
             // Get Image Name
-            int slice = newImagePath.lastIndexOf('/');
-            if (slice != -1) {
-                imageName = newImagePath.substring(slice + 1);
-                Log.d(TAG, "Image Name: " + imageName);
+            int nameSlice = newImagePath.lastIndexOf('/');
+            if (nameSlice != -1) {
+                imageName = newImagePath.substring(nameSlice + 1);
             }
 
-            Log.d(TAG, "new img path 1: " + newImagePath);
-
-            // Get byte array from file path
+            // Get file size from file path
             if (newImagePath != null) {
                 file = new File(newImagePath);
-                Log.d(TAG, "file info: " + file);
-                Log.d(TAG, "file length: " + (int) file.length());
-
-                bytesArray = new byte[(int) file.length()];
-
-                System.out.println("bytesArray 1: " + Arrays.toString(bytesArray));
-                System.out.println("file size: " + (int) file.length() / (1024 * 1024) + " mb");
                 fileSize = (int) file.length() / (1024 * 1024);
             } else {
-                if ((null) != getActivity()) {
+                if (null != getActivity()) {
                     Toast.makeText(getActivity(), "File Path is Empty", Toast.LENGTH_SHORT).show();
                 }
             }
 
-
-            // Get byte data - but not byte Array
-            byte[] byteData = new byte[0];
-            InputStream iStream = null;
-            try {
-                if (null != getActivity()) {
-                    iStream = Objects.requireNonNull(getActivity()).getContentResolver().openInputStream(Uri.fromFile(new File(newImagePath)));
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            try {
-                byteData = getBytes(Objects.requireNonNull(iStream));
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    iStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-
-            if (fileSize <= 5.0) {
-
-                // Get Uri from file
+            if (fileSize <= 2.0) {
                 Uri imgUri = Uri.fromFile(new File(newImagePath));
-                Log.d(TAG, "onActivityResult: uri imz: " + imgUri);
+                Bitmap bitmap = null;
 
+                // Compress Image
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    try {
+                        ImageDecoder.decodeBitmap(ImageDecoder.createSource(requireContext().getContentResolver(), imgUri));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), imgUri);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                Uri bitmapUri = helperObject.getTempBitmapImageUri(bitmap);
+
+                // Set image data to model
                 ContactItem contactItem = new ContactItem();
-                contactItem.setIvProfileImage(imgUri);
+                contactItem.setIvProfileImage(bitmapUri);
                 contactItem.setImageName(imageName);
                 contactItem.setImageExtension(lastFourDigits);
 
@@ -1473,7 +1439,7 @@ public class SignUpFragment extends Fragment {
                 imageExtensionStringArray.add(lastFourDigits);
                 imageNameStringArray.add(imageName);
 
-                ivSetProfileImage.setImageURI(imgUri);
+                ivSetProfileImage.setImageURI(bitmapUri);
 
                 ivOpenGallery.setVisibility(View.GONE);
                 tvOpenGallery.setText("Change Profile Picture");
@@ -1482,9 +1448,19 @@ public class SignUpFragment extends Fragment {
                 dialog.dismiss();
             } else {
                 if ((null) != getActivity()) {
-                    Toast.makeText(getActivity(), "Max file size is 5 MB only!", Toast.LENGTH_SHORT).show();
+                    dialog.dismiss();
+                    helperObject.showSnack(conLaySignup, "Max file size is 2 MB only!", getResources().getColor(R.color.colorWhite), "OK", null);
                 }
             }
+
+            Log.d(TAG, "onActivityResult: Image name: " + newImagePath);
+            Log.d(TAG, "onActivityResult: Last 4 digits: " + lastFourDigits);
+            Log.d(TAG, "onActivityResult: img path nnn: " + newImagePath);
+            Log.d(TAG, "onActivityResult: Image Name: " + imageName);
+            Log.d(TAG, "onActivityResult: file info: " + file);
+            Log.d(TAG, "onActivityResult: file length: " + (int) file.length());
+            Log.d(TAG, "onActivityResult: file size: " + (int) file.length() / (1024 * 1024) + " mb");
+            Log.d(TAG, "onActivityResult: new img path 1: " + newImagePath);
         }
     }
 }
