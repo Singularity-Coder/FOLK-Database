@@ -39,7 +39,8 @@ import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasIntern
 
 public class TeamLeadsFragment extends Fragment {
 
-    private static final String TAG = TeamLeadsFragment.class.getSimpleName();
+    private static final String TAG = "TeamLeadsFragment";
+
     private ArrayList<TeamLeadItem> teamLeadList;
     private RecyclerView recyclerView;
     private TeamLeadsAdapter teamLeadsAdapter;

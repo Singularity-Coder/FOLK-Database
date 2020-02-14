@@ -52,10 +52,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -71,7 +69,7 @@ import static java.lang.String.valueOf;
 
 public class SignUpFragment extends Fragment {
 
-    private static final String TAG = SignUpFragment.class.getSimpleName();
+    private static final String TAG = "SignUpFragment";
 
     private TextView tvTermsPrivacy;
     private TextView tvDirectAuthorityTitle;
@@ -1447,7 +1445,7 @@ public class SignUpFragment extends Fragment {
 
                 dialog.dismiss();
             } else {
-                if ((null) != getActivity()) {
+                if (null != getActivity()) {
                     dialog.dismiss();
                     helperObject.showSnack(conLaySignup, "Max file size is 2 MB only!", getResources().getColor(R.color.colorWhite), "OK", null);
                 }

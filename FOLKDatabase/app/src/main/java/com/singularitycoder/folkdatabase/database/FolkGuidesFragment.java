@@ -39,7 +39,8 @@ import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasIntern
 
 public class FolkGuidesFragment extends Fragment {
 
-    private static final String TAG = FolkGuidesFragment.class.getSimpleName();
+    private static final String TAG = "FolkGuidesFragment";
+
     private ArrayList<FolkGuideItem> folkGuidesList;
     private RecyclerView recyclerView;
     private FolkGuidesAdapter folkGuidesAdapter;

@@ -46,6 +46,7 @@ import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -54,9 +55,8 @@ import static java.lang.String.valueOf;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = "ProfileActivity";
 
-    private CoordinatorLayout mCoordinatorLayout;
     private ViewPager viewPager;
     private TabLayout tabLayout;
     private Toolbar toolbar;
@@ -79,7 +79,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        new HelperGeneral().setStatuBarColor(this, R.color.colorPrimaryDark);
+        helperObject.setStatuBarColor(this, R.color.colorPrimaryDark);
         setContentView(R.layout.activity_profile);
         inits();
         getIntentData();
@@ -132,17 +132,19 @@ public class ProfileActivity extends AppCompatActivity {
         }
 
         if (("ZONALHEAD").equals(profileKey)) {
+            String email = intent.getStringExtra("email");
             zonalHeadItem = (ZonalHeadItem) intent.getSerializableExtra("zonalheadItem");
-            initZonalHeadProfile();
+            initZonalHeadProfile(email);
         }
 
         if (("ALLUSER").equals(profileKey)) {
+            String email = intent.getStringExtra("email");
             allUsersItem = (AllUsersItem) intent.getSerializableExtra("alluserItem");
-            initAllUsersProfile();
+            initAllUsersProfile(email);
         }
     }
 
-    private void initAuthUserProfile() {
+    private void initAuthUserProfile(String emailKey) {
         helperObject.glideProfileImage(this, authUserItem.getProfileImageUrl(), ivProfileImage);
         ivProfileImage.setOnClickListener(view -> {
             Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
@@ -155,13 +157,13 @@ public class ProfileActivity extends AppCompatActivity {
 //        profileActions(this, authUserItem.getPhone(), authUserItem.getPhone(), authUserItem.getEmail(), () -> helperObject.shareData(this, authUserItem.getProfileImageUrl(), ivProfileImage, authUserItem.getFullName(), authUserItem.getMemberType()));
         conLayProfileActions.setVisibility(View.GONE);
         // Set up Viewpager tabs
-        profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
+        profileAdapter.addFrag(new BasicInfoFragment(emailKey), "BASIC INFO");
 //        profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
         viewPager.setAdapter(profileAdapter);
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
     }
 
-    private void initFolkGuideProfile() {
+    private void initFolkGuideProfile(String emailKey) {
         helperObject.glideProfileImage(this, folkGuideItem.getStrProfileImage(), ivProfileImage);
         ivProfileImage.setOnClickListener(view -> {
             Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
@@ -173,13 +175,13 @@ public class ProfileActivity extends AppCompatActivity {
         profileActions(this, folkGuideItem.getStrPhone(), folkGuideItem.getStrWhatsApp(), folkGuideItem.getStrEmail(), () -> helperObject.shareData(this, folkGuideItem.getStrProfileImage(), ivProfileImage, folkGuideItem.getStrName(), folkGuideItem.getStrName()));
         conLayProfileActions.setVisibility(View.VISIBLE);
         // Set up Viewpager tabs
-        profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
+        profileAdapter.addFrag(new BasicInfoFragment(emailKey), "BASIC INFO");
 //        profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
         viewPager.setAdapter(profileAdapter);
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
     }
 
-    private void initTeamLeadProfile() {
+    private void initTeamLeadProfile(String emailKey) {
         helperObject.glideProfileImage(this, teamLeadItem.getStrProfileImage(), ivProfileImage);
         ivProfileImage.setOnClickListener(view -> {
             Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
@@ -191,13 +193,13 @@ public class ProfileActivity extends AppCompatActivity {
         profileActions(this, teamLeadItem.getStrPhone(), teamLeadItem.getStrWhatsApp(), teamLeadItem.getStrEmail(), () -> helperObject.shareData(this, teamLeadItem.getStrProfileImage(), ivProfileImage, teamLeadItem.getStrName(), teamLeadItem.getStrName()));
         conLayProfileActions.setVisibility(View.VISIBLE);
         // Set up Viewpager tabs
-        profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
+        profileAdapter.addFrag(new BasicInfoFragment(emailKey), "BASIC INFO");
 //        profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
         viewPager.setAdapter(profileAdapter);
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
     }
 
-    private void initContactProfile() {
+    private void initContactProfile(String emailKey) {
         helperObject.glideProfileImage(this, contactItem.getStrProfileImage(), ivProfileImage);
         ivProfileImage.setOnClickListener(view -> {
             Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
@@ -209,16 +211,17 @@ public class ProfileActivity extends AppCompatActivity {
         profileActions(this, contactItem.getStrPhone(), contactItem.getStrWhatsApp(), contactItem.getStrEmail(), () -> helperObject.shareData(this, contactItem.getStrProfileImage(), ivProfileImage, contactItem.getStrName(), contactItem.getStrName()));
         conLayProfileActions.setVisibility(View.VISIBLE);
         // Set up Viewpager tabs
-        profileAdapter.addFrag(new BasicInfoContactFragment(), "BASIC INFO");
-        profileAdapter.addFrag(new OccupationFragment(), "OCCUPATION");
-        profileAdapter.addFrag(new ResidenceFragment(), "RESIDENCE");
-        profileAdapter.addFrag(new TalentFragment(), "TALENT");
-        profileAdapter.addFrag(new FamilyFragment(), "FAMILY");
+        profileAdapter.addFrag(new BasicInfoContactFragment(emailKey), "BASIC INFO");
+        profileAdapter.addFrag(new EducationFragment(emailKey), "EDUCATION");
+        profileAdapter.addFrag(new OccupationFragment(emailKey), "OCCUPATION");
+        profileAdapter.addFrag(new TalentFragment(emailKey), "TALENT");
+        profileAdapter.addFrag(new ResidenceFragment(emailKey), "RESIDENCE");
+        profileAdapter.addFrag(new FamilyFragment(emailKey), "FAMILY");
 //        profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
         viewPager.setAdapter(profileAdapter);
     }
 
-    private void initZonalHeadProfile() {
+    private void initZonalHeadProfile(String emailKey) {
         helperObject.glideProfileImage(this, zonalHeadItem.getStrProfileImage(), ivProfileImage);
         ivProfileImage.setOnClickListener(view -> {
             Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
@@ -230,13 +233,13 @@ public class ProfileActivity extends AppCompatActivity {
         profileActions(this, zonalHeadItem.getStrPhone(), zonalHeadItem.getStrWhatsApp(), zonalHeadItem.getStrEmail(), () -> helperObject.shareData(this, zonalHeadItem.getStrProfileImage(), ivProfileImage, zonalHeadItem.getStrFirstName() + " " + zonalHeadItem.getStrLastName(), zonalHeadItem.getStrMemberType()));
         conLayProfileActions.setVisibility(View.VISIBLE);
         // Set up Viewpager tabs
-        profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
+        profileAdapter.addFrag(new BasicInfoFragment(emailKey), "BASIC INFO");
 //        profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
         viewPager.setAdapter(profileAdapter);
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
     }
 
-    private void initAllUsersProfile() {
+    private void initAllUsersProfile(String emailKey) {
         helperObject.glideProfileImage(this, allUsersItem.getStrProfileImage(), ivProfileImage);
         ivProfileImage.setOnClickListener(view -> {
             Intent intent = new Intent(ProfileActivity.this, HelperFrescoImageViewer.class);
@@ -248,7 +251,7 @@ public class ProfileActivity extends AppCompatActivity {
         profileActions(this, allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail(), () -> helperObject.shareData(this, allUsersItem.getStrProfileImage(), ivProfileImage, allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName(), allUsersItem.getStrMemberType()));
         conLayProfileActions.setVisibility(View.VISIBLE);
         // Set up Viewpager tabs
-        profileAdapter.addFrag(new BasicInfoFragment(), "BASIC INFO");
+        profileAdapter.addFrag(new BasicInfoFragment(emailKey), "BASIC INFO");
 //        profileAdapter.addFrag(new ActivityFragment(), "ACTIVITY");
         viewPager.setAdapter(profileAdapter);
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
@@ -341,13 +344,11 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-
     private void setUpToolbar() {
         toolbar = findViewById(R.id.toolbar_profile);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
-
 
     private void setUpAppbarLayout() {
         AppBarLayout appBarLayout = findViewById(R.id.appbar_profile);
@@ -423,7 +424,6 @@ public class ProfileActivity extends AppCompatActivity {
         });
     }
 
-
     private void setUpCollapsingToolbar() {
         final CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar_profile);
         // Set color of CollaspongToolbar when collapsing
@@ -441,7 +441,6 @@ public class ProfileActivity extends AppCompatActivity {
             collapsingToolbarLayout.setStatusBarScrimColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
         }
     }
-
 
     private class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
@@ -513,7 +512,7 @@ public class ProfileActivity extends AppCompatActivity {
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
                         runOnUiThread(() -> {
-                            initAuthUserProfile();
+                            initAuthUserProfile(email);
                             setUpTabLayout();
                             setUpToolbar();
                             setUpAppbarLayout();
@@ -586,7 +585,7 @@ public class ProfileActivity extends AppCompatActivity {
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
                         runOnUiThread(() -> {
-                            initFolkGuideProfile();
+                            initFolkGuideProfile(email);
                             setUpTabLayout();
                             setUpToolbar();
                             setUpAppbarLayout();
@@ -659,7 +658,7 @@ public class ProfileActivity extends AppCompatActivity {
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
                         runOnUiThread(() -> {
-                            initTeamLeadProfile();
+                            initTeamLeadProfile(email);
                             setUpTabLayout();
                             setUpToolbar();
                             setUpAppbarLayout();
@@ -702,38 +701,62 @@ public class ProfileActivity extends AppCompatActivity {
                                 if (!("").equals(valueOf(docSnap.getString("folk_guide")))) {
                                     contactItem.setStrFolkGuide(valueOf(docSnap.getString("folk_guide")));
                                     Log.d(TAG, "readContactData: folkGuide: " + valueOf(docSnap.getString("folk_guide")));
+                                } else {
+                                    contactItem.setStrFolkGuide("No Data");
                                 }
 
                                 if (!("").equals(valueOf(docSnap.getString("name")))) {
                                     contactItem.setStrName(valueOf(docSnap.getString("name")));
                                     Log.d(TAG, "readContactData: name: " + valueOf(docSnap.getString("name")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
-                                    contactItem.setStrProfileImage(valueOf(docSnap.getString("profileImageUrl")));
-                                    Log.d(TAG, "readContactData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
+                                } else {
+                                    contactItem.setStrName("No Data");
                                 }
 
                                 if (!("").equals(valueOf(docSnap.getString("email")))) {
                                     contactItem.setStrEmail(valueOf(docSnap.getString("email")));
                                     Log.d(TAG, "readFolkGuideData: email: " + valueOf(docSnap.getString("email")));
+                                } else {
+                                    contactItem.setStrEmail("No Data");
                                 }
 
                                 if (!("").equals(valueOf(docSnap.getString("mobile")))) {
                                     contactItem.setStrPhone(valueOf(docSnap.getString("mobile")));
                                     Log.d(TAG, "readFolkGuideData: phone: " + valueOf(docSnap.getString("phone")));
+                                } else {
+                                    contactItem.setStrPhone("0000000000");
                                 }
 
                                 if (!("").equals(valueOf(docSnap.getString("whatsapp")))) {
                                     contactItem.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
                                     Log.d(TAG, "readFolkGuideData: whatsapp: " + valueOf(docSnap.getString("phone")));
+                                } else {
+                                    contactItem.setStrWhatsApp("0000000000");
+                                }
+
+                                HashMap<String, String> imageData = new HashMap<>();
+                                if (null != docSnap.get("docs")) {
+                                    imageData = (HashMap<String, String>) docSnap.get("docs");
+                                    if (!("").equals(imageData.get("doc_url"))) {
+                                        contactItem.setStrDocumentImage(imageData.get("doc_url"));
+                                    } else {
+                                        contactItem.setStrDocumentImage(imageData.get(""));
+                                    }
+
+                                    if (!("").equals(imageData.get("photo_url"))) {
+                                        contactItem.setStrProfileImage(imageData.get("photo_url"));
+                                    } else {
+                                        contactItem.setStrProfileImage(imageData.get(""));
+                                    }
+                                } else {
+                                    contactItem.setStrDocumentImage(imageData.get(""));
+                                    contactItem.setStrProfileImage(imageData.get(""));
                                 }
                             }
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
 
                         runOnUiThread(() -> {
-                            initContactProfile();
+                            initContactProfile(email);
                             setUpTabLayout();
                             setUpToolbar();
                             setUpAppbarLayout();

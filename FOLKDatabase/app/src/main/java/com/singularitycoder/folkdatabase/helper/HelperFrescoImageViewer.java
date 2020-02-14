@@ -26,6 +26,8 @@ import com.singularitycoder.folkdatabase.R;
 //  change the java inheritance from AppCompatActivity to Activity to make activity translucency to work
 public class HelperFrescoImageViewer extends Activity implements View.OnTouchListener {
 
+    private static final String TAG = "HelperFrescoImageViewer";
+
     private SimpleDraweeView draweeView;
     private Uri uri;
     private TextView tvRotate;

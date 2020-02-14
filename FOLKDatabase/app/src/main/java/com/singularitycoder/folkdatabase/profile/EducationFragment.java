@@ -9,16 +9,16 @@ import androidx.fragment.app.Fragment;
 
 import com.singularitycoder.folkdatabase.R;
 
-public class BasicInfoFragment extends Fragment {
+public class EducationFragment extends Fragment {
 
-    private static final String TAG = "BasicInfoFragment";
+    private static final String TAG = "EducationFragment";
 
     private String emailKey;
 
-    public BasicInfoFragment() {
+    public EducationFragment() {
     }
 
-    public BasicInfoFragment(String emailKey) {
+    public EducationFragment(String emailKey) {
         this.emailKey = emailKey;
     }
 
@@ -30,7 +30,7 @@ public class BasicInfoFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_profile_basic_info, container, false);
+        View view = inflater.inflate(R.layout.fragment_profile_education, container, false);
 
         return view;
     }

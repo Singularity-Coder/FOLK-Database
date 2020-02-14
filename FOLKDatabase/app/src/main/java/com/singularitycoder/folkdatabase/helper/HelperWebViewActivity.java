@@ -17,6 +17,8 @@ import com.singularitycoder.folkdatabase.R;
 
 public class HelperWebViewActivity extends AppCompatActivity {
 
+    private static final String TAG = "HelperWebViewActivity";
+
     WebView webView;
     ProgressBar mProgressBar;
     private SwipeRefreshLayout swipeRefreshLayout;

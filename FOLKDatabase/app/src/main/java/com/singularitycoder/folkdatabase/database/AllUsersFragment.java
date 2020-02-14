@@ -39,7 +39,8 @@ import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasIntern
 
 public class AllUsersFragment extends Fragment {
 
-    private static final String TAG = AllUsersFragment.class.getSimpleName();
+    private static final String TAG = "AllUsersFragment";
+
     private ArrayList<AllUsersItem> allUsersList;
     private RecyclerView recyclerView;
     private AllUsersAdapter allUsersAdapter;

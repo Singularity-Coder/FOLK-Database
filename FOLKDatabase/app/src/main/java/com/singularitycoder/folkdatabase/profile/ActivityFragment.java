@@ -18,13 +18,20 @@ import java.util.ArrayList;
 
 public class ActivityFragment extends Fragment {
 
-    private static final String TAG = ActivityFragment.class.getSimpleName();
+    private static final String TAG = "ActivityFragment";
 
-    RecyclerView recyclerView;
-    ProfileActivitiesAdapter mProfileActivitiesAdapter;
-    ArrayList<ProfileContactItem> activityList;
+    private String emailKey;
+
+    private RecyclerView recyclerView;
+    private ProfileActivitiesAdapter mProfileActivitiesAdapter;
+    private ArrayList<ProfileContactItem> activityList;
+
 
     public ActivityFragment() {
+    }
+
+    public ActivityFragment(String emailKey) {
+        this.emailKey = emailKey;
     }
 
     @Override

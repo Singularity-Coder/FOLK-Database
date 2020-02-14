@@ -39,7 +39,7 @@ import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasIntern
 
 public class ZonalHeadsFragment extends Fragment {
 
-    private static final String TAG = ZonalHeadsFragment.class.getSimpleName();
+    private static final String TAG = "ZonalHeadsFragment";
     private ArrayList<ZonalHeadItem> zonalHeadsList;
     private RecyclerView recyclerView;
     private ZonalHeadsAdapter zonalHeadsAdapter;

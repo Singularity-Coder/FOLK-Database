@@ -40,6 +40,8 @@ import java.util.Locale;
 
 public class HelperImage extends AppCompatActivity {
 
+    private static final String TAG = "HelperImage";
+
     // Activity request codes
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
     private static final int CAMERA_CAPTURE_VIDEO_REQUEST_CODE = 200;

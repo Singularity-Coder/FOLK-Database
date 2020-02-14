@@ -1,16 +1,12 @@
 package com.singularitycoder.folkdatabase.auth;
 
 
-import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,19 +32,22 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = "MainActivity";
+
+    public static TabLayout authTabLayout;
 
     private CoordinatorLayout mCoordinatorLayout;
     private ViewPager viewPager;
     private Toolbar toolbar;
     private ImageView headerImage;
 
-    public static TabLayout authTabLayout;
+    private HelperGeneral helperObject = new HelperGeneral();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        new HelperGeneral().setStatuBarColor(this, R.color.colorPrimaryDark);
+        helperObject.setStatuBarColor(this, R.color.colorPrimaryDark);
         setContentView(R.layout.activity_main);
         inits();
         setUpViewPager();

@@ -21,7 +21,7 @@
             android:scrollbars="vertical">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/con_lay_about"
+                android:id="@+id/con_lay_education"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/colorWhite"
@@ -31,7 +31,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <View
-                    android:id="@+id/divider_basic_info_about_1"
+                    android:id="@+id/divider_education_1"
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
                     android:background="@color/colorGrey"
@@ -40,33 +40,33 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
-                    android:id="@+id/img_basic_info_about_icon"
+                    android:id="@+id/img_education_icon"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
                     android:layout_marginStart="15dp"
-                    android:src="@drawable/ic_person_black_24dp"
+                    android:src="@drawable/ic_book_24px"
                     android:tint="@color/colorBlack"
-                    app:layout_constraintBottom_toBottomOf="@+id/tv_basic_info_about_text"
-                    app:layout_constraintEnd_toStartOf="@+id/tv_basic_info_about_text"
+                    app:layout_constraintBottom_toBottomOf="@+id/tv_education_text"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_education_text"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/tv_basic_info_about_text" />
+                    app:layout_constraintTop_toTopOf="@+id/tv_education_text" />
 
                 <TextView
-                    android:id="@+id/tv_basic_info_about_text"
+                    android:id="@+id/tv_education_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="15dp"
-                    android:text="About"
+                    android:text="Education"
                     android:textColor="@color/colorBlack"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@+id/tv_basic_info_about_edit"
-                    app:layout_constraintStart_toEndOf="@+id/img_basic_info_about_icon"
-                    app:layout_constraintTop_toBottomOf="@+id/divider_basic_info_about_1" />
+                    app:layout_constraintEnd_toStartOf="@+id/tv_education_edit"
+                    app:layout_constraintStart_toEndOf="@+id/img_education_icon"
+                    app:layout_constraintTop_toBottomOf="@+id/divider_education_1" />
 
                 <TextView
-                    android:id="@+id/tv_basic_info_about_edit"
+                    android:id="@+id/tv_education_edit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
@@ -80,228 +80,174 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <LinearLayout
-                    android:id="@+id/lin_lay_basic_info_about"
+                    android:id="@+id/lin_lay_education"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="15dp"
                     android:orientation="vertical"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@+id/tv_basic_info_about_text"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_basic_info_about_text">
+                    app:layout_constraintStart_toStartOf="@+id/tv_education_text"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_education_text">
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_name_title"
+                        android:id="@+id/tv_education_graduated_from_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:text="Name"
+                        android:text="Graduated From"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_name"
+                        android:id="@+id/tv_education_graduated_from"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:hint="Name"
+                        android:hint="Graduated From"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_short_name_title"
+                        android:id="@+id/tv_education_graduated_from_map_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:text="Short Name"
+                        android:text="Graduated From Map"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_short_name"
+                        android:id="@+id/tv_education_graduated_from_map"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:hint="Short Name"
+                        android:hint="Graduated From Map"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_email_title"
+                        android:id="@+id/tv_education_highest_qualification_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:text="Email"
+                        android:text="Highest Qualification"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_email"
+                        android:id="@+id/tv_education_highest_qualification"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:hint="Email"
+                        android:hint="Highest Qualification"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_gmail_title"
+                        android:id="@+id/tv_education_college_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:text="Gmail"
+                        android:text="College"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_gmail"
+                        android:id="@+id/tv_education_college"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:hint="Gmail"
+                        android:hint="College"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_mobile_title"
+                        android:id="@+id/tv_education_college_maps_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:text="Mobile"
+                        android:text="College Maps"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_mobile"
+                        android:id="@+id/tv_education_college_maps"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:hint="Mobile"
+                        android:hint="College Maps"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_whatsapp_title"
+                        android:id="@+id/tv_education_stream_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:text="WhatsApp"
+                        android:text="Stream"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_whatsapp"
+                        android:id="@+id/tv_education_stream"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:hint="WhatsApp"
+                        android:hint="Stream"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_member_type_title"
+                        android:id="@+id/tv_education_branch_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:text="Member Type"
+                        android:text="Branch"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_member_type"
+                        android:id="@+id/tv_education_branch"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:hint="Member Type"
+                        android:hint="Branch"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_direct_authority_title"
+                        android:id="@+id/tv_education_course_year_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="15dp"
-                        android:text="Direct Authority"
+                        android:text="Course Year"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tv_basic_info_about_direct_authority"
+                        android:id="@+id/tv_education_course_year"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
-                        android:hint="Direct Authority"
-                        android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/tv_basic_info_about_zone_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:text="Zone"
-                        android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/tv_basic_info_about_zone"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:hint="Zone"
-                        android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/tv_basic_info_about_hkm_joining_date_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:text="HKM Joining Date"
-                        android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/tv_basic_info_about_hkm_joining_date"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:hint="HKM Joining Date"
-                        android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/tv_basic_info_about_account_created_on_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="15dp"
-                        android:text="Account Created On"
-                        android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
-
-                    <TextView
-                        android:id="@+id/tv_basic_info_about_account_created_on"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:hint="Account Created On"
+                        android:hint="Course Year"
                         android:textColor="@color/colorBlack"
                         android:textSize="16sp" />
                 </LinearLayout>
 
                 <View
-                    android:id="@+id/divider_basic_info_about_2"
+                    android:id="@+id/divider_education_2"
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
                     android:layout_marginTop="15dp"
                     android:background="@color/colorGrey"
-                    app:layout_constraintTop_toBottomOf="@+id/lin_lay_basic_info_about" />
+                    app:layout_constraintTop_toBottomOf="@+id/lin_lay_education" />
 
                 <View
-                    android:id="@+id/divider_basic_info_about_3"
+                    android:id="@+id/divider_education_3"
                     android:layout_width="match_parent"
                     android:layout_height="15dp"
                     android:background="@color/bg_light"
-                    app:layout_constraintTop_toBottomOf="@+id/divider_basic_info_about_2" />
+                    app:layout_constraintTop_toBottomOf="@+id/divider_education_2" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

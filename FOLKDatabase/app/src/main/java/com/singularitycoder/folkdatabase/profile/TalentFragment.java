@@ -16,11 +16,15 @@ import com.singularitycoder.folkdatabase.R;
 
 public class TalentFragment extends Fragment {
 
-    private static final String TAG = TalentFragment.class.getSimpleName();
+    private static final String TAG = "TalentFragment";
 
-    private TextView tvTalentText;
+    private String emailKey;
 
     public TalentFragment() {
+    }
+
+    public TalentFragment(String emailKey) {
+        this.emailKey = emailKey;
     }
 
     @Override
@@ -32,19 +36,6 @@ public class TalentFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile_talent, container, false);
-
-        if (null != getActivity()) {
-            SharedPreferences sp = getActivity().getSharedPreferences("talentItem", Context.MODE_PRIVATE);
-            tvTalentText = view.findViewById(R.id.tv_talent_text);
-            tvTalentText.setText(
-                    "Can Cook: " + sp.getString("canCook", "") +
-                            "\n\nCooking Self Rating: " + sp.getString("cookingSelfRating", "") +
-                            "\n\nCan Cook South Indian: " + sp.getString("canCookSouthIndian", "") +
-                            "\n\nSports College Level: " + sp.getString("sportsCollegeLevel", "") +
-                            "\n\nSports District Level: " + sp.getString("sportsDistrictLevel", "") +
-                            "\n\nDisclose: " + sp.getString("disclose", "")
-            );
-        }
 
         return view;
     }

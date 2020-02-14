@@ -25,7 +25,7 @@
             app:collapsedTitleTextAppearance="@color/white_70"
             app:contentScrim="?attr/colorPrimary"
             app:expandedTitleTextAppearance="@color/colorTransparent"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
             app:titleEnabled="false">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -65,7 +65,7 @@
                     android:ellipsize="end"
                     android:marqueeRepeatLimit="marquee_forever"
                     android:maxLines="1"
-                    android:text="Gauranga Das"
+                    android:text="Title"
                     android:textAlignment="center"
                     android:textColor="@color/colorBlack"
                     android:textSize="24sp"
@@ -77,7 +77,7 @@
                     android:id="@+id/tv_main_subtitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Folk Guide"
+                    android:text="Subtitle"
                     android:textAlignment="center"
                     android:textColor="@color/colorSubtitle"
                     android:textSize="15sp"

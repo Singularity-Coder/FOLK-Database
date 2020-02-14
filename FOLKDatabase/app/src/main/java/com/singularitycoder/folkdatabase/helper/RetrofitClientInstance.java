@@ -10,6 +10,8 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class RetrofitClientInstance {
 
+    private static final String TAG = "RetrofitClientInstance";
+
     // Declare a retrofit instance
     private static Retrofit retrofit;
 

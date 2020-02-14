@@ -5,14 +5,12 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,6 +48,7 @@ import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import com.singularitycoder.folkdatabase.profile.ProfileActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -59,13 +58,13 @@ import static java.lang.String.valueOf;
 
 public class ContactFragment extends Fragment {
 
-    private static final String TAG = ContactFragment.class.getSimpleName();
+    private static final String TAG = "ContactFragment";
 
     private ArrayList<ContactItem> contactList;
     private RecyclerView recyclerView;
     private ContactsAdapter contactsAdapter;
     private ProgressDialog loadingBar;
-    private ContactItem personItemModel;
+    private ContactItem contactItem;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextView noInternetText;
     private TextView tvListCount;
@@ -226,59 +225,78 @@ public class ContactFragment extends Fragment {
                             Log.d(TAG, "docList: " + docList);
 
                             for (DocumentSnapshot docSnap : docList) {
-                                personItemModel = docSnap.toObject(ContactItem.class);
-                                if (personItemModel != null) {
-                                    Log.d(TAG, "personItem: " + personItemModel);
+                                contactItem = docSnap.toObject(ContactItem.class);
+                                if (contactItem != null) {
+                                    Log.d(TAG, "personItem: " + contactItem);
 
                                     if (!("").equals(valueOf(docSnap.getId()))) {
-                                        personItemModel.setId(docSnap.getId());
+                                        contactItem.setId(docSnap.getId());
                                     }
 
                                     if (!("").equals(valueOf(docSnap.getString("name")))) {
-                                        personItemModel.setStrName(valueOf(docSnap.getString("name")));
+                                        contactItem.setStrName(valueOf(docSnap.getString("name")));
                                     }
 
                                     if (("").equals(valueOf(docSnap.getString("folk_guide")))) {
-                                        personItemModel.setStrFolkGuide("No FOLK Guide");
+                                        contactItem.setStrFolkGuide("No FOLK Guide");
                                     } else {
-                                        personItemModel.setStrFolkGuide(valueOf(docSnap.getString("folk_guide")));
+                                        contactItem.setStrFolkGuide(valueOf(docSnap.getString("folk_guide")));
                                     }
 
                                     if (!("").equals(valueOf(docSnap.getString("occupation")))) {
-                                        personItemModel.setStrOccupation(docSnap.getString("occupation"));
+                                        contactItem.setStrOccupation(docSnap.getString("occupation"));
                                     }
 
                                     if (("").equals(docSnap.getString("dob_month"))) {
-                                        personItemModel.setStrDobMonth(docSnap.getString("0"));
+                                        contactItem.setStrDobMonth(docSnap.getString("0"));
                                     } else {
-                                        personItemModel.setStrDobMonth(valueOf(docSnap.getString("dob_month")));
+                                        contactItem.setStrDobMonth(valueOf(docSnap.getString("dob_month")));
                                         Log.d(TAG, "dob month: " + docSnap.getString("dob_month"));
                                     }
 
                                     if (("").equals(docSnap.getString("dob"))) {
-                                        personItemModel.setStrBirthday("Missing Birthday");
+                                        contactItem.setStrBirthday("Missing Birthday");
                                     } else {
-                                        personItemModel.setStrBirthday(docSnap.getString("dob"));
+                                        contactItem.setStrBirthday(docSnap.getString("dob"));
                                     }
 
                                     if (!("").equals(docSnap.getString("city"))) {
-                                        personItemModel.setStrLocation(docSnap.getString("city"));
+                                        contactItem.setStrLocation(docSnap.getString("city"));
                                     }
 
                                     if (!("").equals(docSnap.getString("folk_residency_interest"))) {
-                                        personItemModel.setStrRecidencyInterest(valueOf(docSnap.getString("folk_residency_interest")));
+                                        contactItem.setStrResidencyInterest(valueOf(docSnap.getString("folk_residency_interest")));
                                     }
 
                                     if (!("").equals(docSnap.getString("mobile"))) {
-                                        personItemModel.setStrPhone(valueOf(docSnap.getString("mobile")));
+                                        contactItem.setStrPhone(valueOf(docSnap.getString("mobile")));
                                     }
 
                                     if (!("").equals(docSnap.getString("mobile"))) {
-                                        personItemModel.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
+                                        contactItem.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
                                     }
 
                                     if (!("").equals(valueOf(docSnap.getString("email")))) {
-                                        personItemModel.setStrEmail(valueOf(docSnap.getString("email")));
+                                        contactItem.setStrEmail(valueOf(docSnap.getString("email")));
+                                    }
+
+                                    HashMap<String, String> imageData = new HashMap<>();
+                                    if (null != docSnap.get("docs")) {
+                                        imageData = (HashMap<String, String>) docSnap.get("docs");
+                                        if (!("").equals(imageData.get("doc_url"))) {
+                                            contactItem.setStrDocumentImage(imageData.get("doc_url"));
+                                        } else {
+                                            contactItem.setStrDocumentImage(imageData.get(""));
+                                        }
+
+                                        if (!("").equals(imageData.get("photo_url"))) {
+                                            contactItem.setStrProfileImage(imageData.get("photo_url"));
+                                        } else {
+                                            contactItem.setStrProfileImage(imageData.get(""));
+                                        }
+                                    } else {
+                                        contactItem.setStrDocumentImage(imageData.get(""));
+                                        contactItem.setStrProfileImage(imageData.get(""));
                                     }
 
                                     Map<String, Object> talent = (Map<String, Object>) docSnap.getData().get("talent");
@@ -287,21 +305,21 @@ public class ContactFragment extends Fragment {
 //                                    // Cooking
 //                                    Map<String, Object> cooking = (Map<String, Object>) talent.get("cooking");
 //                                    if (!("").equals(valueOf(talent.get("disclose")))) {
-//                                        personItemModel.setStrTalentDisclose(valueOf(talent.get("disclose")));
+//                                        contactItem.setStrTalentDisclose(valueOf(talent.get("disclose")));
 //                                    }
 //
 //                                    if (!("").equals(valueOf(Objects.requireNonNull(cooking).get("can_cook_for")))) {
-//                                        personItemModel.setStrCanCookFor(valueOf(cooking.get("can_cook_for")));
+//                                        contactItem.setStrCanCookFor(valueOf(cooking.get("can_cook_for")));
 //                                    }
 //
 //                                    if (!("").equals(valueOf(cooking.get("cooking_self_rating")))) {
-//                                        personItemModel.setStrSelfRating(valueOf(cooking.get("cooking_self_rating")));
+//                                        contactItem.setStrSelfRating(valueOf(cooking.get("cooking_self_rating")));
 //                                    }
 //
 //                                    Map<String, Object> cookingSkills = (Map<String, Object>) cooking.get("skills");
 //
 //                                    if (!("").equals(valueOf(cookingSkills.get("south_indian")))) {
-//                                        personItemModel.setStrCanCookSouthIndian(valueOf(cookingSkills.get("south_indian")));
+//                                        contactItem.setStrCanCookSouthIndian(valueOf(cookingSkills.get("south_indian")));
 //                                    }
 //
 //                                    // Sports
@@ -309,11 +327,11 @@ public class ContactFragment extends Fragment {
 //                                    Map<String, Object> sportsParticipation = (Map<String, Object>) sports.get("participation");
 //
 //                                    if (!("").equals(valueOf(sportsParticipation.get("college_level")))) {
-//                                        personItemModel.setStrCollegeLevel(valueOf(sportsParticipation.get("college_level")));
+//                                        contactItem.setStrCollegeLevel(valueOf(sportsParticipation.get("college_level")));
 //                                    }
 //
 //                                    if (!("").equals(valueOf(sportsParticipation.get("college_level")))) {
-//                                        personItemModel.setStrDistrictLevel(valueOf(sportsParticipation.get("college_level")));
+//                                        contactItem.setStrDistrictLevel(valueOf(sportsParticipation.get("college_level")));
 //                                    }
 
 
@@ -321,7 +339,7 @@ public class ContactFragment extends Fragment {
 //                                        Log.d(TAG, "Key: " + entry.getKey() + "\n Value: " + entry.getValue());
 //                                        Map<String, Object> cooking2 = (Map<String, Object>) entry;
 //                                        if (("disclose").equals(entry.getKey())) {
-//                                            personItemModel.setStrTalentDisclose(entry.getKey());
+//                                            contactItem.setStrTalentDisclose(entry.getKey());
 //                                        }
 //
 //                                    }
@@ -337,7 +355,7 @@ public class ContactFragment extends Fragment {
 
                                 }
                                 Log.d(TAG, "firedoc id: " + docSnap.getId());
-                                contactList.add(personItemModel);
+                                contactList.add(contactItem);
                                 tvListCount.setText(new StringBuilder(String.valueOf(contactList.size())).append(" Contacts"));
                             }
                             contactsAdapter.notifyDataSetChanged();
@@ -828,7 +846,7 @@ public class ContactFragment extends Fragment {
         ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
 
         for (ContactItem contact : contactList) {
-            if (text.toLowerCase().trim().contains(valueOf(contact.getStrRecidencyInterest()).toLowerCase().trim())) {
+            if (text.toLowerCase().trim().contains(valueOf(contact.getStrResidencyInterest()).toLowerCase().trim())) {
                 filteredContactsList.add(contact);
                 Log.d(TAG, "list: " + filteredContactsList);
             }

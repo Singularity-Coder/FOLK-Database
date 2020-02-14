@@ -31,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.perf.metrics.AddTrace;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.AuthApprovalStatusActivity;
 import com.singularitycoder.folkdatabase.auth.AuthUserApprovalItem;
@@ -55,7 +56,7 @@ import static java.lang.String.valueOf;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private static final String TAG = HomeActivity.class.getSimpleName();
+    private static final String TAG = "HomeActivity";
 
     private Toolbar toolbar;
     private ArrayList<HomeItem> homeList;
@@ -73,11 +74,11 @@ public class HomeActivity extends AppCompatActivity {
     private String collectionName;
     private String approveCollectionName;
     private String approveAllMembersCollectionName;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private boolean setSignUpStatus = true;
     private boolean setRedFlagStatus = true;
     private HelperSharedPreference helperSharedPreference;
     private HelperGeneral helperObject = new HelperGeneral();
-
 
     // this listener is called when there is change in firebase fireUser session
     private FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
@@ -91,22 +92,24 @@ public class HomeActivity extends AppCompatActivity {
         }
     };
 
-
     @Override
+    @AddTrace(name = "onCreateTrace", enabled = true)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        new HelperGeneral().setStatuBarColor(this, R.color.colorPrimaryDark);
+        helperObject.setStatuBarColor(this, R.color.colorPrimaryDark);
         setContentView(R.layout.activity_home);
         init();
         authCheck();
         initToolBar();
-        AsyncTask.execute(this::readAuthUserData);
-        AsyncTask.execute(this::readContactsData);
+        if (hasInternet()) {
+            AsyncTask.execute(this::readAuthUserData);
+            AsyncTask.execute(this::readContactsData);
+        }
+        setRefreshLayout();
 //        setUpRecyclerView();
 //        findBirthdays(HelperGeneral.currentDate());
 
     }
-
 
     private void init() {
         firebaseAuth = FirebaseAuth.getInstance();
@@ -115,8 +118,9 @@ public class HomeActivity extends AppCompatActivity {
         helperSharedPreference = HelperSharedPreference.getInstance(this);
         loadingBar = new ProgressDialog(this);
         contactList = new ArrayList<>();
-    }
 
+        swipeRefreshLayout = findViewById(R.id.refresh_layout);
+    }
 
     private void authCheck() {
         authListener = firebaseAuth -> {
@@ -129,7 +133,6 @@ public class HomeActivity extends AppCompatActivity {
         };
     }
 
-
     private void initToolBar() {
         toolbar = findViewById(R.id.toolbar_home);
         setSupportActionBar(toolbar);
@@ -140,6 +143,21 @@ public class HomeActivity extends AppCompatActivity {
         toolbar.setOverflowIcon(getResources().getDrawable(R.drawable.ic_more_vert_black_24dp));
     }
 
+    private void setRefreshLayout() {
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            getData(this);
+        });
+    }
+
+    private void getData(final Context context) {
+        if (hasInternet()) {
+            AsyncTask.execute(this::readAuthUserData);
+            swipeRefreshLayout.setRefreshing(false);
+        } else {
+            swipeRefreshLayout.setRefreshing(false);
+        }
+    }
 
     private void findBirthdays(String text) {
         ArrayList<ContactItem> filteredContactsList = new ArrayList<>();
@@ -225,7 +243,7 @@ public class HomeActivity extends AppCompatActivity {
                                 }
 
                                 if (!("").equals(docSnap.getString("folk_residency_interest"))) {
-                                    personItemModel.setStrRecidencyInterest(valueOf(docSnap.getString("folk_residency_interest")));
+                                    personItemModel.setStrResidencyInterest(valueOf(docSnap.getString("folk_residency_interest")));
                                 }
 
                                 if (!("").equals(docSnap.getString("mobile"))) {

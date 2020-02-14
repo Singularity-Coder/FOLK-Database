@@ -20,10 +20,10 @@ import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class DatabaseActivity extends AppCompatActivity {
 
-    private static final String TAG = DatabaseActivity.class.getSimpleName();
+    private static final String TAG = "DatabaseActivity";
+
     private Toolbar toolbar;
     private ViewPager viewPager;
     private TabLayout tabLayout;
@@ -34,7 +34,7 @@ public class DatabaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        new HelperGeneral().setStatuBarColor(this, R.color.colorPrimaryDark);
+        helperObject.setStatuBarColor(this, R.color.colorPrimaryDark);
         setContentView(R.layout.activity_database);
         inits();
         initToolBar();

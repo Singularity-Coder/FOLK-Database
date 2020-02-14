@@ -66,7 +66,6 @@ import com.singularitycoder.folkdatabase.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -88,7 +87,7 @@ import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOption
 
 public class HelperGeneral extends AppCompatActivity {
 
-    private final String TAG = HelperGeneral.class.getSimpleName();
+    private static final String TAG = "HelperGeneral";
     private final int FADE_DURATION = 550;
 
     @Override
@@ -670,7 +669,7 @@ public class HelperGeneral extends AppCompatActivity {
             e.printStackTrace();
         }
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, bytes);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, bytes);
         byte[] bitmapData = bytes.toByteArray();
 
         // Write bytes in file

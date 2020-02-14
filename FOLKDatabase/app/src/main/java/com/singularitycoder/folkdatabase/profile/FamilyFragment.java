@@ -11,9 +11,15 @@ import com.singularitycoder.folkdatabase.R;
 
 public class FamilyFragment extends Fragment {
 
-    private static final String TAG = FamilyFragment.class.getSimpleName();
+    private static final String TAG = "FamilyFragment";
+
+    private String emailKey;
 
     public FamilyFragment() {
+    }
+
+    public FamilyFragment(String emailKey) {
+        this.emailKey = emailKey;
     }
 
     @Override

@@ -3,12 +3,7 @@ package com.singularitycoder.folkdatabase.auth;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -19,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -46,7 +40,7 @@ import static java.lang.String.valueOf;
 
 public class LoginFragment extends Fragment {
 
-    private static final String TAG = LoginFragment.class.getSimpleName();
+    private static final String TAG = "LoginFragment";
 
     private HelperCustomEditText etEmail;
     private HelperCustomEditText etPassword;

@@ -12,6 +12,7 @@ public class ContactItem implements Serializable {
     private String id;
 
     private String strProfileImage;
+    private String strDocumentImage;
     private String strName;
     private String strSubTitle1;
     private String strSubTitle2;
@@ -21,7 +22,7 @@ public class ContactItem implements Serializable {
     private String strOccupation;
     private String strDobMonth;
     private String strLocation;
-    private String strRecidencyInterest;
+    private String strResidencyInterest;
     private String strPhone;
     private String strWhatsApp;
     private String strEmail;
@@ -77,12 +78,12 @@ public class ContactItem implements Serializable {
         this.strChatCount = strChatCount;
     }
 
-    public String getImgProfileImage() {
-        return strProfileImage;
+    public String getStrDocumentImage() {
+        return strDocumentImage;
     }
 
-    public void setImgProfileImage(String imgProfileImage) {
-        this.strProfileImage = imgProfileImage;
+    public void setStrDocumentImage(String strDocumentImage) {
+        this.strDocumentImage = strDocumentImage;
     }
 
     public String getStrName() {
@@ -197,12 +198,12 @@ public class ContactItem implements Serializable {
         this.strLocation = strLocation;
     }
 
-    public String getStrRecidencyInterest() {
-        return strRecidencyInterest;
+    public String getStrResidencyInterest() {
+        return strResidencyInterest;
     }
 
-    public void setStrRecidencyInterest(String strRecidencyInterest) {
-        this.strRecidencyInterest = strRecidencyInterest;
+    public void setStrResidencyInterest(String strResidencyInterest) {
+        this.strResidencyInterest = strResidencyInterest;
     }
 
     public String getStrPhone() {
