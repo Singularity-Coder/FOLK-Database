@@ -32,7 +32,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
+    private final String TAG = "MainActivity";
 
     public static TabLayout authTabLayout;
 
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
                         getSupportActionBar().setTitle("FOLK Database");
                     isShow = true;
                 } else if (isShow) {
-                    if (getSupportActionBar() != null) getSupportActionBar().setTitle(" ");
+                    if (getSupportActionBar() != null) getSupportActionBar().setTitle("");
                     isShow = false;
                 }
             }
@@ -180,15 +180,11 @@ public class MainActivity extends AppCompatActivity {
         // Set color of CollaspongToolbar when collapsing
         try {
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.header);
-            Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
-                @SuppressWarnings("ResourceType")
-                @Override
-                public void onGenerated(Palette palette) {
+            Palette.from(bitmap).generate(palette -> {
 //                    int vibrantColor = palette.getVibrantColor(R.color.colorPrimary);
 //                    int vibrantDarkColor = palette.getDarkVibrantColor(R.color.colorPrimaryDark);
-                    collapsingToolbarLayout.setContentScrimColor(R.color.colorPrimary);
-                    collapsingToolbarLayout.setStatusBarScrimColor(R.color.colorTransparent);
-                }
+                collapsingToolbarLayout.setContentScrimColor(getResources().getColor(R.color.colorPrimary));
+                collapsingToolbarLayout.setStatusBarScrimColor(getResources().getColor(R.color.colorTransparent));
             });
         } catch (Exception e) {
             // if Bitmap fetch fails, fallback to primary colors
@@ -229,9 +225,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Static variable. Will cause memory leak if not destroyed.
-        authTabLayout = null;
+        // Memory leak
+//        authTabLayout = null;
     }
 }

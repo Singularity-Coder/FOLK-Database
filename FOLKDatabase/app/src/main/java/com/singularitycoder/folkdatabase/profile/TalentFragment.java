@@ -16,7 +16,7 @@ import com.singularitycoder.folkdatabase.R;
 
 public class TalentFragment extends Fragment {
 
-    private static final String TAG = "TalentFragment";
+    private final String TAG = "TalentFragment";
 
     private String emailKey;
 

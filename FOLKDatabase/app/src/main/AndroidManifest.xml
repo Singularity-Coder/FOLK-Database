@@ -50,14 +50,14 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".auth.MainActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".helper.HelperFrescoImageViewer"
             android:theme="@style/Theme.Transparent" />
         <activity
             android:name=".helper.HelperWebViewActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".auth.MainActivity"
-            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
             android:name=".home.HomeActivity"

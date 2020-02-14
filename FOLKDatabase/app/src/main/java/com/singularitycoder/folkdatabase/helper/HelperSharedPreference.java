@@ -5,11 +5,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class HelperSharedPreference {
+    private static final String KEY_FULL_NAME = "fullName";
     private static final String KEY_DOC_ID = "docId";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_ZONE = "zone";
     private static final String KEY_USER_SHORT_NAME = "shortName";
     private static final String KEY_USER_MEMBER_TYPE = "memberType";
+    private static final String KEY_USER_DIRECT_AUTHORITY = "directAuthority";
     private static final String KEY_MOBILE = "mobile";
     private static final String KEY_ROLE = "role";
     private static final String KEY_USERNAME = "userName";
@@ -97,5 +99,21 @@ public class HelperSharedPreference {
         return sharedPref.getString(KEY_USER_MEMBER_TYPE, "");
     }
 
+    public void setDirectAuthority(String directAuthority) {
+        sharedPrefEditor.putString(KEY_USER_DIRECT_AUTHORITY, directAuthority);
+        sharedPrefEditor.commit();
+    }
 
+    public String getDirectAuthority() {
+        return sharedPref.getString(KEY_USER_DIRECT_AUTHORITY, "");
+    }
+
+    public void setFullName(String fullName) {
+        sharedPrefEditor.putString(KEY_FULL_NAME, fullName);
+        sharedPrefEditor.commit();
+    }
+
+    public String getFullName() {
+        return sharedPref.getString(KEY_FULL_NAME, "");
+    }
 }

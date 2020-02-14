@@ -40,7 +40,7 @@ import static java.lang.String.valueOf;
 
 public class LoginFragment extends Fragment {
 
-    private static final String TAG = "LoginFragment";
+    private final String TAG = "LoginFragment";
 
     private HelperCustomEditText etEmail;
     private HelperCustomEditText etPassword;
@@ -125,15 +125,11 @@ public class LoginFragment extends Fragment {
             loadingBar.show();
         });
 
-        Log.d(TAG, "readSignUpStatus: hit 111");
-
         FirebaseFirestore.getInstance()
                 .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
                 .whereEqualTo("email", email)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-
-                    Log.d(TAG, "readSignUpStatus: hit 222");
 
                     if (!queryDocumentSnapshots.isEmpty()) {
                         List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
@@ -141,22 +137,19 @@ public class LoginFragment extends Fragment {
 
                         for (DocumentSnapshot docSnap : docList) {
                             authUserItem = docSnap.toObject(AuthUserItem.class);
-                            if (authUserItem != null) {
-                                Log.d(TAG, "AuthItem: " + authUserItem);
 
+                            if (authUserItem != null) {
                                 if (!("").equals(valueOf(docSnap.getString("signUpStatus")))) {
                                     authUserItem.setSignUpStatus(valueOf(docSnap.getString("signUpStatus")));
 //                                    strSignUpStatus = valueOf(docSnap.getString("signUpStatus"));
 
                                     if (docSnap.getString("signUpStatus").equals("true")) {
-                                        Log.d(TAG, "readSignUpStatus: hit 444");
                                         strSignUpStatus = "true";
                                         Log.d(TAG, "readSignUpStatus: signupstatus: " + strSignUpStatus);
                                         getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                         helperSharedPreference.setSignupStatus("true");
                                         finishAndGoHome();
                                     } else {
-                                        Log.d(TAG, "readSignUpStatus: hit 555");
                                         strSignUpStatus = "false";
                                         helperSharedPreference.setSignupStatus("false");
                                         finishAndGoForApproval();
@@ -172,7 +165,6 @@ public class LoginFragment extends Fragment {
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.d(TAG, "readSignUpStatus: hit 333");
                     Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
                     getActivity().runOnUiThread(() -> loadingBar.dismiss());
                 });
@@ -205,11 +197,9 @@ public class LoginFragment extends Fragment {
 
         tvShowHidePassword.setOnClickListener(view -> {
             if (tvShowHidePassword.getText().toString().trim().equals("SHOW")) {
-                Log.d(TAG, "showHidePassword: got hit 1");
                 etPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
                 tvShowHidePassword.setText("HIDE");
             } else {
-                Log.d(TAG, "showHidePassword: got hit 2");
                 etPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
                 tvShowHidePassword.setText("SHOW");
             }
@@ -276,6 +266,7 @@ public class LoginFragment extends Fragment {
     private void finishAndGoHome() {
         Intent intent = new Intent(getActivity(), HomeActivity.class);
         intent.putExtra("authType", "LogIn");
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         Objects.requireNonNull(getActivity()).finish();
     }
@@ -284,6 +275,7 @@ public class LoginFragment extends Fragment {
     private void finishAndGoForApproval() {
         Intent intent = new Intent(getActivity(), AuthApprovalStatusActivity.class);
         intent.putExtra("authType", "LogIn");
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         Objects.requireNonNull(getActivity()).finish();
     }

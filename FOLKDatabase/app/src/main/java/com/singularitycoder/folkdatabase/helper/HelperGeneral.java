@@ -87,8 +87,7 @@ import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOption
 
 public class HelperGeneral extends AppCompatActivity {
 
-    private static final String TAG = "HelperGeneral";
-    private final int FADE_DURATION = 550;
+    private final String TAG = "HelperGeneral";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -790,6 +789,7 @@ public class HelperGeneral extends AppCompatActivity {
     }
 
     public void setFadeAnimation(View view) {
+        int FADE_DURATION = 550;
         AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
         anim.setDuration(FADE_DURATION);
         view.startAnimation(anim);

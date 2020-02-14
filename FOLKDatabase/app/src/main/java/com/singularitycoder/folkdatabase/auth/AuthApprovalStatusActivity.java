@@ -1,9 +1,7 @@
 package com.singularitycoder.folkdatabase.auth;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -51,16 +49,20 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
     private String strAuthTypeIntent;
     private HelperGeneral helperObject = new HelperGeneral();
 
-    // this listener is called when there is change in firebase fireUser session
+    // This Listener is called when there is change in Firebase user session
     FirebaseAuth.AuthStateListener authListener = firebaseAuth -> {
-        FirebaseUser user = firebaseAuth.getCurrentUser();
-        if (user == null) {
-            // if key is false
-            // fireUser fireAuth state is changed - fireUser is null launch login activity
+        if (null != firebaseAuth.getCurrentUser()) {
+            HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(this);
+            String signUpStatus = helperSharedPreference.getSignupStatus();
+
+            if (null != signUpStatus) {
+                if (("true").equals(signUpStatus)) {
+                    finishAndGoHome();
+                }
+            }
+        } else {
             startActivity(new Intent(this, MainActivity.class));
             Objects.requireNonNull(this).finish();
-        } else {
-            Toast.makeText(this, "AuthUserItem: " + user.getEmail(), Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -91,13 +93,28 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
 
     private void authCheck() {
         authListener = firebaseAuth -> {
-            FirebaseUser user = firebaseAuth.getCurrentUser();
-            if (user == null) {
-                // fireUser fireAuth state is changed - fireUser is null launch login activity
+            if (null != firebaseAuth.getCurrentUser()) {
+                String signUpStatus = helperSharedPreference.getSignupStatus();
+
+                if (null != signUpStatus) {
+                    if (("true").equals(signUpStatus)) {
+                        finishAndGoHome();
+                    }
+                }
+            } else {
                 startActivity(new Intent(this, MainActivity.class));
                 Objects.requireNonNull(this).finish();
             }
         };
+    }
+
+
+    private void finishAndGoHome() {
+        Intent intent = new Intent(this, HomeActivity.class);
+        intent.putExtra("authType", "SignUp");
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 
 
@@ -113,10 +130,9 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
 
 
     private void setData() {
-        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
         if (!("").equals(strAuthTypeIntent)) {
             if (("SignUp").equals(strAuthTypeIntent)) {
-                tvFolkGuideGreetingText.setText(new StringBuilder("Hello ").append(sp.getString("firstName", "")).append(","));
+                tvFolkGuideGreetingText.setText(new StringBuilder("Hello ").append(helperSharedPreference.getFullName()).append(","));
             }
 
             if (("LogIn").equals(strAuthTypeIntent)) {
@@ -175,32 +191,24 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
 
     // READ - query that searches team leads or direct authority phone number
     private void readAuthorityPhoneNumber() {
-        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-        String email = sp.getString("email", "");
-        String directAuthority = sp.getString("directAuthority", "");
-        Log.d(TAG, "readAuthUserData: directAuthority: " + directAuthority);
+
+        Log.d(TAG, "readAuthorityPhoneNumber: dauth: " + helperSharedPreference.getDirectAuthority());
         runOnUiThread(() -> {
             loadingBar.setMessage("Please wait...");
             loadingBar.setCanceledOnTouchOutside(false);
             loadingBar.show();
         });
 
-        Log.d(TAG, "readAuthUserData: hitz 0");
-
         FirebaseFirestore
                 .getInstance()
                 .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
-                .whereEqualTo("shortName", directAuthority)
+                .whereEqualTo("shortName", helperSharedPreference.getDirectAuthority())
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-
-                    Log.d(TAG, "readAuthUserData: hitz 1");
 
                     if (!queryDocumentSnapshots.isEmpty()) {
                         List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
                         Log.d(TAG, "docList: " + docList);
-
-                        Log.d(TAG, "readAuthUserData: hitz 2");
 
                         for (DocumentSnapshot docSnap : docList) {
                             authUserItem = docSnap.toObject(AuthUserItem.class);
@@ -217,22 +225,18 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
                             }
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
-                        Toast.makeText(AuthApprovalStatusActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Got Data", Toast.LENGTH_SHORT).show();
                         runOnUiThread(() -> loadingBar.dismiss());
                     }
                 })
                 .addOnFailureListener(e -> {
-                    if (null != AuthApprovalStatusActivity.this) {
-                        Toast.makeText(AuthApprovalStatusActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
-                        runOnUiThread(() -> loadingBar.dismiss());
-                    }
+                    Toast.makeText(this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(() -> loadingBar.dismiss());
                 });
     }
 
-    // READ - query that searches team leads or direct authority phone number
+    // READ - checks signup status of user
     private void readSignUpStatus() {
-        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-        String email = sp.getString("email", "");
         runOnUiThread(() -> {
             loadingBar.setMessage("Please wait...");
             loadingBar.setCanceledOnTouchOutside(false);
@@ -241,7 +245,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
 
         FirebaseFirestore.getInstance()
                 .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
-                .whereEqualTo("email", email)
+                .whereEqualTo("email", helperSharedPreference.getEmail())
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
 
@@ -258,10 +262,10 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
                                     authUserItem.setSignUpStatus(valueOf(docSnap.getString("signUpStatus")));
                                     strSignUpStatus = valueOf(docSnap.getString("signUpStatus"));
 
-                                    if (docSnap.getString("signUpStatus").equals("true")) {
+                                    if (("true").equals(docSnap.getString("signUpStatus"))) {
                                         runOnUiThread(() -> loadingBar.dismiss());
                                         helperSharedPreference.setSignupStatus("true");
-                                        startActivity(new Intent(this, HomeActivity.class));
+                                        startActivity(new Intent(this, HomeActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                                         finish();
                                     } else {
                                         helperSharedPreference.setSignupStatus("false");

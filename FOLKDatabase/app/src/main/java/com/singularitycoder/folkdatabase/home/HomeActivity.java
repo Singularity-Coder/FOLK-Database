@@ -102,8 +102,7 @@ public class HomeActivity extends AppCompatActivity {
         authCheck();
         initToolBar();
         if (hasInternet()) {
-            AsyncTask.execute(this::readAuthUserData);
-            AsyncTask.execute(this::readContactsData);
+            AsyncTask.execute(this::readSignUpStatus);
         }
         setRefreshLayout();
 //        setUpRecyclerView();
@@ -181,18 +180,70 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    // READ - checks signup status of user
+    private void readSignUpStatus() {
+        runOnUiThread(() -> {
+            loadingBar.setMessage("Just a moment...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+        });
+
+        FirebaseFirestore.getInstance()
+                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
+                .whereEqualTo("email", helperSharedPreference.getEmail())
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                        Log.d(TAG, "docList: " + docList);
+
+                        for (DocumentSnapshot docSnap : docList) {
+                            authUserItem = docSnap.toObject(AuthUserItem.class);
+                            if (authUserItem != null) {
+                                Log.d(TAG, "AuthItem: " + authUserItem);
+
+                                if (!("").equals(valueOf(docSnap.getString("signUpStatus")))) {
+                                    authUserItem.setSignUpStatus(valueOf(docSnap.getString("signUpStatus")));
+
+                                    if (("false").equals(docSnap.getString("signUpStatus"))) {
+                                        runOnUiThread(() -> loadingBar.dismiss());
+                                        helperSharedPreference.setSignupStatus("false");
+                                        helperSharedPreference.setFullName(helperSharedPreference.getFullName());
+                                        helperSharedPreference.setDirectAuthority(helperSharedPreference.getDirectAuthority());
+                                        helperSharedPreference.setMemberType(helperSharedPreference.getMemberType());
+                                        helperSharedPreference.setUserShortName(helperSharedPreference.getUserShortName());
+                                        helperSharedPreference.setZone(helperSharedPreference.getZone());
+                                        startActivity(new Intent(this, AuthApprovalStatusActivity.class));
+                                        finish();
+                                    } else {
+                                        runOnUiThread(() -> loadingBar.dismiss());
+                                        AsyncTask.execute(this::readAuthUserData);
+                                        AsyncTask.execute(this::readContactsData);
+                                    }
+                                }
+
+                                authUserItem.setDocId(docSnap.getId());
+                            }
+                            Log.d(TAG, "firedoc id: " + docSnap.getId());
+                        }
+                        Toast.makeText(this, "Got Data", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> loadingBar.dismiss());
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(() -> loadingBar.dismiss());
+                });
+    }
+
 
     // READ
     private void readContactsData() {
-        SharedPreferences sp = getSharedPreferences("authItem", Context.MODE_PRIVATE);
-        String folkGuideAbbr = sp.getString("folkGuideAbbr", "");
-        String zone = sp.getString("zone", "");
-        Log.d(TAG, "folkguide: " + folkGuideAbbr + " zone: " + zone);
-
         FirebaseFirestore.getInstance()
                 .collection(HelperConstants.COLL_FOLK_NEW_MEMBERS)
-                .whereEqualTo("folk_guide", folkGuideAbbr)
-                .whereEqualTo("zone", zone)
+                .whereEqualTo("folk_guide", helperSharedPreference.getUserShortName())
+                .whereEqualTo("zone", helperSharedPreference.getZone())
                 .get()
 //            FirebaseFirestore.getInstance().collection(HelperConstants.COLL_FOLK_NEW_MEMBERS).get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -998,11 +1049,16 @@ public class HomeActivity extends AppCompatActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user == null) {
                     // unload all shared prefs
-                    helperSharedPreference.setSignupStatus("false");
+                    helperSharedPreference.setSignupStatus("");
                     helperSharedPreference.setEmail("");
+                    helperSharedPreference.setFullName("");
+                    helperSharedPreference.setDirectAuthority("");
+                    helperSharedPreference.setMemberType("");
+                    helperSharedPreference.setUserShortName("");
+                    helperSharedPreference.setZone("");
                     // fireUser fireAuth state is changed - fireUser is null launch login activity
-                    startActivity(new Intent(HomeActivity.this, MainActivity.class));
-                    Objects.requireNonNull(HomeActivity.this).finish();
+                    startActivity(new Intent(HomeActivity.this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                    finish();
                 }
             };
         });

@@ -69,7 +69,7 @@ import static java.lang.String.valueOf;
 
 public class SignUpFragment extends Fragment {
 
-    private static final String TAG = "SignUpFragment";
+    private final String TAG = "SignUpFragment";
 
     private TextView tvTermsPrivacy;
     private TextView tvDirectAuthorityTitle;
@@ -152,7 +152,7 @@ public class SignUpFragment extends Fragment {
 
 
     private void authCheck() {
-        if (firebaseAuth.getCurrentUser() != null) {
+        if (null != firebaseAuth.getCurrentUser()) {
             // check if key is false. If ture then send to main activity
             // if shared pref value is not null n if true or false
             if (null != getActivity()) {
@@ -354,6 +354,7 @@ public class SignUpFragment extends Fragment {
     private void finishAndGoForApproval() {
         Intent intent = new Intent(getActivity(), AuthApprovalStatusActivity.class);
         intent.putExtra("authType", "SignUp");
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         Objects.requireNonNull(getActivity()).finish();
     }
@@ -361,6 +362,7 @@ public class SignUpFragment extends Fragment {
     private void finishAndGoHome() {
         Intent intent = new Intent(getActivity(), HomeActivity.class);
         intent.putExtra("authType", "SignUp");
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         Objects.requireNonNull(getActivity()).finish();
     }
@@ -623,7 +625,7 @@ public class SignUpFragment extends Fragment {
         for (int i = 0; i < imgUriArray.size(); i++) {
             final int finalI = i;
 
-            if ((null) != FirebaseStorage.getInstance().getReference().child(profileImageDirectory)) {
+            if (null != FirebaseStorage.getInstance().getReference().child(profileImageDirectory)) {
                 // First put file in Storage
                 FirebaseStorage.getInstance().getReference()
                         .child(profileImageDirectory)
@@ -738,18 +740,8 @@ public class SignUpFragment extends Fragment {
             // Main Shared Pref
             HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
             helperSharedPreference.setEmail(email);
-
-            // Test Shared Pref
-            SharedPreferences sp = Objects.requireNonNull(getActivity()).getSharedPreferences("authItem", Context.MODE_PRIVATE);
-            sp.edit().putString("profileImage", profileImage).apply();
-            sp.edit().putString("firstName", firstName).apply();
-            sp.edit().putString("memberType", memberType).apply();
-            sp.edit().putString("directAuthority", directAuthority).apply();
-            sp.edit().putString("phone", phone).apply();
-            sp.edit().putString("email", email).apply();
-            sp.edit().putString("gmail", gmail).apply();
-            sp.edit().putString("folkGuideAbbr", folkGuideAbbr).apply();
-            sp.edit().putString("zone", zone).apply();
+            helperSharedPreference.setDirectAuthority(directAuthority);
+            helperSharedPreference.setFullName(firstName);
         }
 
         // Save AuthUserItem obj to Firestore - Add a new document with a generated ID
@@ -875,9 +867,9 @@ public class SignUpFragment extends Fragment {
                                     if (null != getActivity()) {
                                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
                                         authUserItem1.setDocId(documentReference1.getId());
+                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                         finishAndGoForApproval();
                                         btnCreateAccount.setEnabled(false);
-                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
                                     }
                                 })
                                 .addOnFailureListener(e -> {
@@ -944,9 +936,9 @@ public class SignUpFragment extends Fragment {
                     Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
                     if (null != getActivity()) {
                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
                         finishAndGoForApproval();
                         btnCreateAccount.setEnabled(false);
-                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -1004,9 +996,9 @@ public class SignUpFragment extends Fragment {
                     Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
                     if (null != getActivity()) {
                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
                         finishAndGoForApproval();
                         btnCreateAccount.setEnabled(false);
-                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -1064,9 +1056,9 @@ public class SignUpFragment extends Fragment {
                     Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference1.getId());
                     if (null != getActivity()) {
                         Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
                         finishAndGoForApproval();
                         btnCreateAccount.setEnabled(false);
-                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -1460,5 +1452,11 @@ public class SignUpFragment extends Fragment {
             Log.d(TAG, "onActivityResult: file size: " + (int) file.length() / (1024 * 1024) + " mb");
             Log.d(TAG, "onActivityResult: new img path 1: " + newImagePath);
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+//        dialog.dismiss();
     }
 }
