@@ -1,3 +1,4 @@
+![alt text](https://github.com/Singularity-Coder/FOLK-Database/blob/master/logo192.png)
 # FOLK-Database
 FOLK Database App
 
