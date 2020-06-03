@@ -41,7 +41,8 @@ public class AllUsersFragment extends Fragment {
 
     private static final String TAG = "AllUsersFragment";
 
-    private ArrayList<AllUsersItem> allUsersList;
+    private final ArrayList<AllUsersItem> allUsersList = new ArrayList<>();
+
     private RecyclerView recyclerView;
     private AllUsersAdapter allUsersAdapter;
     private AllUsersItem allUsersItem;
@@ -66,11 +67,9 @@ public class AllUsersFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_person, container, false);
         init(view);
-        setRefreshLayout();
-        if (null != getActivity()) {
-            getData(getActivity());
-        }
         setUpRecyclerView();
+        if (null != getActivity()) getData(getActivity());
+        setRefreshLayout();
         return view;
     }
 
@@ -98,6 +97,7 @@ public class AllUsersFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(() -> {
             shimmerFrameLayout.setVisibility(View.VISIBLE);
             if (null != getActivity()) {
+                allUsersList.clear();
                 getData(getActivity());
             }
         });
@@ -112,20 +112,16 @@ public class AllUsersFragment extends Fragment {
             recyclerView.setDrawingCacheEnabled(true);
             recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
-            allUsersList = new ArrayList<>();
-
             allUsersAdapter = new AllUsersAdapter(getContext(), allUsersList);
             allUsersAdapter.setHasStableIds(true);
-            allUsersAdapter.setOnItemClickListener(new AllUsersAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(View view, int position) {
-                    Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
-                    AllUsersItem allUsersItem = allUsersList.get(position);
-                    Intent intent = new Intent(getActivity(), ProfileActivity.class);
-                    intent.putExtra("profileKey", "ALLUSER");
-                    intent.putExtra("alluserItem", allUsersItem);
-                    startActivity(intent);
-                }
+            allUsersAdapter.setOnItemClickListener((view, position) -> {
+                Toast.makeText(getContext(), position + " got clicked", Toast.LENGTH_LONG).show();
+                AllUsersItem allUsersItem = allUsersList.get(position);
+                Intent intent = new Intent(getActivity(), ProfileActivity.class);
+                intent.putExtra("profileKey", "ALLUSER");
+                intent.putExtra("alluserItem", allUsersItem);
+                intent.putExtra("email", allUsersItem.getStrEmail());
+                startActivity(intent);
             });
             recyclerView.setAdapter(allUsersAdapter);
         }
@@ -134,11 +130,9 @@ public class AllUsersFragment extends Fragment {
     private void getData(final Context context) {
         if (hasInternet()) {
             Log.d(TAG, "hit 1");
-            setUpRecyclerView();
-            AsyncTask.execute(this::readAllUsersData);
+            AsyncTask.SERIAL_EXECUTOR.execute(this::readAllUsersData);
             noInternetText.setVisibility(View.GONE);
             swipeRefreshLayout.setRefreshing(false);
-            allUsersAdapter.notifyDataSetChanged();
         } else {
             noInternetText.setVisibility(View.VISIBLE);
             swipeRefreshLayout.setRefreshing(false);
@@ -167,9 +161,7 @@ public class AllUsersFragment extends Fragment {
                                 Log.d(TAG, "personItem: " + allUsersItem);
                                 // catch null for every single field here only ...oooooooooooomg
                                 allUsersItem.setId(docSnap.getId());
-                                allUsersItem.setStrFirstName(docSnap.getString("firstName"));
-                                allUsersItem.setStrLastName(docSnap.getString("lastName"));
-                                allUsersItem.setStrKcExperience(docSnap.getString("kcExperience"));
+                                allUsersItem.setStrFirstName(docSnap.getString("fullName"));
                                 allUsersItem.setStrMemberType(docSnap.getString("memberType"));
                                 allUsersItem.setStrProfileImage(docSnap.getString("profileImageUrl"));
                                 allUsersItem.setStrPhone(docSnap.getString("phone"));

@@ -166,6 +166,13 @@ public class DatabaseActivity extends AppCompatActivity {
             viewPagerAdapter.addFrag(new TeamLeadsFragment(), "TEAM LEADS");
             viewPager.setAdapter(viewPagerAdapter);
         }
+
+        // DEMO
+        if (("").toLowerCase().equals(memberType.toLowerCase())) {
+            viewPagerAdapter.addFrag(new AllUsersFragment(), "ALL USERS");
+            viewPager.setAdapter(viewPagerAdapter);
+        }
+
     }
 
 

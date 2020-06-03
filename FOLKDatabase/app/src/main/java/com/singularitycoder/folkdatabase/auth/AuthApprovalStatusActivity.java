@@ -85,6 +85,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         loadingBar = new ProgressDialog(this);
+
         btnCallAuthority = findViewById(R.id.btn_call_authority);
         btnCheckStatus = findViewById(R.id.btn_check_status);
         tvFolkGuideGreetingText = findViewById(R.id.tv_folk_guide_greeting_text);
@@ -196,7 +197,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
         runOnUiThread(() -> {
             loadingBar.setMessage("Please wait...");
             loadingBar.setCanceledOnTouchOutside(false);
-            loadingBar.show();
+            if (null != loadingBar && !loadingBar.isShowing()) loadingBar.show();
         });
 
         FirebaseFirestore
@@ -226,12 +227,16 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
                         Toast.makeText(this, "Got Data", Toast.LENGTH_SHORT).show();
-                        runOnUiThread(() -> loadingBar.dismiss());
+                        runOnUiThread(() -> {
+                            if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
+                        });
                     }
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
-                    runOnUiThread(() -> loadingBar.dismiss());
+                    runOnUiThread(() -> {
+                        if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
+                    });
                 });
     }
 
@@ -240,7 +245,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
         runOnUiThread(() -> {
             loadingBar.setMessage("Please wait...");
             loadingBar.setCanceledOnTouchOutside(false);
-            loadingBar.show();
+            if (null != loadingBar && !loadingBar.isShowing()) loadingBar.show();
         });
 
         FirebaseFirestore.getInstance()
@@ -263,7 +268,9 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
                                     strSignUpStatus = valueOf(docSnap.getString("signUpStatus"));
 
                                     if (("true").equals(docSnap.getString("signUpStatus"))) {
-                                        runOnUiThread(() -> loadingBar.dismiss());
+                                        runOnUiThread(() -> {
+                                            if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
+                                        });
                                         helperSharedPreference.setSignupStatus("true");
                                         startActivity(new Intent(this, HomeActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                                         finish();
@@ -278,12 +285,16 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
                         Toast.makeText(AuthApprovalStatusActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
-                        runOnUiThread(() -> loadingBar.dismiss());
+                        runOnUiThread(() -> {
+                            if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
+                        });
                     }
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(AuthApprovalStatusActivity.this, "Couldn't get data!", Toast.LENGTH_SHORT).show();
-                    runOnUiThread(() -> loadingBar.dismiss());
+                    runOnUiThread(() -> {
+                        if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
+                    });
                 });
     }
 

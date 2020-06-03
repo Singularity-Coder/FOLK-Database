@@ -133,14 +133,15 @@ public class ProfileActivity extends AppCompatActivity {
 
         if (("ZONALHEAD").equals(profileKey)) {
             String email = intent.getStringExtra("email");
-            zonalHeadItem = (ZonalHeadItem) intent.getSerializableExtra("zonalheadItem");
+//            zonalHeadItem = (ZonalHeadItem) intent.getSerializableExtra("zonalheadItem");
             initZonalHeadProfile(email);
         }
 
         if (("ALLUSER").equals(profileKey)) {
             String email = intent.getStringExtra("email");
-            allUsersItem = (AllUsersItem) intent.getSerializableExtra("alluserItem");
-            initAllUsersProfile(email);
+//            allUsersItem = (AllUsersItem) intent.getSerializableExtra("alluserItem");
+//            initAllUsersProfile(email);
+            AsyncTask.execute(() -> readAllUsersData(email));
         }
     }
 
@@ -151,8 +152,13 @@ public class ProfileActivity extends AppCompatActivity {
             intent.putExtra("image_url", authUserItem.getProfileImageUrl());
             startActivity(intent);
         });
-        tvName.setText(authUserItem.getShortName());
-        tvSubTitle.setText(authUserItem.getFullName());
+        // DEMO
+        tvName.setText(authUserItem.getFullName());
+        tvSubTitle.setText(authUserItem.getEmail());
+
+        // REAL
+//        tvName.setText(authUserItem.getShortName());
+//        tvSubTitle.setText(authUserItem.getFullName());
         Log.d(TAG, "initAuthUserProfile: name: " + authUserItem.getFullName() + " " + authUserItem.getMemberType());
 //        profileActions(this, authUserItem.getPhone(), authUserItem.getPhone(), authUserItem.getEmail(), () -> helperObject.shareData(this, authUserItem.getProfileImageUrl(), ivProfileImage, authUserItem.getFullName(), authUserItem.getMemberType()));
         conLayProfileActions.setVisibility(View.GONE);
@@ -229,7 +235,7 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
         });
         tvName.setText(zonalHeadItem.getStrFirstName());
-        tvSubTitle.setText(zonalHeadItem.getStrFirstName());
+        tvSubTitle.setText(zonalHeadItem.getStrEmail());
         profileActions(this, zonalHeadItem.getStrPhone(), zonalHeadItem.getStrWhatsApp(), zonalHeadItem.getStrEmail(), () -> helperObject.shareData(this, zonalHeadItem.getStrProfileImage(), ivProfileImage, zonalHeadItem.getStrFirstName() + " " + zonalHeadItem.getStrLastName(), zonalHeadItem.getStrMemberType()));
         conLayProfileActions.setVisibility(View.VISIBLE);
         // Set up Viewpager tabs
@@ -247,8 +253,8 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
         });
         tvName.setText(allUsersItem.getStrFirstName());
-        tvSubTitle.setText(allUsersItem.getStrFirstName());
-        profileActions(this, allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail(), () -> helperObject.shareData(this, allUsersItem.getStrProfileImage(), ivProfileImage, allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName(), allUsersItem.getStrMemberType()));
+        tvSubTitle.setText(allUsersItem.getStrEmail());
+        profileActions(this, allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail(), () -> helperObject.shareData(this, allUsersItem.getStrProfileImage(), ivProfileImage, allUsersItem.getStrFirstName(), allUsersItem.getStrMemberType()));
         conLayProfileActions.setVisibility(View.VISIBLE);
         // Set up Viewpager tabs
         profileAdapter.addFrag(new BasicInfoFragment(emailKey), "BASIC INFO");
@@ -389,8 +395,13 @@ public class ProfileActivity extends AppCompatActivity {
                         }
 
                         if (("ALLUSER").equals(profileKey)) {
-                            getSupportActionBar().setTitle(allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName());
-                            Objects.requireNonNull(getSupportActionBar()).setSubtitle(allUsersItem.getStrMemberType());
+                            // DEMO
+                            getSupportActionBar().setTitle(allUsersItem.getStrFirstName());
+                            Objects.requireNonNull(getSupportActionBar()).setSubtitle(allUsersItem.getStrEmail());
+
+                            // REAL
+//                            getSupportActionBar().setTitle(allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName());
+//                            Objects.requireNonNull(getSupportActionBar()).setSubtitle(allUsersItem.getStrMemberType());
                         }
                     }
                     isShow = true;
@@ -494,11 +505,12 @@ public class ProfileActivity extends AppCompatActivity {
                             if (authUserItem != null) {
                                 Log.d(TAG, "AuthItem: " + authUserItem);
 
+                                // REAL
                                 if (!("").equals(valueOf(docSnap.getString("shortName")))) {
                                     authUserItem.setShortName(valueOf(docSnap.getString("shortName")));
                                     Log.d(TAG, "readAuthUserData: shortName: " + valueOf(docSnap.getString("shortName")));
                                 }
-
+//
                                 if (!("").equals(valueOf(docSnap.getString("fullName")))) {
                                     authUserItem.setFullName(valueOf(docSnap.getString("fullName")));
                                     Log.d(TAG, "readAuthUserData: fullname: " + valueOf(docSnap.getString("fullName")));
@@ -768,6 +780,70 @@ public class ProfileActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> runOnUiThread(() -> {
                     helperObject.showSnack(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", () -> readContactData(email));
+                    loadingBar.dismiss();
+                }));
+        return null;
+    }
+
+    // READ
+    private Void readAllUsersData(String email) {
+        runOnUiThread(() -> {
+            loadingBar.setMessage("Please wait...");
+            loadingBar.setCanceledOnTouchOutside(false);
+            loadingBar.show();
+        });
+
+        FirebaseFirestore.getInstance()
+                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
+                .whereEqualTo("email", email)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                        Log.d(TAG, "docList: " + docList);
+
+                        for (DocumentSnapshot docSnap : docList) {
+                            allUsersItem = docSnap.toObject(AllUsersItem.class);
+                            if (allUsersItem != null) {
+                                Log.d(TAG, "AllUsersItem: " + allUsersItem);
+
+                                // REAL
+                                if (!("").equals(valueOf(docSnap.getString("email")))) {
+                                    allUsersItem.setStrEmail(valueOf(docSnap.getString("email")));
+                                    Log.d(TAG, "readAllUsersData: email: " + valueOf(docSnap.getString("email")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("phone")))) {
+                                    allUsersItem.setStrPhone(valueOf(docSnap.getString("phone")));
+                                    Log.d(TAG, "readAllUsersData: phone: " + valueOf(docSnap.getString("phone")));
+                                }
+//
+                                if (!("").equals(valueOf(docSnap.getString("fullName")))) {
+                                    allUsersItem.setStrFirstName(valueOf(docSnap.getString("fullName")));
+                                    Log.d(TAG, "readAllUsersData: fullname: " + valueOf(docSnap.getString("fullName")));
+                                }
+
+                                if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
+                                    allUsersItem.setStrProfileImage(valueOf(docSnap.getString("profileImageUrl")));
+                                    Log.d(TAG, "readAllUsersData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
+                                }
+                            }
+                            Log.d(TAG, "firedoc id: " + docSnap.getId());
+                        }
+                        runOnUiThread(() -> {
+                            initAllUsersProfile(email);
+                            setUpTabLayout();
+                            setUpToolbar();
+                            setUpAppbarLayout();
+                            setUpCollapsingToolbar();
+                        });
+                        Toast.makeText(ProfileActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(() -> loadingBar.dismiss());
+                    }
+                })
+                .addOnFailureListener(e -> runOnUiThread(() -> {
+                    helperObject.showSnack(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", () -> readAllUsersData(email));
                     loadingBar.dismiss();
                 }));
         return null;

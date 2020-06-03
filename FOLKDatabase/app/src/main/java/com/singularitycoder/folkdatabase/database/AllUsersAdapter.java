@@ -44,15 +44,12 @@ public class AllUsersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (holder != null) {
             AllUsersViewHolder allUsersViewHolder = (AllUsersViewHolder) holder;
             helperObject.glideProfileImage(context, allUsersItem.getStrProfileImage(), allUsersViewHolder.imgProfileImage);
-            String fullName = allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName();
-            allUsersViewHolder.imgProfileImage.setOnClickListener(view -> {
-                DatabaseActivity databaseActivity = new DatabaseActivity();
-                helperObject.showQuickInfoDialog(context, fullName, allUsersItem.getStrProfileImage(), allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail());
-            });
+            String fullName = allUsersItem.getStrFirstName();
+            allUsersViewHolder.imgProfileImage.setOnClickListener(view -> helperObject.showQuickInfoDialog(context, fullName, allUsersItem.getStrProfileImage(), allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail()));
 
-            allUsersViewHolder.tvName.setText(allUsersItem.getStrFirstName() + " " + allUsersItem.getStrLastName());
-            allUsersViewHolder.tvSubTitle1.setText("Experience in KC: " + allUsersItem.getStrKcExperience() + " Years");
-            allUsersViewHolder.tvSubTitle2.setText("Member Type: " + allUsersItem.getStrMemberType());
+            allUsersViewHolder.tvName.setText(allUsersItem.getStrFirstName());
+            allUsersViewHolder.tvSubTitle1.setText("Email: " + allUsersItem.getStrEmail());
+            allUsersViewHolder.tvSubTitle2.setText("Phone: " + allUsersItem.getStrPhone());
         }
     }
 

@@ -608,15 +608,20 @@ public class SignUpFragment extends Fragment {
             });
         }
 
-        if (memberType.equals("FOLK Guide")) {
+        // DEMO
+        if (("").equals(memberType)) {
+            profileImageDirectory = "Demo/";
+        }
+
+        if (("FOLK Guide").equals(memberType)) {
             profileImageDirectory = HelperConstants.DIR_IMAGES_PATH_FOLK_GUIDES;
         }
 
-        if (memberType.equals("Team Lead")) {
+        if (("Team Lead").equals(memberType)) {
             profileImageDirectory = HelperConstants.DIR_IMAGES_PATH_FOLK_TEAM_LEADS;
         }
 
-        if (memberType.equals("Zonal Head")) {
+        if (("Zonal Head").equals(memberType)) {
             profileImageDirectory = HelperConstants.DIR_IMAGES_PATH_FOLK_ZONAL_HEADS;
         }
 
@@ -747,6 +752,16 @@ public class SignUpFragment extends Fragment {
         firestore.collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
                 .add(authUserItem)
                 .addOnSuccessListener(documentReference -> {
+
+                    // DEMO
+                    if (("").equals(memberType)) {
+                        if (null != getActivity()) {
+                            Toast.makeText(getActivity(), "AuthUserItem Created", Toast.LENGTH_SHORT).show();
+                            getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                        }
+                        btnCreateAccount.setEnabled(false);
+                        finishAndGoForApproval();
+                    }
 
                     if (("FOLK Guide").equals(memberType)) {
                         Log.d(TAG, "createUserFirestore: got hittt 1");

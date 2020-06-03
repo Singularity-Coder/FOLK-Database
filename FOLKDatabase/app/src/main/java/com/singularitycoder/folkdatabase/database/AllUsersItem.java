@@ -11,7 +11,6 @@ public class AllUsersItem implements Serializable {
 
     private String strProfileImage;
     private String strFirstName;
-    private String strLastName;
     private String strKcExperience;
     private String strMemberType;
 
@@ -20,14 +19,6 @@ public class AllUsersItem implements Serializable {
     private String strEmail;
 
     public AllUsersItem() {
-    }
-
-    public AllUsersItem(String strProfileImage, String strFirstName, String strLastName, String strKcExperience, String strMemberType) {
-        this.strProfileImage = strProfileImage;
-        this.strFirstName = strFirstName;
-        this.strLastName = strLastName;
-        this.strKcExperience = strKcExperience;
-        this.strMemberType = strMemberType;
     }
 
     public String getId() {
@@ -52,14 +43,6 @@ public class AllUsersItem implements Serializable {
 
     public void setStrFirstName(String strFirstName) {
         this.strFirstName = strFirstName;
-    }
-
-    public String getStrLastName() {
-        return strLastName;
-    }
-
-    public void setStrLastName(String strLastName) {
-        this.strLastName = strLastName;
     }
 
     public String getStrKcExperience() {

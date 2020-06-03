@@ -58,8 +58,8 @@ public class HomeActivity extends AppCompatActivity {
 
     private static final String TAG = "HomeActivity";
 
+    private final ArrayList<HomeItem> homeList = new ArrayList<>();
     private Toolbar toolbar;
-    private ArrayList<HomeItem> homeList;
     private RecyclerView recyclerView;
     private HomeAdapter homeAdapter;
     private String strOldPassword;
@@ -101,9 +101,7 @@ public class HomeActivity extends AppCompatActivity {
         init();
         authCheck();
         initToolBar();
-        if (hasInternet()) {
-            AsyncTask.execute(this::readSignUpStatus);
-        }
+        if (hasInternet()) AsyncTask.execute(this::readSignUpStatus);
         setRefreshLayout();
 //        setUpRecyclerView();
 //        findBirthdays(HelperGeneral.currentDate());
@@ -470,7 +468,6 @@ public class HomeActivity extends AppCompatActivity {
         recyclerView.setDrawingCacheEnabled(true);
         recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
 
-        homeList = new ArrayList<>();
         homeList.add(new HomeItem(authUserItem.getProfileImageUrl(), authUserItem.getFullName()));
         homeList.add(new HomeItem(R.drawable.ic_accomodation3, "Accomodation", ""));
         homeList.add(new HomeItem(R.drawable.ic_database3, "Database", ""));

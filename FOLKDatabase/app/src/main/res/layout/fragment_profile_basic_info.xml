@@ -104,7 +104,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:hint="Name"
-                        android:textColor="@color/colorBlack"
+                        android:textColor="@android:color/darker_gray"
                         android:textSize="16sp" />
 
                     <TextView
@@ -114,7 +114,8 @@
                         android:layout_marginTop="15dp"
                         android:text="Short Name"
                         android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_basic_info_about_short_name"
@@ -123,7 +124,8 @@
                         android:gravity="center_vertical"
                         android:hint="Short Name"
                         android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_basic_info_about_email_title"
@@ -140,7 +142,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:hint="Email"
-                        android:textColor="@color/colorBlack"
+                        android:textColor="@android:color/darker_gray"
                         android:textSize="16sp" />
 
                     <TextView
@@ -158,7 +160,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:hint="Gmail"
-                        android:textColor="@color/colorBlack"
+                        android:textColor="@android:color/darker_gray"
                         android:textSize="16sp" />
 
                     <TextView
@@ -176,7 +178,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:hint="Mobile"
-                        android:textColor="@color/colorBlack"
+                        android:textColor="@android:color/darker_gray"
                         android:textSize="16sp" />
 
                     <TextView
@@ -194,7 +196,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:hint="WhatsApp"
-                        android:textColor="@color/colorBlack"
+                        android:textColor="@android:color/darker_gray"
                         android:textSize="16sp" />
 
                     <TextView
@@ -204,7 +206,8 @@
                         android:layout_marginTop="15dp"
                         android:text="Member Type"
                         android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_basic_info_about_member_type"
@@ -213,7 +216,8 @@
                         android:gravity="center_vertical"
                         android:hint="Member Type"
                         android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_basic_info_about_direct_authority_title"
@@ -222,7 +226,8 @@
                         android:layout_marginTop="15dp"
                         android:text="Direct Authority"
                         android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_basic_info_about_direct_authority"
@@ -231,7 +236,8 @@
                         android:gravity="center_vertical"
                         android:hint="Direct Authority"
                         android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_basic_info_about_zone_title"
@@ -240,7 +246,8 @@
                         android:layout_marginTop="15dp"
                         android:text="Zone"
                         android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_basic_info_about_zone"
@@ -249,7 +256,8 @@
                         android:gravity="center_vertical"
                         android:hint="Zone"
                         android:textColor="@color/colorBlack"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/tv_basic_info_about_hkm_joining_date_title"
@@ -266,7 +274,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:hint="HKM Joining Date"
-                        android:textColor="@color/colorBlack"
+                        android:textColor="@android:color/darker_gray"
                         android:textSize="16sp" />
 
                     <TextView
@@ -284,7 +292,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:hint="Account Created On"
-                        android:textColor="@color/colorBlack"
+                        android:textColor="@android:color/darker_gray"
                         android:textSize="16sp" />
                 </LinearLayout>
 
