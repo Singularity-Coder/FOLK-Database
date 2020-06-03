@@ -315,4 +315,10 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
             firebaseAuth.removeAuthStateListener(authListener);
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
+    }
 }
