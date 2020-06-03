@@ -1,6 +1,7 @@
 package com.singularitycoder.folkdatabase;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.AnimationDrawable;
@@ -44,6 +45,7 @@ public class SplashActivity extends AppCompatActivity {
         delaySplashFor2Sec();
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     private void makeFullScreen() {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);

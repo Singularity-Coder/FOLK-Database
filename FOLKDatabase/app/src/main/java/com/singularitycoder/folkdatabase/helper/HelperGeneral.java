@@ -109,6 +109,7 @@ public class HelperGeneral extends AppCompatActivity {
         snackbar.show();
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     public void setStatuBarColor(Activity activity, int statusBarColor) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = activity.getWindow();
@@ -398,12 +399,9 @@ public class HelperGeneral extends AppCompatActivity {
         ProgressDialog dialog;
         dialog = new ProgressDialog(context);
         dialog.setMessage("Loading...");
-//        loadingBar = new ProgressDialog(getActivity());
-//        loadingBar.show();
-//        loadingBar.setMessage("Setting Approval Values...");
-//        loadingBar.setCanceledOnTouchOutside(false);
-//        loadingBar.setCancelable(false);
-//        loadingBar.show();
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
+        dialog.show();
     }
 
     public void dismissDialog(Context context) {

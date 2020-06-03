@@ -1,42 +1,34 @@
 {
   "project_info": {
-    "project_number": "452003744955",
-    "firebase_url": "https://folk-demo.firebaseio.com",
-    "project_id": "folk-demo",
-    "storage_bucket": "folk-demo.appspot.com"
+    "project_number": "27303614742",
+    "firebase_url": "https://testing-275212.firebaseio.com",
+    "project_id": "testing-275212",
+    "storage_bucket": "testing-275212.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:452003744955:android:fcfdbdb68559a73601ed9e",
+        "mobilesdk_app_id": "1:27303614742:android:4250122bea251b4b4f5837",
         "android_client_info": {
           "package_name": "com.singularitycoder.folkdatabase"
         }
       },
       "oauth_client": [
         {
-          "client_id": "452003744955-qcjf239hihuq9futfa1fas00r32m6kqu.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.singularitycoder.folkdatabase",
-            "certificate_hash": "7103a7bcaec4b678c15693a01fd6fd2046957a0e"
-          }
-        },
-        {
-          "client_id": "452003744955-907her956jtjokssuquqqu9eneb24346.apps.googleusercontent.com",
+          "client_id": "27303614742-k16ohv6o6i102k3kvu4f6engdabp3lqp.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBGzoJFylNWvVbnDXYW_IUDdKVlbFt8hMw"
+          "current_key": "AIzaSyDANFa4K5hy_iDTw4OdX4MiibABRwwm_ts"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "452003744955-907her956jtjokssuquqqu9eneb24346.apps.googleusercontent.com",
+              "client_id": "27303614742-k16ohv6o6i102k3kvu4f6engdabp3lqp.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

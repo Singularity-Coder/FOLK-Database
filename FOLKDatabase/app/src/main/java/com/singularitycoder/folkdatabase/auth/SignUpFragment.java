@@ -3,9 +3,7 @@ package com.singularitycoder.folkdatabase.auth;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
@@ -269,7 +267,7 @@ public class SignUpFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                new Handler().postDelayed((Runnable) () -> {
+                new Handler().postDelayed(() -> {
                     if (null != getActivity()) {
                         if (!("").equals(valueOf(etShortName.getText()).trim().replaceAll("\\s+", ""))) {
                             if (valueOf(etShortName.getText()).trim().replaceAll("\\s+", "").length() >= 4) {
@@ -407,83 +405,83 @@ public class SignUpFragment extends Fragment {
         String phone = valueOf(etPhone.getText()).trim();
         String password = valueOf(etPassword.getText());
 
-        if (zone.equals("")) {
-            etSignUpZone.setError("Required! Select a Zone.");
-            etSignUpZone.requestFocus();
-            return false;
-        }
-
-        if (memberType.equals("")) {
-            tvSignUpMemberType.setError("Required! Select a Member Type.");
-            tvSignUpMemberType.requestFocus();
-            return false;
-        }
-
-        if (directAuthority.equals("")) {
-            tvDirectAuthority.setError("Direct Authority is Required!");
-            tvDirectAuthority.requestFocus();
-            return false;
-        }
-
-        if (folkGuideAbbr.equals("")) {
-            etShortName.setError("FOLK Guide is Required!");
-            etShortName.requestFocus();
-            return false;
-        }
-
-        if (kcExperience.equals("")) {
-            etHkmJoiningDate.setError("KC Experience is Required!");
-            etHkmJoiningDate.requestFocus();
-            return false;
-        }
-
-        if (firstName.equals("")) {
-            etFirstName.setError("First Name is Required!");
-            etFirstName.requestFocus();
-            return false;
-        }
-
-        if (email.equals("")) {
-            etEmail.setError("Email is Required!");
-            etEmail.requestFocus();
-            return false;
-        }
-
-        if (gmail.equals("")) {
-            etGmail.setError("Gmail is Required!");
-            etGmail.requestFocus();
-            return false;
-        }
-
-        if (!helperObject.hasValidEmail(email)) {
-            etEmail.setError("Invalid Email!");
-            etEmail.requestFocus();
-            return false;
-        }
-
-        if (phone.equals("")) {
-            etPhone.setError("Phone Number is Required!");
-            etPhone.requestFocus();
-            return false;
-        }
-
-        if (phone.length() < 10) {
-            etPhone.setError("Provide a valid Mobile Number!");
-            etPhone.requestFocus();
-            return false;
-        }
-
-        if (password.equals("")) {
-            etPassword.setError("Password is Required!");
-            etPassword.requestFocus();
-            return false;
-        }
-
-        if (!helperObject.hasValidPassword(password)) {
-            etPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
-            etPassword.requestFocus();
-            return false;
-        }
+//        if (zone.equals("")) {
+//            etSignUpZone.setError("Required! Select a Zone.");
+//            etSignUpZone.requestFocus();
+//            return false;
+//        }
+//
+//        if (memberType.equals("")) {
+//            tvSignUpMemberType.setError("Required! Select a Member Type.");
+//            tvSignUpMemberType.requestFocus();
+//            return false;
+//        }
+//
+//        if (directAuthority.equals("")) {
+//            tvDirectAuthority.setError("Direct Authority is Required!");
+//            tvDirectAuthority.requestFocus();
+//            return false;
+//        }
+//
+//        if (folkGuideAbbr.equals("")) {
+//            etShortName.setError("FOLK Guide is Required!");
+//            etShortName.requestFocus();
+//            return false;
+//        }
+//
+//        if (kcExperience.equals("")) {
+//            etHkmJoiningDate.setError("KC Experience is Required!");
+//            etHkmJoiningDate.requestFocus();
+//            return false;
+//        }
+//
+//        if (firstName.equals("")) {
+//            etFirstName.setError("First Name is Required!");
+//            etFirstName.requestFocus();
+//            return false;
+//        }
+//
+//        if (email.equals("")) {
+//            etEmail.setError("Email is Required!");
+//            etEmail.requestFocus();
+//            return false;
+//        }
+//
+//        if (gmail.equals("")) {
+//            etGmail.setError("Gmail is Required!");
+//            etGmail.requestFocus();
+//            return false;
+//        }
+//
+//        if (!helperObject.hasValidEmail(email)) {
+//            etEmail.setError("Invalid Email!");
+//            etEmail.requestFocus();
+//            return false;
+//        }
+//
+//        if (phone.equals("")) {
+//            etPhone.setError("Phone Number is Required!");
+//            etPhone.requestFocus();
+//            return false;
+//        }
+//
+//        if (phone.length() < 10) {
+//            etPhone.setError("Provide a valid Mobile Number!");
+//            etPhone.requestFocus();
+//            return false;
+//        }
+//
+//        if (password.equals("")) {
+//            etPassword.setError("Password is Required!");
+//            etPassword.requestFocus();
+//            return false;
+//        }
+//
+//        if (!helperObject.hasValidPassword(password)) {
+//            etPassword.setError("Password must have at least 8 characters with One Uppercase and One lower case. These Special Characters are allwoed .,#@-_+!?;':*");
+//            etPassword.requestFocus();
+//            return false;
+//        }
         return true;
     }
 
@@ -1355,6 +1353,13 @@ public class SignUpFragment extends Fragment {
 
 
     @Override
+    public void onPause() {
+        super.onPause();
+//        dialog.dismiss();
+    }
+
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -1452,11 +1457,5 @@ public class SignUpFragment extends Fragment {
             Log.d(TAG, "onActivityResult: file size: " + (int) file.length() / (1024 * 1024) + " mb");
             Log.d(TAG, "onActivityResult: new img path 1: " + newImagePath);
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-//        dialog.dismiss();
     }
 }

@@ -103,7 +103,7 @@ public class HelperImage extends AppCompatActivity {
 
     // Checks whether device has camera or not. This method not necessary if android:required="true" is used in manifest file
     public static boolean hasCamera(Context context) {
-        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
             return true;    // this device has a camera
         } else {
             return false;   // no camera on this device

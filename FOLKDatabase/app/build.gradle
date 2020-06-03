@@ -8,7 +8,7 @@ int minutesSinceEpoch = System.currentTimeMillis() / MILLIS_IN_MINUTE
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "com.singularitycoder.folkdatabase"
@@ -120,15 +120,15 @@ dependencies {
     implementation 'com.karumi:dexter:6.0.1'
 
     // Firebase
-    implementation 'com.google.firebase:firebase-firestore:21.4.0'
-    implementation "com.google.firebase:firebase-auth:19.2.0"
-    implementation 'com.google.firebase:firebase-core:17.2.2'
-    implementation 'com.google.firebase:firebase-analytics:17.2.2'
-    implementation 'com.google.firebase:firebase-database:19.2.1'
+    implementation 'com.google.firebase:firebase-firestore:21.4.3'
+    implementation "com.google.firebase:firebase-auth:19.3.1"
+    implementation 'com.google.firebase:firebase-core:17.4.2'
+    implementation 'com.google.firebase:firebase-analytics:17.4.2'
+    implementation 'com.google.firebase:firebase-database:19.3.0'
     implementation 'com.google.firebase:firebase-storage:19.1.1'
-    implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta01'
-    implementation 'com.google.firebase:firebase-perf:19.0.5'
-    implementation 'com.google.firebase:firebase-config:19.1.1'
+    implementation 'com.google.firebase:firebase-crashlytics:17.0.0'
+    implementation 'com.google.firebase:firebase-perf:19.0.7'
+    implementation 'com.google.firebase:firebase-config:19.1.4'
 
     // Doc and Photo Picker
     implementation 'com.droidninja:filepicker:2.2.1'
@@ -144,7 +144,7 @@ dependencies {
     implementation 'com.airbnb.android:lottie:3.0.0'
 
     // Retrofit
-    implementation 'com.squareup.retrofit2:retrofit:2.6.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.7.1'
 
     // Retrofit GSON Library - Convert JSON response easily with this
     implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
@@ -153,10 +153,10 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-scalars:2.1.0'
 
     // Logging
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.8.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.3.1'
 
     // Dagger
-    implementation "com.google.dagger:dagger:2.24"
+    implementation "com.google.dagger:dagger:2.27"
     annotationProcessor "com.google.dagger:dagger-compiler:2.24"
 
     // Dagger Android Studio
@@ -168,11 +168,11 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
 
     // Room DB
-    implementation "androidx.room:room-runtime:2.2.3"
-    annotationProcessor "androidx.room:room-compiler:2.2.3"
+    implementation "androidx.room:room-runtime:2.2.5"
+    annotationProcessor "androidx.room:room-compiler:2.2.5"
 
     // RxJava
-    implementation "io.reactivex.rxjava2:rxjava:2.2.7"
+    implementation "io.reactivex.rxjava2:rxjava:2.2.18"
 
     // RxAndroid
     implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
