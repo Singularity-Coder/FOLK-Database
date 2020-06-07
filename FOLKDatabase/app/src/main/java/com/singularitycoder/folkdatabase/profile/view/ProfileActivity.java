@@ -8,14 +8,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -32,8 +34,6 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.model.AuthUserItem;
 import com.singularitycoder.folkdatabase.database.model.AllUsersItem;
@@ -41,8 +41,7 @@ import com.singularitycoder.folkdatabase.database.model.ContactItem;
 import com.singularitycoder.folkdatabase.database.model.FolkGuideItem;
 import com.singularitycoder.folkdatabase.database.model.TeamLeadItem;
 import com.singularitycoder.folkdatabase.database.model.ZonalHeadItem;
-import com.singularitycoder.folkdatabase.helper.AllCallbacks;
-import com.singularitycoder.folkdatabase.helper.HelperConstants;
+import com.singularitycoder.folkdatabase.helper.RequestStateMediator;
 import com.singularitycoder.folkdatabase.helper.FrescoImageViewer;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
@@ -50,10 +49,16 @@ import com.singularitycoder.folkdatabase.helper.Status;
 import com.singularitycoder.folkdatabase.profile.viewmodel.ProfileViewModel;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.ObservableSource;
 
 import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
 import static java.lang.String.valueOf;
@@ -62,18 +67,38 @@ public class ProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "ProfileActivity";
 
-    private ViewPager viewPager;
-    private TabLayout tabLayout;
-    private Toolbar toolbar;
+    @Nullable
+    @BindView(R.id.viewpager_profile)
+    ViewPager viewPager;
+    @Nullable
+    @BindView(R.id.tablayout_profile)
+    TabLayout tabLayout;
+    @Nullable
+    @BindView(R.id.toolbar_profile)
+    Toolbar toolbar;
+    @Nullable
+    @BindView(R.id.img_profile_header)
+    ImageView ivProfileImage;
+    @Nullable
+    @BindView(R.id.tv_main_title)
+    TextView tvName;
+    @Nullable
+    @BindView(R.id.tv_main_subtitle)
+    TextView tvSubTitle;
+    @Nullable
+    @BindView(R.id.con_lay_profile_action_icons)
+    ConstraintLayout conLayProfileActions;
+    @Nullable
+    @BindView(R.id.coordinator_profile)
+    CoordinatorLayout coordinatorProfile;
+
     private String profileKey;
-    private ImageView ivProfileImage;
-    private TextView tvName, tvSubTitle;
-    private ConstraintLayout conLayProfileActions;
-    private ViewPagerAdapter profileAdapter;
+
     private ProgressDialog loadingBar;
-    private CoordinatorLayout coordinatorProfile;
     private HelperGeneral helperObject = new HelperGeneral();
     private ProfileViewModel profileViewModel;
+    private ViewPagerAdapter profileAdapter;
+    private Unbinder unbinder;
 
     private AuthUserItem authUserItem = new AuthUserItem();
     private ContactItem contactItem = new ContactItem();
@@ -87,6 +112,8 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         helperObject.setStatuBarColor(this, R.color.colorPrimaryDark);
         setContentView(R.layout.activity_profile);
+        ButterKnife.bind(this);
+        unbinder = ButterKnife.bind(this);
         inits();
         getIntentData();
 //        setUpTabLayout();
@@ -99,14 +126,6 @@ public class ProfileActivity extends AppCompatActivity {
         loadingBar = new ProgressDialog(this);
         profileAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
-
-        coordinatorProfile = findViewById(R.id.coordinator_profile);
-        tabLayout = findViewById(R.id.tablayout_profile);
-        viewPager = findViewById(R.id.viewpager_profile);
-        ivProfileImage = findViewById(R.id.img_profile_header);
-        tvName = findViewById(R.id.tv_main_title);
-        tvSubTitle = findViewById(R.id.tv_main_subtitle);
-        conLayProfileActions = findViewById(R.id.con_lay_profile_action_icons);
     }
 
     private void getIntentData() {
@@ -117,26 +136,25 @@ public class ProfileActivity extends AppCompatActivity {
             // Main Shared Pref
             HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(this);
             String email = helperSharedPreference.getEmail();
-            AsyncTask.SERIAL_EXECUTOR.execute(() -> getAuthUserData(email));
-//            profileViewModel.getAuthUserData(email).observe(ProfileActivity.this, liveDataObserver(email));
+            getTopHalfAuthUserProfile(email);
         }
 
         if (("FOLKGUIDE").equals(profileKey)) {
 //            folkGuideItem = (FolkGuideItem) intent.getSerializableExtra("folkguideItem");
             String email = intent.getStringExtra("email");
-            AsyncTask.SERIAL_EXECUTOR.execute(() -> getFolkGuideData(email));
+            getTopHalfFolkGuideProfile(email);
         }
 
         if (("TEAMLEAD").equals(profileKey)) {
 //            teamLeadItem = (TeamLeadItem) intent.getSerializableExtra("teamleadItem");
             String email = intent.getStringExtra("email");
-            AsyncTask.SERIAL_EXECUTOR.execute(() -> getTeamLeadData(email));
+            getTopHalfTeamLeadProfile(email);
         }
 
         if (("CONTACT").equals(profileKey)) {
 //            contactItem = (ContactItem) intent.getSerializableExtra("contactItem");
             String email = intent.getStringExtra("email");
-            AsyncTask.SERIAL_EXECUTOR.execute(() -> getContactData(email));
+            getTopHalfContactProfile(email);
         }
 
         if (("ZONALHEAD").equals(profileKey)) {
@@ -148,12 +166,11 @@ public class ProfileActivity extends AppCompatActivity {
         if (("ALLUSER").equals(profileKey)) {
             String email = intent.getStringExtra("email");
 //            allUsersItem = (AllUsersItem) intent.getSerializableExtra("alluserItem");
-//            initAllUsersProfile(email);
-            profileViewModel.getAllUsersFromRepository(email).observe(ProfileActivity.this, liveDataObserver(email));
+            getTopHalfAllUsersProfile(email);
         }
     }
 
-    private void initAuthUserProfile(String emailKey) {
+    private void initAuthUserProfile(String emailKey, AuthUserItem authUserItem) {
         helperObject.glideProfileImage(this, authUserItem.getProfileImageUrl(), ivProfileImage);
         ivProfileImage.setOnClickListener(view -> {
             Intent intent = new Intent(ProfileActivity.this, FrescoImageViewer.class);
@@ -177,7 +194,7 @@ public class ProfileActivity extends AppCompatActivity {
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
     }
 
-    private void initFolkGuideProfile(String emailKey) {
+    private void initFolkGuideProfile(String emailKey, FolkGuideItem folkGuideItem) {
         helperObject.glideProfileImage(this, folkGuideItem.getStrProfileImage(), ivProfileImage);
         ivProfileImage.setOnClickListener(view -> {
             Intent intent = new Intent(ProfileActivity.this, FrescoImageViewer.class);
@@ -195,7 +212,7 @@ public class ProfileActivity extends AppCompatActivity {
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
     }
 
-    private void initTeamLeadProfile(String emailKey) {
+    private void initTeamLeadProfile(String emailKey, TeamLeadItem teamLeadItem) {
         helperObject.glideProfileImage(this, teamLeadItem.getStrProfileImage(), ivProfileImage);
         ivProfileImage.setOnClickListener(view -> {
             Intent intent = new Intent(ProfileActivity.this, FrescoImageViewer.class);
@@ -213,7 +230,7 @@ public class ProfileActivity extends AppCompatActivity {
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
     }
 
-    private void initContactProfile(String emailKey) {
+    private void initContactProfile(String emailKey, ContactItem contactItem) {
         helperObject.glideProfileImage(this, contactItem.getStrProfileImage(), ivProfileImage);
         ivProfileImage.setOnClickListener(view -> {
             Intent intent = new Intent(ProfileActivity.this, FrescoImageViewer.class);
@@ -253,13 +270,17 @@ public class ProfileActivity extends AppCompatActivity {
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
     }
 
-    private void initAllUsersProfile(String emailKey) {
+    private void initAllUsersProfile(String emailKey, AllUsersItem allUsersItem) {
+        Log.d(TAG, "initAllUsersProfile: hit");
         helperObject.glideProfileImage(this, allUsersItem.getStrProfileImage(), ivProfileImage);
+        Log.d(TAG, "initAllUsersProfile: image: " + allUsersItem.getStrProfileImage());
         ivProfileImage.setOnClickListener(view -> {
             Intent intent = new Intent(ProfileActivity.this, FrescoImageViewer.class);
             intent.putExtra("image_url", allUsersItem.getStrProfileImage());
             startActivity(intent);
         });
+        Log.d(TAG, "initAllUsersProfile: name: " + allUsersItem.getStrFirstName());
+        Log.d(TAG, "initAllUsersProfile: email: " + allUsersItem.getStrEmail());
         tvName.setText(allUsersItem.getStrFirstName());
         tvSubTitle.setText(allUsersItem.getStrEmail());
         profileActions(this, allUsersItem.getStrPhone(), allUsersItem.getStrWhatsApp(), allUsersItem.getStrEmail(), () -> helperObject.shareData(this, allUsersItem.getStrProfileImage(), ivProfileImage, allUsersItem.getStrFirstName(), allUsersItem.getStrMemberType()));
@@ -359,7 +380,6 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void setUpToolbar() {
-        toolbar = findViewById(R.id.toolbar_profile);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -426,17 +446,24 @@ public class ProfileActivity extends AppCompatActivity {
 //                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.colorPrimary));
 //                    tabLayout.setTabTextColors(ContextCompat.getColorStateList(getApplicationContext(), R.color.colorBlack));
                 toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-                tabLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
+                toolbar.setSubtitleTextColor(getResources().getColor(R.color.white_70));
+
+                tabLayout.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 tabLayout.setTabTextColors(getResources().getColor(R.color.white_70), getResources().getColor(R.color.colorWhite));
+
                 getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.drawable.ic_back_white));
             } else {
                 // EXPANDED STATE
 //                    tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.colorWhite));
 //                    tabLayout.setTabTextColors(ContextCompat.getColorStateList(getApplicationContext(), R.color.colorWhite));
                 toolbar.setBackgroundColor(Color.TRANSPARENT);
+                toolbar.setTitleTextColor(getResources().getColor(R.color.colorTransparent));
+                toolbar.setSubtitleTextColor(getResources().getColor(R.color.colorTransparent));
+
                 tabLayout.setBackgroundColor(Color.TRANSPARENT);
                 tabLayout.setTabTextColors(getResources().getColor(R.color.colorAccent), getResources().getColor(R.color.colorAccent));
+
                 getSupportActionBar().setHomeAsUpIndicator(getResources().getDrawable(R.drawable.ic_back));
                 // toolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
             }
@@ -445,7 +472,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setUpCollapsingToolbar() {
         final CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_toolbar_profile);
-        // Set color of CollaspongToolbar when collapsing
+        // Set color of CollapsingToolbar when collapsing
         try {
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.header);
             Palette.from(bitmap).generate(palette -> {
@@ -490,44 +517,108 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    private Observer liveDataObserver(String email) {
-        Observer<AllCallbacks> observer = null;
-        if (hasInternet()) {
-            observer = allCallbacks -> {
+    private void getTopHalfAuthUserProfile(String email) {
+        profileViewModel.getAuthUserInfoFromRepository(email).observe(ProfileActivity.this, liveDataObserver(email));
+    }
 
-                if (Status.LOADING == allCallbacks.getStatus()) {
+    private void getTopHalfFolkGuideProfile(String email) {
+        profileViewModel.getFolkGuideInfoFromRepository(email).observe(ProfileActivity.this, liveDataObserver(email));
+    }
+
+    private void getTopHalfTeamLeadProfile(String email) {
+        profileViewModel.getTeamLeadInfoFromRepository(email).observe(ProfileActivity.this, liveDataObserver(email));
+    }
+
+    private void getTopHalfContactProfile(String email) {
+        profileViewModel.getContactInfoFromRepository(email).observe(ProfileActivity.this, liveDataObserver(email));
+    }
+
+    private void getTopHalfAllUsersProfile(String email) {
+        profileViewModel.getAllUsersInfoFromRepository(email).observe(ProfileActivity.this, liveDataObserver(email));
+    }
+
+    private Observer liveDataObserver(String email) {
+        Observer<RequestStateMediator> observer = null;
+        if (hasInternet()) {
+            observer = requestStateMediator -> {
+
+                if (Status.LOADING == requestStateMediator.getStatus()) {
                     runOnUiThread(() -> {
-                        loadingBar.setMessage(valueOf(allCallbacks.getMessage()));
+                        loadingBar.setMessage(valueOf(requestStateMediator.getMessage()));
                         loadingBar.setCanceledOnTouchOutside(false);
                         if (null != loadingBar && !loadingBar.isShowing()) loadingBar.show();
                     });
                 }
 
-                if (Status.SUCCESS == allCallbacks.getStatus()) {
+                if (Status.SUCCESS == requestStateMediator.getStatus()) {
                     runOnUiThread(() -> {
                         if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
-                        initAllUsersProfile(email);
+
+                        if (("AUTH USER").equals(requestStateMediator.getKey())) {
+                            initAuthUserProfile(email, (AuthUserItem) requestStateMediator.getData());
+                            authUserItem = (AuthUserItem) requestStateMediator.getData();
+                        }
+
+                        if (("FOLK GUIDE").equals(requestStateMediator.getKey())) {
+                            initFolkGuideProfile(email, (FolkGuideItem) requestStateMediator.getData());
+                            folkGuideItem = (FolkGuideItem) requestStateMediator.getData();
+                        }
+
+                        if (("TEAM LEAD").equals(requestStateMediator.getKey())) {
+                            initTeamLeadProfile(email, (TeamLeadItem) requestStateMediator.getData());
+                            teamLeadItem = (TeamLeadItem) requestStateMediator.getData();
+                        }
+
+                        if (("CONTACT").equals(requestStateMediator.getKey())) {
+                            initContactProfile(email, (ContactItem) requestStateMediator.getData());
+                            contactItem = (ContactItem) requestStateMediator.getData();
+                        }
+
+                        if (("ALL USERS").equals(requestStateMediator.getKey())) {
+                            initAllUsersProfile(email, (AllUsersItem) requestStateMediator.getData());
+                            allUsersItem = (AllUsersItem) requestStateMediator.getData();
+                        }
+
                         setUpTabLayout();
                         setUpToolbar();
                         setUpAppbarLayout();
                         setUpCollapsingToolbar();
-                        Toast.makeText(ProfileActivity.this, valueOf(allCallbacks.getMessage()), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ProfileActivity.this, valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
                         loadingBar.dismiss();
                     });
                 }
 
-                if (Status.EMPTY == allCallbacks.getStatus()) {
+                if (Status.EMPTY == requestStateMediator.getStatus()) {
                     runOnUiThread(() -> {
                         if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
-                        Toast.makeText(ProfileActivity.this, valueOf(allCallbacks.getMessage()), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ProfileActivity.this, valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
                     });
                 }
 
-                if (Status.ERROR == allCallbacks.getStatus()) {
+                if (Status.ERROR == requestStateMediator.getStatus()) {
                     runOnUiThread(() -> {
                         if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
-                        Toast.makeText(ProfileActivity.this, valueOf(allCallbacks.getMessage()), Toast.LENGTH_SHORT).show();
-//                        helperObject.showSnack(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", () -> getAllUsersData(email));
+                        Toast.makeText(ProfileActivity.this, valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
+
+                        if (("AUTH USER").equals(requestStateMediator.getKey())) {
+                            helperObject.showSnackBar(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", (view) -> getTopHalfAuthUserProfile(email));
+                        }
+
+                        if (("FOLK GUIDE").equals(requestStateMediator.getKey())) {
+                            helperObject.showSnackBar(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", (view) -> getTopHalfFolkGuideProfile(email));
+                        }
+
+                        if (("TEAM LEAD").equals(requestStateMediator.getKey())) {
+                            helperObject.showSnackBar(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", (view) -> getTopHalfTeamLeadProfile(email));
+                        }
+
+                        if (("CONTACT").equals(requestStateMediator.getKey())) {
+                            helperObject.showSnackBar(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", (view) -> getTopHalfContactProfile(email));
+                        }
+
+                        if (("ALL USERS").equals(requestStateMediator.getKey())) {
+                            helperObject.showSnackBar(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", (view) -> getTopHalfAllUsersProfile(email));
+                        }
                     });
                 }
             };
@@ -535,307 +626,9 @@ public class ProfileActivity extends AppCompatActivity {
         return observer;
     }
 
-    // READ
-    public Void getAuthUserData(String email) {
-        runOnUiThread(() -> {
-            loadingBar.setMessage("Please wait...");
-            loadingBar.setCanceledOnTouchOutside(false);
-            loadingBar.show();
-        });
-
-        FirebaseFirestore.getInstance()
-                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
-                .whereEqualTo("email", email)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
-                        Log.d(TAG, "docList: " + docList);
-
-                        for (DocumentSnapshot docSnap : docList) {
-                            authUserItem = docSnap.toObject(AuthUserItem.class);
-                            if (authUserItem != null) {
-                                Log.d(TAG, "AuthItem: " + authUserItem);
-
-                                // REAL
-                                if (!("").equals(valueOf(docSnap.getString("shortName")))) {
-                                    authUserItem.setShortName(valueOf(docSnap.getString("shortName")));
-                                    Log.d(TAG, "readAuthUserData: shortName: " + valueOf(docSnap.getString("shortName")));
-                                }
-//
-                                if (!("").equals(valueOf(docSnap.getString("fullName")))) {
-                                    authUserItem.setFullName(valueOf(docSnap.getString("fullName")));
-                                    Log.d(TAG, "readAuthUserData: fullname: " + valueOf(docSnap.getString("fullName")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
-                                    authUserItem.setProfileImageUrl(valueOf(docSnap.getString("profileImageUrl")));
-                                    Log.d(TAG, "readAuthUserData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
-                                }
-                            }
-                            Log.d(TAG, "firedoc id: " + docSnap.getId());
-                        }
-                        runOnUiThread(() -> {
-                            initAuthUserProfile(email);
-                            setUpTabLayout();
-                            setUpToolbar();
-                            setUpAppbarLayout();
-                            setUpCollapsingToolbar();
-                        });
-                        Toast.makeText(ProfileActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
-                        runOnUiThread(() -> loadingBar.dismiss());
-                    }
-                })
-                .addOnFailureListener(e -> runOnUiThread(() -> {
-                    helperObject.showSnack(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", () -> getAuthUserData(email));
-                    loadingBar.dismiss();
-                }));
-        return null;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbinder.unbind();
     }
-
-    // READ
-    public Void getFolkGuideData(String email) {
-        runOnUiThread(() -> {
-            loadingBar.setMessage("Please wait...");
-            loadingBar.setCanceledOnTouchOutside(false);
-            loadingBar.show();
-        });
-
-        FirebaseFirestore.getInstance()
-                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
-                .whereEqualTo("email", email)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
-                        Log.d(TAG, "docList: " + docList);
-
-                        for (DocumentSnapshot docSnap : docList) {
-                            folkGuideItem = docSnap.toObject(FolkGuideItem.class);
-                            if (folkGuideItem != null) {
-                                Log.d(TAG, "FolkGuideItem: " + folkGuideItem);
-
-                                if (!("").equals(valueOf(docSnap.getString("shortName")))) {
-                                    folkGuideItem.setStrFolkGuideShortName(valueOf(docSnap.getString("shortName")));
-                                    Log.d(TAG, "readFolkGuideData: shortName: " + valueOf(docSnap.getString("shortName")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("fullName")))) {
-                                    folkGuideItem.setStrName(valueOf(docSnap.getString("fullName")));
-                                    Log.d(TAG, "readFolkGuideData: fullname: " + valueOf(docSnap.getString("fullName")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
-                                    folkGuideItem.setStrProfileImage(valueOf(docSnap.getString("profileImageUrl")));
-                                    Log.d(TAG, "readFolkGuideData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("email")))) {
-                                    folkGuideItem.setStrEmail(valueOf(docSnap.getString("email")));
-                                    Log.d(TAG, "readFolkGuideData: email: " + valueOf(docSnap.getString("email")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("phone")))) {
-                                    folkGuideItem.setStrPhone(valueOf(docSnap.getString("phone")));
-                                    Log.d(TAG, "readFolkGuideData: phone: " + valueOf(docSnap.getString("phone")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("phone")))) {
-                                    folkGuideItem.setStrWhatsApp(valueOf(docSnap.getString("phone")));
-                                    Log.d(TAG, "readFolkGuideData: whatsapp: " + valueOf(docSnap.getString("phone")));
-                                }
-                            }
-                            Log.d(TAG, "firedoc id: " + docSnap.getId());
-                        }
-                        runOnUiThread(() -> {
-                            initFolkGuideProfile(email);
-                            setUpTabLayout();
-                            setUpToolbar();
-                            setUpAppbarLayout();
-                            setUpCollapsingToolbar();
-                        });
-                        Toast.makeText(ProfileActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
-                        runOnUiThread(() -> loadingBar.dismiss());
-                    }
-                })
-                .addOnFailureListener(e -> runOnUiThread(() -> {
-                    helperObject.showSnack(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", () -> getFolkGuideData(email));
-                    loadingBar.dismiss();
-                }));
-        return null;
-    }
-
-    // READ
-    public Void getTeamLeadData(String email) {
-        runOnUiThread(() -> {
-            loadingBar.setMessage("Please wait...");
-            loadingBar.setCanceledOnTouchOutside(false);
-            loadingBar.show();
-        });
-
-        FirebaseFirestore.getInstance()
-                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
-                .whereEqualTo("email", email)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
-                        Log.d(TAG, "docList: " + docList);
-
-                        for (DocumentSnapshot docSnap : docList) {
-                            teamLeadItem = docSnap.toObject(TeamLeadItem.class);
-                            if (teamLeadItem != null) {
-                                Log.d(TAG, "TeamLeadItem: " + teamLeadItem);
-
-                                if (!("").equals(valueOf(docSnap.getString("shortName")))) {
-                                    teamLeadItem.setStrTeamLeadShortName(valueOf(docSnap.getString("shortName")));
-                                    Log.d(TAG, "readTeamLeadData: shortName: " + valueOf(docSnap.getString("shortName")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("fullName")))) {
-                                    teamLeadItem.setStrName(valueOf(docSnap.getString("fullName")));
-                                    Log.d(TAG, "readTeamLeadData: fullname: " + valueOf(docSnap.getString("fullName")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("profileImageUrl")))) {
-                                    teamLeadItem.setStrProfileImage(valueOf(docSnap.getString("profileImageUrl")));
-                                    Log.d(TAG, "readTeamLeadData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("email")))) {
-                                    teamLeadItem.setStrEmail(valueOf(docSnap.getString("email")));
-                                    Log.d(TAG, "readFolkGuideData: email: " + valueOf(docSnap.getString("email")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("phone")))) {
-                                    teamLeadItem.setStrPhone(valueOf(docSnap.getString("phone")));
-                                    Log.d(TAG, "readFolkGuideData: phone: " + valueOf(docSnap.getString("phone")));
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("phone")))) {
-                                    teamLeadItem.setStrWhatsApp(valueOf(docSnap.getString("phone")));
-                                    Log.d(TAG, "readFolkGuideData: whatsapp: " + valueOf(docSnap.getString("phone")));
-                                }
-                            }
-                            Log.d(TAG, "firedoc id: " + docSnap.getId());
-                        }
-                        runOnUiThread(() -> {
-                            initTeamLeadProfile(email);
-                            setUpTabLayout();
-                            setUpToolbar();
-                            setUpAppbarLayout();
-                            setUpCollapsingToolbar();
-                        });
-                        Toast.makeText(ProfileActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
-                        runOnUiThread(() -> loadingBar.dismiss());
-                    }
-                })
-                .addOnFailureListener(e -> runOnUiThread(() -> {
-                    helperObject.showSnack(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", () -> getTeamLeadData(email));
-                    loadingBar.dismiss();
-                }));
-        return null;
-    }
-
-    // READ
-    public Void getContactData(String email) {
-        runOnUiThread(() -> {
-            loadingBar.setMessage("Please wait...");
-            loadingBar.setCanceledOnTouchOutside(false);
-            loadingBar.show();
-        });
-
-        FirebaseFirestore.getInstance()
-                .collection(HelperConstants.COLL_FOLK_NEW_MEMBERS)
-                .whereEqualTo("email", email)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
-                        Log.d(TAG, "docList: " + docList);
-
-                        for (DocumentSnapshot docSnap : docList) {
-                            contactItem = docSnap.toObject(ContactItem.class);
-                            if (contactItem != null) {
-                                Log.d(TAG, "ContactItem: " + contactItem);
-
-                                if (!("").equals(valueOf(docSnap.getString("folk_guide")))) {
-                                    contactItem.setStrFolkGuide(valueOf(docSnap.getString("folk_guide")));
-                                    Log.d(TAG, "readContactData: folkGuide: " + valueOf(docSnap.getString("folk_guide")));
-                                } else {
-                                    contactItem.setStrFolkGuide("No Data");
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("name")))) {
-                                    contactItem.setStrName(valueOf(docSnap.getString("name")));
-                                    Log.d(TAG, "readContactData: name: " + valueOf(docSnap.getString("name")));
-                                } else {
-                                    contactItem.setStrName("No Data");
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("email")))) {
-                                    contactItem.setStrEmail(valueOf(docSnap.getString("email")));
-                                    Log.d(TAG, "readFolkGuideData: email: " + valueOf(docSnap.getString("email")));
-                                } else {
-                                    contactItem.setStrEmail("No Data");
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("mobile")))) {
-                                    contactItem.setStrPhone(valueOf(docSnap.getString("mobile")));
-                                    Log.d(TAG, "readFolkGuideData: phone: " + valueOf(docSnap.getString("phone")));
-                                } else {
-                                    contactItem.setStrPhone("0000000000");
-                                }
-
-                                if (!("").equals(valueOf(docSnap.getString("whatsapp")))) {
-                                    contactItem.setStrWhatsApp(valueOf(docSnap.getString("whatsapp")));
-                                    Log.d(TAG, "readFolkGuideData: whatsapp: " + valueOf(docSnap.getString("phone")));
-                                } else {
-                                    contactItem.setStrWhatsApp("0000000000");
-                                }
-
-                                HashMap<String, String> imageData = new HashMap<>();
-                                if (null != docSnap.get("docs")) {
-                                    imageData = (HashMap<String, String>) docSnap.get("docs");
-                                    if (!("").equals(imageData.get("doc_url"))) {
-                                        contactItem.setStrDocumentImage(imageData.get("doc_url"));
-                                    } else {
-                                        contactItem.setStrDocumentImage(imageData.get(""));
-                                    }
-
-                                    if (!("").equals(imageData.get("photo_url"))) {
-                                        contactItem.setStrProfileImage(imageData.get("photo_url"));
-                                    } else {
-                                        contactItem.setStrProfileImage(imageData.get(""));
-                                    }
-                                } else {
-                                    contactItem.setStrDocumentImage(imageData.get(""));
-                                    contactItem.setStrProfileImage(imageData.get(""));
-                                }
-                            }
-                            Log.d(TAG, "firedoc id: " + docSnap.getId());
-                        }
-
-                        runOnUiThread(() -> {
-                            initContactProfile(email);
-                            setUpTabLayout();
-                            setUpToolbar();
-                            setUpAppbarLayout();
-                            setUpCollapsingToolbar();
-                            Toast.makeText(ProfileActivity.this, "Got Data", Toast.LENGTH_SHORT).show();
-                            loadingBar.dismiss();
-                        });
-                    }
-                })
-                .addOnFailureListener(e -> runOnUiThread(() -> {
-                    helperObject.showSnack(coordinatorProfile, "Couldn't get data!", getResources().getColor(R.color.colorWhite), "RELOAD", () -> getContactData(email));
-                    loadingBar.dismiss();
-                }));
-        return null;
-    }
-
 }

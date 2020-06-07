@@ -109,6 +109,15 @@ public class HelperGeneral extends AppCompatActivity {
         snackbar.show();
     }
 
+    public void showSnackBar(View view, String message, int snackTextColor, String actionBtnText, View.OnClickListener actionClickListener){
+        Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_INDEFINITE);
+        View snackbarView = snackbar.getView();
+        TextView textView = snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+        textView.setTextColor(snackTextColor);
+        snackbar.setAction(actionBtnText, view1 -> actionClickListener.onClick(view));
+        snackbar.show();
+    }
+
     @SuppressLint("SourceLockedOrientationActivity")
     public void setStatuBarColor(Activity activity, int statusBarColor) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
