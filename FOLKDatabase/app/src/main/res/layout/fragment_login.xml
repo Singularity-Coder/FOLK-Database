@@ -40,7 +40,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_login_email"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_login_email"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -82,7 +82,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_login_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_login_email" />
 
-            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_login_password"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"

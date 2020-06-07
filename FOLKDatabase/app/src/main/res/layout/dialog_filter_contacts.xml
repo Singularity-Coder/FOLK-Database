@@ -103,7 +103,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+                <com.singularitycoder.folkdatabase.helper.CustomEditText
                     android:id="@+id/et_dialog_location"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
@@ -133,7 +133,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+                <com.singularitycoder.folkdatabase.helper.CustomEditText
                     android:id="@+id/et_dialog_dob_month"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
@@ -221,7 +221,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+                <com.singularitycoder.folkdatabase.helper.CustomEditText
                     android:id="@+id/et_talent_can_cook_for"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
@@ -251,7 +251,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+                <com.singularitycoder.folkdatabase.helper.CustomEditText
                     android:id="@+id/tv_talent_cooking_self_rating"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
@@ -281,7 +281,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+                <com.singularitycoder.folkdatabase.helper.CustomEditText
                     android:id="@+id/tv_talent_south_indian"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
@@ -311,7 +311,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+                <com.singularitycoder.folkdatabase.helper.CustomEditText
                     android:id="@+id/tv_talent_disclose"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
@@ -341,7 +341,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+                <com.singularitycoder.folkdatabase.helper.CustomEditText
                     android:id="@+id/tv_talent_college_level"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
@@ -371,7 +371,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+                <com.singularitycoder.folkdatabase.helper.CustomEditText
                     android:id="@+id/tv_talent_district_level"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"

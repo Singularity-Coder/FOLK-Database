@@ -212,7 +212,7 @@ public class HelperGeneral extends AppCompatActivity {
         imgProfilePic.setOnClickListener(v -> {
 //            SimpleDraweeView draweeView = findViewById(R.id.img_fresco_full_image);
 //            draweeView.setImageURI(imageUrl);
-            Intent intent = new Intent(context, HelperFrescoImageViewer.class);
+            Intent intent = new Intent(context, FrescoImageViewer.class);
             intent.putExtra("image_url", imageUrl);
             context.startActivity(intent);
         });

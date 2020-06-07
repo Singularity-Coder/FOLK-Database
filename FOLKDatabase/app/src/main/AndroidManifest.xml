@@ -50,29 +50,29 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".auth.MainActivity"
+            android:name=".auth.view.MainActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".helper.HelperFrescoImageViewer"
+            android:name=".helper.FrescoImageViewer"
             android:theme="@style/Theme.Transparent" />
         <activity
-            android:name=".helper.HelperWebViewActivity"
+            android:name=".helper.WebViewActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".home.HomeActivity"
+            android:name=".home.view.HomeActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".auth.AuthApprovalStatusActivity"
+            android:name=".auth.view.AuthApprovalStatusActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".profile.ProfileActivity"
-            android:parentActivityName=".database.DatabaseActivity"
+            android:name=".profile.view.ProfileActivity"
+            android:parentActivityName=".database.view.DatabaseActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".database.DatabaseActivity"
-            android:parentActivityName=".home.HomeActivity"
+            android:name=".database.view.DatabaseActivity"
+            android:parentActivityName=".home.view.HomeActivity"
             android:screenOrientation="portrait" />
     </application>
 

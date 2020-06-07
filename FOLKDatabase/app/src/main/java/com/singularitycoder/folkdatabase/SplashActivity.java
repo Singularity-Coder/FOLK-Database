@@ -17,7 +17,7 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.singularitycoder.folkdatabase.auth.MainActivity;
+import com.singularitycoder.folkdatabase.auth.view.MainActivity;
 
 // Contents
 // 1. Make activity fullscreen using LayoutParams

@@ -249,7 +249,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
                 app:layout_constraintTop_toBottomOf="@+id/tv_signup_hkm_joining_date_picker" />
 
-            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_first_name"
                 style="@style/StyleEditText"
                 android:layout_width="0dp"
@@ -289,7 +289,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_first_name" />
 
-            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_short_name"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -331,7 +331,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_short_name" />
 
-            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_email"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -373,7 +373,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_email" />
 
-            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_gmail"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -416,7 +416,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_email"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_gmail" />
 
-            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_phone"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"
@@ -458,7 +458,7 @@
                 app:layout_constraintStart_toStartOf="@+id/et_signup_phone"
                 app:layout_constraintTop_toBottomOf="@+id/et_signup_phone" />
 
-            <com.singularitycoder.folkdatabase.helper.HelperCustomEditText
+            <com.singularitycoder.folkdatabase.helper.CustomEditText
                 android:id="@+id/et_signup_password"
                 style="@style/StyleEditText"
                 android:layout_width="match_parent"

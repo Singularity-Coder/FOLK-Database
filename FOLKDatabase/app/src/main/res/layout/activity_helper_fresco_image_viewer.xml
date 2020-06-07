@@ -8,7 +8,7 @@
     android:layout_gravity="center"
     android:background="@color/colorPureBlack"
     android:id="@+id/con_lay_fresco"
-    tools:context=".helper.HelperFrescoImageViewer">
+    tools:context=".helper.FrescoImageViewer">
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/img_fresco_full_image"
