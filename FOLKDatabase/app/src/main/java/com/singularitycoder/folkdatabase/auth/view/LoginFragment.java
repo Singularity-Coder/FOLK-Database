@@ -1,7 +1,5 @@
 package com.singularitycoder.folkdatabase.auth.view;
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -15,25 +13,37 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.model.AuthUserItem;
-import com.singularitycoder.folkdatabase.helper.HelperConstants;
+import com.singularitycoder.folkdatabase.auth.viewmodel.AuthViewModel;
 import com.singularitycoder.folkdatabase.helper.CustomEditText;
+import com.singularitycoder.folkdatabase.helper.HelperConstants;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
+import com.singularitycoder.folkdatabase.helper.RequestStateMediator;
+import com.singularitycoder.folkdatabase.helper.Status;
 import com.singularitycoder.folkdatabase.home.view.HomeActivity;
 
 import java.util.List;
 import java.util.Objects;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 import static com.singularitycoder.folkdatabase.auth.view.MainActivity.authTabLayout;
 import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
@@ -41,26 +51,43 @@ import static java.lang.String.valueOf;
 
 public class LoginFragment extends Fragment {
 
-    private final String TAG = "LoginFragment";
+    private static final String TAG = "LoginFragment";
 
-    private CustomEditText etEmail;
-    private CustomEditText etPassword;
-    private Button btnLogin;
-    private TextView tvForgotPassword;
-    private TextView tvNotMember;
-    private TextView tvShowHidePassword;
+    @Nullable
+    @BindView(R.id.et_login_email)
+    CustomEditText etEmail;
+    @Nullable
+    @BindView(R.id.et_login_password)
+    CustomEditText etPassword;
+    @Nullable
+    @BindView(R.id.btn_login)
+    Button btnLogin;
+    @Nullable
+    @BindView(R.id.tv_login_forgot_password)
+    TextView tvForgotPassword;
+    @Nullable
+    @BindView(R.id.tv_login_create_account)
+    TextView tvNotMember;
+    @Nullable
+    @BindView(R.id.tv_show_password)
+    TextView tvShowHidePassword;
+    @Nullable
+    @BindView(R.id.con_lay_login)
+    ConstraintLayout conLayRootLogin;
+
+    private final HelperGeneral helperObject = new HelperGeneral();
+
+    private AuthViewModel authViewModel;
+    private Unbinder unbinder;
     private ProgressDialog loadingBar;
     private FirebaseFirestore firestore;
     private FirebaseAuth firebaseAuth;
     private HelperSharedPreference helperSharedPreference;
     private AuthUserItem authUserItem;
     private String strSignUpStatus;
-    private HelperGeneral helperObject = new HelperGeneral();
-
 
     public LoginFragment() {
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -75,27 +102,41 @@ public class LoginFragment extends Fragment {
 
 
     private void init(View view) {
+        ButterKnife.bind(this, view);
+        unbinder = ButterKnife.bind(this, view);
         firebaseAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
         helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
         if ((null) != getActivity()) loadingBar = new ProgressDialog(getActivity());
-        etEmail = view.findViewById(R.id.et_login_email);
-        etPassword = view.findViewById(R.id.et_login_password);
-        tvForgotPassword = view.findViewById(R.id.tv_login_forgot_password);
-        btnLogin = view.findViewById(R.id.btn_login);
-        tvNotMember = view.findViewById(R.id.tv_login_create_account);
-        tvShowHidePassword = view.findViewById(R.id.tv_show_password);
     }
 
 
     private void clickListeners() {
         tvForgotPassword.setOnClickListener(view12 -> {
             if ((null) != getActivity()) {
-                dialogForgotPassword(Objects.requireNonNull(getActivity()));
+//                dialogForgotPassword(Objects.requireNonNull(getActivity()));
+                showResetPasswordDialog();
             }
         });
         btnLogin.setOnClickListener(view1 -> logIn());
         tvNotMember.setOnClickListener(view13 -> authTabLayout.getTabAt(0).select());
+    }
+
+    @UiThread
+    private void showResetPasswordDialog() {
+        Bundle bundle = new Bundle();
+        bundle.putString("DIALOG_TYPE", "custom");
+
+        DialogFragment dialogFragment = new ForgotPasswordDialogFragment();
+        dialogFragment.setArguments(bundle);
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        Fragment previousFragment = getActivity().getSupportFragmentManager().findFragmentByTag("TAG_ForgotPasswordDialogFragment");
+        if (previousFragment != null) {
+            fragmentTransaction.remove(previousFragment);
+        }
+        fragmentTransaction.addToBackStack(null);
+        dialogFragment.show(fragmentTransaction, "TAG_ForgotPasswordDialogFragment");
     }
 
 
@@ -207,7 +248,6 @@ public class LoginFragment extends Fragment {
         });
     }
 
-
     private boolean hasValidInput(CustomEditText etEmail, CustomEditText etPassword) {
         String email = valueOf(etEmail.getText()).trim();
         String password = valueOf(etPassword.getText());
@@ -282,56 +322,92 @@ public class LoginFragment extends Fragment {
     }
 
 
-    private void dialogForgotPassword(Activity activity) {
-        final Dialog dialog = new Dialog(activity);
-        helperObject.dialogCustomBuild(activity, R.layout.dialog_forgot_password, dialog, false);
+//    private void dialogForgotPassword(Activity activity) {
+//        final Dialog dialog = new Dialog(activity);
+//        helperObject.dialogCustomBuild(activity, R.layout.dialog_fragment_forgot_password, dialog, false);
+//
+//        ImageView imgClose = dialog.findViewById(R.id.img_close);
+//        CustomEditText etResetEmail = dialog.findViewById(R.id.et_reset_email);
+//        Button btnReset = dialog.findViewById(R.id.btn_reset_password);
+//
+//        imgClose.setOnClickListener(view -> dialog.dismiss());
+//
+//        btnReset.setOnClickListener(view -> {
+//            Log.d(TAG, "dialogForgotPassword: email: " + valueOf(etResetEmail.getText()).trim());
+//            if (valueOf(etResetEmail.getText()).trim().equals("")) {
+//                etResetEmail.setError("Email cannot be empty!");
+//                etResetEmail.requestFocus();
+//            } else if (!helperObject.hasValidEmail(valueOf(etResetEmail.getText()).trim())) {
+//                etResetEmail.setError("Invalid Email!");
+//                etResetEmail.requestFocus();
+//            } else {
+//                authViewModel.resetPasswordFromRepository(valueOf(etResetEmail.getText()).trim()).observe(getViewLifecycleOwner(), liveDataObserver(valueOf(etResetEmail.getText()).trim()));
+//                dialog.dismiss();
+//            }
+//        });
+//
+//        dialog.show();
+//    }
 
-        ImageView imgClose = dialog.findViewById(R.id.img_close);
-        CustomEditText etResetEmail = dialog.findViewById(R.id.et_reset_email);
-        Button btnReset = dialog.findViewById(R.id.btn_reset_password);
+    private Observer liveDataObserver(String email) {
+        Observer<RequestStateMediator> observer = null;
+        if (hasInternet()) {
+            observer = requestStateMediator -> {
 
-        imgClose.setOnClickListener(view -> dialog.dismiss());
+                if (Status.LOADING == requestStateMediator.getStatus()) {
+                    if (null != getActivity()) {
+                        getActivity().runOnUiThread(() -> {
+                            loadingBar.setMessage(valueOf(requestStateMediator.getMessage()));
+                            loadingBar.setCanceledOnTouchOutside(false);
+                            if (null != loadingBar && !loadingBar.isShowing()) loadingBar.show();
+                        });
+                    }
+                }
 
-        btnReset.setOnClickListener(view -> {
-            Log.d(TAG, "dialogForgotPassword: email: " + valueOf(etResetEmail.getText()).trim());
-            if (valueOf(etResetEmail.getText()).trim().equals("")) {
-                etResetEmail.setError("Email cannot be empty!");
-                etResetEmail.requestFocus();
-            } else if (!helperObject.hasValidEmail(valueOf(etResetEmail.getText()).trim())) {
-                etResetEmail.setError("Invalid Email!");
-                etResetEmail.requestFocus();
-            } else {
-                AsyncTask.execute(() -> resetPassword(valueOf(etResetEmail.getText()).trim()));
-                dialog.dismiss();
-            }
-        });
+                if (Status.SUCCESS == requestStateMediator.getStatus()) {
+                    if (null != getActivity()) {
+                        getActivity().runOnUiThread(() -> {
+                            if (("RESET PASSWORD").equals(requestStateMediator.getKey())) {
+                                authUserItem = (AuthUserItem) requestStateMediator.getData();
+                            }
 
-        dialog.show();
+                            if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
+
+                            Toast.makeText(getContext(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                }
+
+                if (Status.EMPTY == requestStateMediator.getStatus()) {
+                    if (null != getActivity()) {
+                        getActivity().runOnUiThread(() -> {
+                            if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
+                            Toast.makeText(getContext(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                }
+
+                if (Status.ERROR == requestStateMediator.getStatus()) {
+                    if (null != getActivity()) {
+                        getActivity().runOnUiThread(() -> {
+                            if (("RESET PASSWORD").equals(requestStateMediator.getKey())) {
+//                                helperObject.showSnackBar(conLayRootLogin, "Failed to send reset email!", getResources().getColor(R.color.colorWhite), "RELOAD", view -> getTopHalfAuthUserProfile(email));
+                            }
+
+                            if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
+
+                            Toast.makeText(getActivity(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                }
+            };
+        }
+        return observer;
     }
 
-
-    private void resetPassword(String email) {
-        if (null != getActivity()) {
-            getActivity().runOnUiThread(() -> {
-                loadingBar.show();
-                loadingBar.setMessage("Please wait...");
-                loadingBar.setCanceledOnTouchOutside(false);
-            });
-        }
-        firebaseAuth.sendPasswordResetEmail(email)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        if ((null) != getActivity()) {
-                            Toast.makeText(getActivity(), "We have sent you instructions to reset your password!", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        if ((null) != getActivity()) {
-                            Toast.makeText(getActivity(), "Failed to send reset email!", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-        if ((null) != getActivity()) {
-            getActivity().runOnUiThread(() -> loadingBar.dismiss());
-        }
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 }

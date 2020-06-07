@@ -41,8 +41,8 @@ import com.singularitycoder.folkdatabase.auth.model.AuthUserApprovalItem;
 import com.singularitycoder.folkdatabase.auth.model.AuthUserItem;
 import com.singularitycoder.folkdatabase.database.model.ContactItem;
 import com.singularitycoder.folkdatabase.helper.ApiEndPoints;
-import com.singularitycoder.folkdatabase.helper.HelperConstants;
 import com.singularitycoder.folkdatabase.helper.CustomEditText;
+import com.singularitycoder.folkdatabase.helper.HelperConstants;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import com.singularitycoder.folkdatabase.helper.RetrofitClientInstance;
@@ -72,7 +72,7 @@ import static java.lang.String.valueOf;
 
 public class SignUpFragment extends Fragment {
 
-    private final String TAG = "SignUpFragment";
+    private static final String TAG = "SignUpFragment";
 
     @Nullable
     @BindView(R.id.tv_signup_terms)
@@ -129,6 +129,12 @@ public class SignUpFragment extends Fragment {
     @BindView(R.id.con_lay_signup)
     ConstraintLayout conLaySignup;
 
+    private final HelperGeneral helperObject = new HelperGeneral();
+    private final ArrayList<ContactItem> imageUriArray = new ArrayList<>();
+    private final ArrayList<String> imageExtensionStringArray = new ArrayList<>();
+    private final ArrayList<String> imageNameStringArray = new ArrayList<>();
+    private final ArrayList<String> imageFilePathsStringArray = new ArrayList<>();
+
     private String adminKey;
     private String lastFourDigits;
     private String newImagePath = null;
@@ -136,17 +142,11 @@ public class SignUpFragment extends Fragment {
     private String[] zones;
     private String[] teamLeads;
 
-    private final ArrayList<ContactItem> imageUriArray = new ArrayList<>();
-    private final ArrayList<String> imageExtensionStringArray = new ArrayList<>();
-    private final ArrayList<String> imageNameStringArray = new ArrayList<>();
-    private final ArrayList<String> imageFilePathsStringArray = new ArrayList<>();
-
     private Unbinder unbinder;
     private ProgressDialog dialog;
     private ProgressDialog loadingBar;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firestore;
-    private HelperGeneral helperObject = new HelperGeneral();
 
     public SignUpFragment() {
     }
@@ -1500,8 +1500,8 @@ public class SignUpFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         unbinder.unbind();
     }
 }

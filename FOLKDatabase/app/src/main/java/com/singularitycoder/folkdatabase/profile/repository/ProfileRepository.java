@@ -40,7 +40,7 @@ public class ProfileRepository {
     // READ
     public MutableLiveData<RequestStateMediator> getAuthUserData(String email) {
         final MutableLiveData<RequestStateMediator> authUserLiveData = new MutableLiveData<>();
-        RequestStateMediator requestStateMediator = new RequestStateMediator();
+        final RequestStateMediator requestStateMediator = new RequestStateMediator();
 
         requestStateMediator.set(null, Status.LOADING, "Please wait...", null);
         authUserLiveData.postValue(requestStateMediator);
@@ -96,7 +96,7 @@ public class ProfileRepository {
     // READ
     public MutableLiveData<RequestStateMediator> getFolkGuideData(String email) {
         final MutableLiveData<RequestStateMediator> folkGuideLiveData = new MutableLiveData<>();
-        RequestStateMediator requestStateMediator = new RequestStateMediator();
+        final RequestStateMediator requestStateMediator = new RequestStateMediator();
 
         requestStateMediator.set(null, Status.LOADING, "Please wait...", null);
         folkGuideLiveData.postValue(requestStateMediator);
@@ -166,7 +166,7 @@ public class ProfileRepository {
     // READ
     public MutableLiveData<RequestStateMediator> getTeamLeadData(String email) {
         final MutableLiveData<RequestStateMediator> teamLeadLiveData = new MutableLiveData<>();
-        RequestStateMediator requestStateMediator = new RequestStateMediator();
+        final RequestStateMediator requestStateMediator = new RequestStateMediator();
 
         requestStateMediator.set(null, Status.LOADING, "Please wait...", null);
         teamLeadLiveData.postValue(requestStateMediator);
@@ -236,7 +236,7 @@ public class ProfileRepository {
     // READ
     public MutableLiveData<RequestStateMediator> getContactData(String email) {
         final MutableLiveData<RequestStateMediator> contactLiveData = new MutableLiveData<>();
-        RequestStateMediator requestStateMediator = new RequestStateMediator();
+        final RequestStateMediator requestStateMediator = new RequestStateMediator();
 
         requestStateMediator.set(null, Status.LOADING, "Please wait...", null);
         contactLiveData.postValue(requestStateMediator);
@@ -330,7 +330,7 @@ public class ProfileRepository {
     // READ
     public MutableLiveData<RequestStateMediator> getAllUsersData(String email) {
         final MutableLiveData<RequestStateMediator> allUsersLiveData = new MutableLiveData<>();
-        RequestStateMediator requestStateMediator = new RequestStateMediator();
+        final RequestStateMediator requestStateMediator = new RequestStateMediator();
 
         requestStateMediator.set(null, Status.LOADING, "Please wait...", null);
         allUsersLiveData.postValue(requestStateMediator);
@@ -391,7 +391,7 @@ public class ProfileRepository {
     // READ
     public MutableLiveData<RequestStateMediator> getBasicInfo(String emailKey) {
         final MutableLiveData<RequestStateMediator> basicInfoLiveData = new MutableLiveData<>();
-        RequestStateMediator requestStateMediator = new RequestStateMediator();
+        final RequestStateMediator requestStateMediator = new RequestStateMediator();
 
         requestStateMediator.set(null, Status.LOADING, "Please wait...", null);
         basicInfoLiveData.postValue(requestStateMediator);
