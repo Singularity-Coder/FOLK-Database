@@ -57,6 +57,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import droidninja.filepicker.FilePickerBuilder;
 import droidninja.filepicker.FilePickerConst;
 import retrofit2.Call;
@@ -71,24 +74,60 @@ public class SignUpFragment extends Fragment {
 
     private final String TAG = "SignUpFragment";
 
-    private TextView tvTermsPrivacy;
-    private TextView tvDirectAuthorityTitle;
-    private TextView tvOpenGallery;
-    private TextView tvShowHidePassword;
-    private TextView tvDirectAuthority;
-    private TextView etSignUpZone;
-    private CustomEditText etShortName;
-    private CustomEditText etFullName;
-    private CustomEditText etEmail;
-    private CustomEditText etGmail;
-    private CustomEditText etPhone;
-    private CustomEditText etPassword;
-    private TextView tvHkmJoiningDate;
-    private Button btnCreateAccount;
-    private TextView tvSignUpMemberType;
-    private ImageView ivOpenGallery;
-    private ImageView ivSetProfileImage;
-    private ConstraintLayout conLaySignup;
+    @Nullable
+    @BindView(R.id.tv_signup_terms)
+    TextView tvTermsPrivacy;
+    @Nullable
+    @BindView(R.id.tv_signup_direct_authority_title)
+    TextView tvDirectAuthorityTitle;
+    @Nullable
+    @BindView(R.id.tv_open_gallery)
+    TextView tvOpenGallery;
+    @Nullable
+    @BindView(R.id.tv_show_password)
+    TextView tvShowHidePassword;
+    @Nullable
+    @BindView(R.id.tv_signup_direct_authority)
+    TextView tvDirectAuthority;
+    @Nullable
+    @BindView(R.id.et_signup_zone_type)
+    TextView etSignUpZone;
+    @Nullable
+    @BindView(R.id.et_signup_short_name)
+    CustomEditText etShortName;
+    @Nullable
+    @BindView(R.id.et_signup_first_name)
+    CustomEditText etFullName;
+    @Nullable
+    @BindView(R.id.et_signup_email)
+    CustomEditText etEmail;
+    @Nullable
+    @BindView(R.id.et_signup_gmail)
+    CustomEditText etGmail;
+    @Nullable
+    @BindView(R.id.et_signup_phone)
+    CustomEditText etPhone;
+    @Nullable
+    @BindView(R.id.et_signup_password)
+    CustomEditText etPassword;
+    @Nullable
+    @BindView(R.id.tv_signup_hkm_joining_date_picker)
+    TextView tvHkmJoiningDate;
+    @Nullable
+    @BindView(R.id.btn_create_account)
+    Button btnCreateAccount;
+    @Nullable
+    @BindView(R.id.et_member_type)
+    TextView tvSignUpMemberType;
+    @Nullable
+    @BindView(R.id.iv_open_gallery)
+    ImageView ivOpenGallery;
+    @Nullable
+    @BindView(R.id.iv_set_profile_image)
+    ImageView ivSetProfileImage;
+    @Nullable
+    @BindView(R.id.con_lay_signup)
+    ConstraintLayout conLaySignup;
 
     private String adminKey;
     private String lastFourDigits;
@@ -102,6 +141,7 @@ public class SignUpFragment extends Fragment {
     private final ArrayList<String> imageNameStringArray = new ArrayList<>();
     private final ArrayList<String> imageFilePathsStringArray = new ArrayList<>();
 
+    private Unbinder unbinder;
     private ProgressDialog dialog;
     private ProgressDialog loadingBar;
     private FirebaseAuth firebaseAuth;
@@ -126,28 +166,12 @@ public class SignUpFragment extends Fragment {
 
 
     private void inits(View view) {
+        ButterKnife.bind(this, view);
+        unbinder = ButterKnife.bind(this, view);
         firebaseAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
         Log.d(TAG, "init: firebase instance: " + firestore + " auth: " + firebaseAuth);
         if ((null) != getActivity()) loadingBar = new ProgressDialog(getActivity());
-        tvTermsPrivacy = view.findViewById(R.id.tv_signup_terms);
-        etSignUpZone = view.findViewById(R.id.et_signup_zone_type);
-        tvDirectAuthorityTitle = view.findViewById(R.id.tv_signup_direct_authority_title);
-        tvDirectAuthority = view.findViewById(R.id.tv_signup_direct_authority);
-        etFullName = view.findViewById(R.id.et_signup_first_name);
-        etEmail = view.findViewById(R.id.et_signup_email);
-        etGmail = view.findViewById(R.id.et_signup_gmail);
-        etPhone = view.findViewById(R.id.et_signup_phone);
-        etPassword = view.findViewById(R.id.et_signup_password);
-        etShortName = view.findViewById(R.id.et_signup_short_name);
-        btnCreateAccount = view.findViewById(R.id.btn_create_account);
-        ivOpenGallery = view.findViewById(R.id.iv_open_gallery);
-        ivSetProfileImage = view.findViewById(R.id.iv_set_profile_image);
-        tvOpenGallery = view.findViewById(R.id.tv_open_gallery);
-        tvSignUpMemberType = view.findViewById(R.id.et_member_type);
-        tvHkmJoiningDate = view.findViewById(R.id.tv_signup_hkm_joining_date_picker);
-        tvShowHidePassword = view.findViewById(R.id.tv_show_password);
-        conLaySignup = view.findViewById(R.id.con_lay_signup);
     }
 
 
@@ -1473,5 +1497,11 @@ public class SignUpFragment extends Fragment {
             Log.d(TAG, "onActivityResult: file size: " + (int) file.length() / (1024 * 1024) + " mb");
             Log.d(TAG, "onActivityResult: new img path 1: " + newImagePath);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unbinder.unbind();
     }
 }

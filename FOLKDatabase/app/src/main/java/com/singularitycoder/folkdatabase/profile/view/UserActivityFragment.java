@@ -18,7 +18,7 @@ import com.singularitycoder.folkdatabase.profile.model.ProfileContactItem;
 
 import java.util.ArrayList;
 
-public class ActivityFragment extends Fragment {
+public class UserActivityFragment extends Fragment {
 
     private static final String TAG = "ActivityFragment";
 
@@ -29,10 +29,10 @@ public class ActivityFragment extends Fragment {
     private ArrayList<ProfileContactItem> activityList;
 
 
-    public ActivityFragment() {
+    public UserActivityFragment() {
     }
 
-    public ActivityFragment(String emailKey) {
+    public UserActivityFragment(String emailKey) {
         this.emailKey = emailKey;
     }
 

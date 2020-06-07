@@ -76,7 +76,7 @@ public class ProfileRepository {
                                     Log.d(TAG, "readAuthUserData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
                                 }
 
-                                requestStateMediator.set(authUserLiveData, Status.SUCCESS, "Got Basic Info!", "AUTH USER");
+                                requestStateMediator.set(authUserItem, Status.SUCCESS, "Got Basic Info!", "AUTH USER");
                                 authUserLiveData.postValue(requestStateMediator);
                             }
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
