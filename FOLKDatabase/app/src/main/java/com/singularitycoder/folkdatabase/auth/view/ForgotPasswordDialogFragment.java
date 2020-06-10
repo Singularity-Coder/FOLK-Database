@@ -58,11 +58,11 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         // Verify that the host activity implements the callback interface
-        try {
-            listener = (DialogActionListener) context;     // Instantiate the NoticeDialogListener so we can send events to the host
-        } catch (ClassCastException e) {
-            throw new ClassCastException(getActivity().toString() + " must implement NoticeDialogListener");    // If activity doesn't implement the interface, throw exception
-        }
+//        try {
+//            listener = (DialogActionListener) context;     // Instantiate the NoticeDialogListener so we can send events to the host
+//        } catch (ClassCastException e) {
+//            throw new ClassCastException(getActivity().toString() + " must implement NoticeDialogListener");    // If activity doesn't implement the interface, throw exception
+//        }
     }
 
     @Override
@@ -139,12 +139,7 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
                 if (Status.SUCCESS == requestStateMediator.getStatus()) {
                     if (null != getActivity()) {
                         getActivity().runOnUiThread(() -> {
-                            if (("RESET PASSWORD").equals(requestStateMediator.getKey())) {
-
-                            }
-
                             if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
-
                             Toast.makeText(getContext(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
                         });
                     }
@@ -172,7 +167,6 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
                             }
 
                             if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
-
                             Toast.makeText(getActivity(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
                         });
                     }

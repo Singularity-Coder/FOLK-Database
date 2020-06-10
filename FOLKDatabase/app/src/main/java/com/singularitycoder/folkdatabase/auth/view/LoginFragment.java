@@ -23,10 +23,12 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.model.AuthUserItem;
 import com.singularitycoder.folkdatabase.auth.viewmodel.AuthViewModel;
@@ -92,22 +94,21 @@ public class LoginFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
-        if ((null) != getActivity()) {
-            init(view);
-            clickListeners();
-            showHidePassword();
-        }
+        init(view);
+        clickListeners();
+        showHidePassword();
         return view;
     }
-
 
     private void init(View view) {
         ButterKnife.bind(this, view);
         unbinder = ButterKnife.bind(this, view);
         firebaseAuth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
-        helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
-        if ((null) != getActivity()) loadingBar = new ProgressDialog(getActivity());
+        if (null != getActivity())
+            helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
+        if (null != getActivity()) loadingBar = new ProgressDialog(getActivity());
+        authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
     }
 
 
@@ -150,69 +151,117 @@ public class LoginFragment extends Fragment {
                 String email = valueOf(etEmail.getText()).trim();
                 String password = valueOf(etPassword.getText());
 
-                AsyncTask.execute(() -> loginUser(email, password));
+                authViewModel.loginUserFromRepository(email, password).observe(getViewLifecycleOwner(), liveDataObserver(email));
             }
         } else {
             if ((null) != getActivity()) {
-                Toast.makeText(Objects.requireNonNull(getActivity()), "Bad Network!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Objects.requireNonNull(getActivity()), "No Internet!", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
+    private Observer liveDataObserver(String email) {
+        Observer<RequestStateMediator> observer = null;
+        if (hasInternet()) {
+            observer = requestStateMediator -> {
 
-    private String readSignUpStatus(String email) {
-        getActivity().runOnUiThread(() -> {
-            loadingBar.setMessage("Checking SignUp Status...");
-            loadingBar.setCanceledOnTouchOutside(false);
-            loadingBar.show();
-        });
+                if (Status.LOADING == requestStateMediator.getStatus()) {
+                    if (null != getActivity()) {
+                        getActivity().runOnUiThread(() -> {
+                            loadingBar.setMessage(valueOf(requestStateMediator.getMessage()));
+                            loadingBar.setCanceledOnTouchOutside(false);
+                            if (null != loadingBar && !loadingBar.isShowing())
+                                loadingBar.show();
+                        });
+                    }
+                }
 
-        FirebaseFirestore.getInstance()
-                .collection(HelperConstants.COLL_AUTH_FOLK_MEMBERS)
-                .whereEqualTo("email", email)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                if (Status.SUCCESS == requestStateMediator.getStatus()) {
 
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
-                        Log.d(TAG, "docList: " + docList);
+                    if (("RESET PASSWORD").equals(requestStateMediator.getKey())) {
+                        if (null != getActivity()) {
+                            getActivity().runOnUiThread(() -> {
+                                authUserItem = (AuthUserItem) requestStateMediator.getData();
+                                if (null != loadingBar && loadingBar.isShowing())
+                                    loadingBar.dismiss();
+                                Toast.makeText(getContext(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                    }
 
-                        for (DocumentSnapshot docSnap : docList) {
-                            authUserItem = docSnap.toObject(AuthUserItem.class);
+                    if (("LOGIN USER").equals(requestStateMediator.getKey())) {
+                        if (null != getActivity()) {
+                            getActivity().runOnUiThread(() -> {
+                                // Main Shared Pref
+                                HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
+                                helperSharedPreference.setEmail(email);
+                                authViewModel.getSignUpStatusFromRepository(email).observe(getViewLifecycleOwner(), liveDataObserver(email));
+                            });
+                        }
+                    }
 
-                            if (authUserItem != null) {
-                                if (!("").equals(valueOf(docSnap.getString("signUpStatus")))) {
-                                    authUserItem.setSignUpStatus(valueOf(docSnap.getString("signUpStatus")));
+                    if (("SIGNUP STATUS").equals(requestStateMediator.getKey())) {
+                        if (null != getActivity()) {
+                            getActivity().runOnUiThread(() -> {
+                                QuerySnapshot queryDocumentSnapshots = (QuerySnapshot) requestStateMediator.getData();
+                                if (!queryDocumentSnapshots.isEmpty()) {
+                                    List<DocumentSnapshot> docList = queryDocumentSnapshots.getDocuments();
+                                    Log.d(TAG, "docList: " + docList);
+                                    for (DocumentSnapshot docSnap : docList) {
+                                        AuthUserItem authUserItem = docSnap.toObject(AuthUserItem.class);
+
+                                        if (authUserItem != null) {
+                                            if (!("").equals(valueOf(docSnap.getString("signUpStatus")))) {
+                                                authUserItem.setSignUpStatus(valueOf(docSnap.getString("signUpStatus")));
 //                                    strSignUpStatus = valueOf(docSnap.getString("signUpStatus"));
 
-                                    if (docSnap.getString("signUpStatus").equals("true")) {
-                                        strSignUpStatus = "true";
-                                        Log.d(TAG, "readSignUpStatus: signupstatus: " + strSignUpStatus);
-                                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
-                                        helperSharedPreference.setSignupStatus("true");
-                                        finishAndGoHome();
-                                    } else {
-                                        strSignUpStatus = "false";
-                                        helperSharedPreference.setSignupStatus("false");
-                                        finishAndGoForApproval();
+                                                if (docSnap.getString("signUpStatus").equals("true")) {
+                                                    strSignUpStatus = "true";
+                                                    Log.d(TAG, "readSignUpStatus: signupstatus: " + strSignUpStatus);
+                                                    getActivity().runOnUiThread(() -> loadingBar.dismiss());
+                                                    helperSharedPreference.setSignupStatus("true");
+                                                    finishAndGoHome();
+                                                } else {
+                                                    strSignUpStatus = "false";
+                                                    helperSharedPreference.setSignupStatus("false");
+                                                    finishAndGoForApproval();
+                                                }
+                                            }
+
+                                            authUserItem.setDocId(docSnap.getId());
+                                        }
+                                        Log.d(TAG, "firedoc id: " + docSnap.getId());
                                     }
+                                    Toast.makeText(getContext(), "Got Data", Toast.LENGTH_SHORT).show();
+                                    if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
                                 }
-
-                                authUserItem.setDocId(docSnap.getId());
-                            }
-                            Log.d(TAG, "firedoc id: " + docSnap.getId());
+                            });
                         }
-                        Toast.makeText(getActivity(), "Got Data", Toast.LENGTH_SHORT).show();
-                        getActivity().runOnUiThread(() -> loadingBar.dismiss());
                     }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getActivity(), "Couldn't get data!", Toast.LENGTH_SHORT).show();
-                    getActivity().runOnUiThread(() -> loadingBar.dismiss());
-                });
-        return strSignUpStatus;
-    }
+                }
 
+                if (Status.EMPTY == requestStateMediator.getStatus()) {
+                    if (null != getActivity()) {
+                        getActivity().runOnUiThread(() -> {
+                            if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
+                            Toast.makeText(getContext(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
+                        });
+                    }
+                }
+
+                if (Status.ERROR == requestStateMediator.getStatus()) {
+                    if (null != getActivity()) {
+                        getActivity().runOnUiThread(() -> {
+                            if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
+                            Toast.makeText(getActivity(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
+//                                helperObject.showSnackBar(conLayRootLogin, "Failed to send reset email!", getResources().getColor(R.color.colorWhite), "RELOAD", view -> getTopHalfAuthUserProfile(email));
+                        });
+                    }
+                }
+            };
+        }
+        return observer;
+    }
 
     private void showHidePassword() {
         etPassword.addTextChangedListener(new TextWatcher() {
@@ -278,32 +327,6 @@ public class LoginFragment extends Fragment {
         return true;
     }
 
-
-    private void loginUser(String email, String password) {
-        if ((null) != getActivity()) {
-            loadingBar.show();
-            loadingBar.setMessage("Checking credentials...");
-            loadingBar.setCanceledOnTouchOutside(false);
-            firebaseAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(Objects.requireNonNull(getActivity()), task -> {
-                        loadingBar.dismiss();
-                        if (task.isSuccessful()) {
-                            if (null != getActivity()) {
-                                // Main Shared Pref
-                                HelperSharedPreference helperSharedPreference = HelperSharedPreference.getInstance(getActivity());
-                                helperSharedPreference.setEmail(email);
-                                AsyncTask.execute(() -> readSignUpStatus(email));
-                            }
-                        } else {
-                            if (null != getActivity()) {
-                                Toast.makeText(getActivity(), "Failed to login. Please try again", Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
-        }
-    }
-
-
     private void finishAndGoHome() {
         Intent intent = new Intent(getActivity(), HomeActivity.class);
         intent.putExtra("authType", "LogIn");
@@ -311,7 +334,6 @@ public class LoginFragment extends Fragment {
         startActivity(intent);
         Objects.requireNonNull(getActivity()).finish();
     }
-
 
     private void finishAndGoForApproval() {
         Intent intent = new Intent(getActivity(), AuthApprovalStatusActivity.class);
@@ -321,6 +343,11 @@ public class LoginFragment extends Fragment {
         Objects.requireNonNull(getActivity()).finish();
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
+    }
 
 //    private void dialogForgotPassword(Activity activity) {
 //        final Dialog dialog = new Dialog(activity);
@@ -348,66 +375,4 @@ public class LoginFragment extends Fragment {
 //
 //        dialog.show();
 //    }
-
-    private Observer liveDataObserver(String email) {
-        Observer<RequestStateMediator> observer = null;
-        if (hasInternet()) {
-            observer = requestStateMediator -> {
-
-                if (Status.LOADING == requestStateMediator.getStatus()) {
-                    if (null != getActivity()) {
-                        getActivity().runOnUiThread(() -> {
-                            loadingBar.setMessage(valueOf(requestStateMediator.getMessage()));
-                            loadingBar.setCanceledOnTouchOutside(false);
-                            if (null != loadingBar && !loadingBar.isShowing()) loadingBar.show();
-                        });
-                    }
-                }
-
-                if (Status.SUCCESS == requestStateMediator.getStatus()) {
-                    if (null != getActivity()) {
-                        getActivity().runOnUiThread(() -> {
-                            if (("RESET PASSWORD").equals(requestStateMediator.getKey())) {
-                                authUserItem = (AuthUserItem) requestStateMediator.getData();
-                            }
-
-                            if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
-
-                            Toast.makeText(getContext(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
-                        });
-                    }
-                }
-
-                if (Status.EMPTY == requestStateMediator.getStatus()) {
-                    if (null != getActivity()) {
-                        getActivity().runOnUiThread(() -> {
-                            if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
-                            Toast.makeText(getContext(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
-                        });
-                    }
-                }
-
-                if (Status.ERROR == requestStateMediator.getStatus()) {
-                    if (null != getActivity()) {
-                        getActivity().runOnUiThread(() -> {
-                            if (("RESET PASSWORD").equals(requestStateMediator.getKey())) {
-//                                helperObject.showSnackBar(conLayRootLogin, "Failed to send reset email!", getResources().getColor(R.color.colorWhite), "RELOAD", view -> getTopHalfAuthUserProfile(email));
-                            }
-
-                            if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
-
-                            Toast.makeText(getActivity(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
-                        });
-                    }
-                }
-            };
-        }
-        return observer;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        unbinder.unbind();
-    }
 }
