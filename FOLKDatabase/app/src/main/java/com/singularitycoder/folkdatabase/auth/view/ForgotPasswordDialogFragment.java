@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.viewmodel.AuthViewModel;
@@ -87,11 +88,13 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT)); // for rounded corners
 
         return dialog;
+//        return super.onCreateDialog(savedInstanceState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.dialog_fragment_forgot_password, container, false);
+        View view = inflater.inflate(R.layout.dialog_fragment_forgot_password, container, false);
+        return view;
     }
 
     @Override
@@ -99,6 +102,7 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
         unbinder = ButterKnife.bind(this, view);
+        authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
         if ((null) != getActivity()) loadingBar = new ProgressDialog(getActivity());
 
@@ -113,7 +117,6 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
             if (hasInternet()) {
                 if (hasValidInput(etResetEmail)) {
                     authViewModel.resetPasswordFromRepository(valueOf(etResetEmail.getText()).trim()).observe(getViewLifecycleOwner(), liveDataObserver(valueOf(etResetEmail.getText()).trim()));
-                    dismiss();
                 }
             } else {
                 Toast.makeText(helperObject, "No Internet!", Toast.LENGTH_SHORT).show();
@@ -141,6 +144,7 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
                         getActivity().runOnUiThread(() -> {
                             if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
                             Toast.makeText(getContext(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
+                            dismiss();
                         });
                     }
                 }
@@ -158,12 +162,12 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
                     if (null != getActivity()) {
                         getActivity().runOnUiThread(() -> {
                             if (("RESET PASSWORD").equals(requestStateMediator.getKey())) {
-                                helperObject.showSnackBar(
-                                        conLayRootForgotPasswordDialog,
-                                        "Failed to send reset email!",
-                                        getResources().getColor(R.color.colorWhite),
-                                        "RELOAD",
-                                        view -> authViewModel.resetPasswordFromRepository(email).observe(getViewLifecycleOwner(), liveDataObserver(email)));
+//                                helperObject.showSnackBar(
+//                                        conLayRootForgotPasswordDialog,
+//                                        "Failed to send reset email!",
+//                                        getResources().getColor(R.color.colorWhite),
+//                                        "RELOAD",
+//                                        view -> authViewModel.resetPasswordFromRepository(email).observe(getViewLifecycleOwner(), liveDataObserver(email)));
                             }
 
                             if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
@@ -191,6 +195,12 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     public interface DialogActionListener {

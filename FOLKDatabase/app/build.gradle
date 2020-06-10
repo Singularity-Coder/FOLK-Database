@@ -225,8 +225,9 @@ dependencies {
     // Timber Logging
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
-    // Work Manager
-//    implementation "androidx.work:work-runtime:2.3.4"
+    // Work Manager - causes problems without the guava dependency
+    implementation "androidx.work:work-runtime:2.3.4"
+    implementation group: 'com.google.guava', name: 'guava', version: '27.0.1-android'
 
     // ACRA crash reporting
     def acraVersion = '5.1.3'
