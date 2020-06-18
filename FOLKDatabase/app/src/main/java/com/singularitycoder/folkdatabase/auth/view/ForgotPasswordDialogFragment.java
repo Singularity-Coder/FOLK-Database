@@ -28,7 +28,7 @@ import com.singularitycoder.folkdatabase.auth.viewmodel.AuthViewModel;
 import com.singularitycoder.folkdatabase.helper.CustomEditText;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.helper.RequestStateMediator;
-import com.singularitycoder.folkdatabase.helper.Status;
+import com.singularitycoder.folkdatabase.helper.UiState;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,11 +41,20 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
 
     private static final String TAG = "ForgotPasswordDialogFra";
 
+    private final HelperGeneral helperObject = new HelperGeneral();
+
     @Nullable
     @BindView(R.id.con_lay_root_forgot_password)
     ConstraintLayout conLayRootForgotPasswordDialog;
-
-    private final HelperGeneral helperObject = new HelperGeneral();
+    @Nullable
+    @BindView(R.id.img_close)
+    ImageView imgClose;
+    @Nullable
+    @BindView(R.id.et_reset_email)
+    CustomEditText etResetEmail;
+    @Nullable
+    @BindView(R.id.btn_reset_password)
+    Button btnReset;
 
     private Unbinder unbinder;
     private ProgressDialog loadingBar;
@@ -106,10 +115,6 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
 
         if ((null) != getActivity()) loadingBar = new ProgressDialog(getActivity());
 
-        ImageView imgClose = view.findViewById(R.id.img_close);
-        CustomEditText etResetEmail = view.findViewById(R.id.et_reset_email);
-        Button btnReset = view.findViewById(R.id.btn_reset_password);
-
         imgClose.setOnClickListener(view1 -> dismiss());
 
         btnReset.setOnClickListener(view2 -> {
@@ -129,7 +134,7 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
         if (hasInternet()) {
             observer = requestStateMediator -> {
 
-                if (Status.LOADING == requestStateMediator.getStatus()) {
+                if (UiState.LOADING == requestStateMediator.getStatus()) {
                     if (null != getActivity()) {
                         getActivity().runOnUiThread(() -> {
                             loadingBar.setMessage(valueOf(requestStateMediator.getMessage()));
@@ -139,7 +144,7 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
                     }
                 }
 
-                if (Status.SUCCESS == requestStateMediator.getStatus()) {
+                if (UiState.SUCCESS == requestStateMediator.getStatus()) {
                     if (null != getActivity()) {
                         getActivity().runOnUiThread(() -> {
                             if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
@@ -149,7 +154,7 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
                     }
                 }
 
-                if (Status.EMPTY == requestStateMediator.getStatus()) {
+                if (UiState.EMPTY == requestStateMediator.getStatus()) {
                     if (null != getActivity()) {
                         getActivity().runOnUiThread(() -> {
                             if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
@@ -158,7 +163,7 @@ public class ForgotPasswordDialogFragment extends DialogFragment {
                     }
                 }
 
-                if (Status.ERROR == requestStateMediator.getStatus()) {
+                if (UiState.ERROR == requestStateMediator.getStatus()) {
                     if (null != getActivity()) {
                         getActivity().runOnUiThread(() -> {
                             if (("RESET PASSWORD").equals(requestStateMediator.getKey())) {

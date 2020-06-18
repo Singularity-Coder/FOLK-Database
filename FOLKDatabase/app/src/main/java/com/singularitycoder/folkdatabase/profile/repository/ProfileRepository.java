@@ -13,7 +13,7 @@ import com.singularitycoder.folkdatabase.database.model.FolkGuideItem;
 import com.singularitycoder.folkdatabase.database.model.TeamLeadItem;
 import com.singularitycoder.folkdatabase.helper.RequestStateMediator;
 import com.singularitycoder.folkdatabase.helper.HelperConstants;
-import com.singularitycoder.folkdatabase.helper.Status;
+import com.singularitycoder.folkdatabase.helper.UiState;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +42,7 @@ public class ProfileRepository {
         final MutableLiveData<RequestStateMediator> authUserLiveData = new MutableLiveData<>();
         final RequestStateMediator requestStateMediator = new RequestStateMediator();
 
-        requestStateMediator.set(null, Status.LOADING, "Please wait...", null);
+        requestStateMediator.set(null, UiState.LOADING, "Please wait...", null);
         authUserLiveData.postValue(requestStateMediator);
 
         FirebaseFirestore.getInstance()
@@ -76,18 +76,18 @@ public class ProfileRepository {
                                     Log.d(TAG, "readAuthUserData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
                                 }
 
-                                requestStateMediator.set(authUserItem, Status.SUCCESS, "Got Basic Info!", "AUTH USER");
+                                requestStateMediator.set(authUserItem, UiState.SUCCESS, "Got Basic Info!", "AUTH USER");
                                 authUserLiveData.postValue(requestStateMediator);
                             }
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
                     } else {
-                        requestStateMediator.set(null, Status.EMPTY, "Nothing!", null);
+                        requestStateMediator.set(null, UiState.EMPTY, "Nothing!", null);
                         authUserLiveData.postValue(requestStateMediator);
                     }
                 })
                 .addOnFailureListener(e -> {
-                    requestStateMediator.set(null, Status.ERROR, e.getMessage(), null);
+                    requestStateMediator.set(null, UiState.ERROR, e.getMessage(), null);
                     authUserLiveData.postValue(requestStateMediator);
                 });
         return authUserLiveData;
@@ -98,7 +98,7 @@ public class ProfileRepository {
         final MutableLiveData<RequestStateMediator> folkGuideLiveData = new MutableLiveData<>();
         final RequestStateMediator requestStateMediator = new RequestStateMediator();
 
-        requestStateMediator.set(null, Status.LOADING, "Please wait...", null);
+        requestStateMediator.set(null, UiState.LOADING, "Please wait...", null);
         folkGuideLiveData.postValue(requestStateMediator);
 
         FirebaseFirestore.getInstance()
@@ -146,18 +146,18 @@ public class ProfileRepository {
                                     Log.d(TAG, "readFolkGuideData: whatsapp: " + valueOf(docSnap.getString("phone")));
                                 }
 
-                                requestStateMediator.set(folkGuideItem, Status.SUCCESS, "Got Folk Guide Info!", "FOLK GUIDE");
+                                requestStateMediator.set(folkGuideItem, UiState.SUCCESS, "Got Folk Guide Info!", "FOLK GUIDE");
                                 folkGuideLiveData.postValue(requestStateMediator);
                             }
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
                     } else {
-                        requestStateMediator.set(null, Status.EMPTY, "Nothing!", null);
+                        requestStateMediator.set(null, UiState.EMPTY, "Nothing!", null);
                         folkGuideLiveData.postValue(requestStateMediator);
                     }
                 })
                 .addOnFailureListener(e -> {
-                    requestStateMediator.set(null, Status.ERROR, e.getMessage(), null);
+                    requestStateMediator.set(null, UiState.ERROR, e.getMessage(), null);
                     folkGuideLiveData.postValue(requestStateMediator);
                 });
         return folkGuideLiveData;
@@ -168,7 +168,7 @@ public class ProfileRepository {
         final MutableLiveData<RequestStateMediator> teamLeadLiveData = new MutableLiveData<>();
         final RequestStateMediator requestStateMediator = new RequestStateMediator();
 
-        requestStateMediator.set(null, Status.LOADING, "Please wait...", null);
+        requestStateMediator.set(null, UiState.LOADING, "Please wait...", null);
         teamLeadLiveData.postValue(requestStateMediator);
 
         FirebaseFirestore.getInstance()
@@ -216,18 +216,18 @@ public class ProfileRepository {
                                     Log.d(TAG, "readFolkGuideData: whatsapp: " + valueOf(docSnap.getString("phone")));
                                 }
 
-                                requestStateMediator.set(teamLeadItem, Status.SUCCESS, "Got Team Lead Info!", "TEAM LEAD");
+                                requestStateMediator.set(teamLeadItem, UiState.SUCCESS, "Got Team Lead Info!", "TEAM LEAD");
                                 teamLeadLiveData.postValue(requestStateMediator);
                             }
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
                     } else {
-                        requestStateMediator.set(null, Status.EMPTY, "Nothing!", null);
+                        requestStateMediator.set(null, UiState.EMPTY, "Nothing!", null);
                         teamLeadLiveData.postValue(requestStateMediator);
                     }
                 })
                 .addOnFailureListener(e -> {
-                    requestStateMediator.set(null, Status.ERROR, e.getMessage(), null);
+                    requestStateMediator.set(null, UiState.ERROR, e.getMessage(), null);
                     teamLeadLiveData.postValue(requestStateMediator);
                 });
         return teamLeadLiveData;
@@ -238,7 +238,7 @@ public class ProfileRepository {
         final MutableLiveData<RequestStateMediator> contactLiveData = new MutableLiveData<>();
         final RequestStateMediator requestStateMediator = new RequestStateMediator();
 
-        requestStateMediator.set(null, Status.LOADING, "Please wait...", null);
+        requestStateMediator.set(null, UiState.LOADING, "Please wait...", null);
         contactLiveData.postValue(requestStateMediator);
 
         FirebaseFirestore.getInstance()
@@ -310,18 +310,18 @@ public class ProfileRepository {
                                     contactItem.setStrProfileImage(imageData.get(""));
                                 }
 
-                                requestStateMediator.set(contactItem, Status.SUCCESS, "Got Contact Info!", "CONTACT");
+                                requestStateMediator.set(contactItem, UiState.SUCCESS, "Got Contact Info!", "CONTACT");
                                 contactLiveData.postValue(requestStateMediator);
                             }
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
                     } else {
-                        requestStateMediator.set(null, Status.EMPTY, "Nothing!", null);
+                        requestStateMediator.set(null, UiState.EMPTY, "Nothing!", null);
                         contactLiveData.postValue(requestStateMediator);
                     }
                 })
                 .addOnFailureListener(e -> {
-                    requestStateMediator.set(null, Status.ERROR, e.getMessage(), null);
+                    requestStateMediator.set(null, UiState.ERROR, e.getMessage(), null);
                     contactLiveData.postValue(requestStateMediator);
                 });
         return contactLiveData;
@@ -332,7 +332,7 @@ public class ProfileRepository {
         final MutableLiveData<RequestStateMediator> allUsersLiveData = new MutableLiveData<>();
         final RequestStateMediator requestStateMediator = new RequestStateMediator();
 
-        requestStateMediator.set(null, Status.LOADING, "Please wait...", null);
+        requestStateMediator.set(null, UiState.LOADING, "Please wait...", null);
         allUsersLiveData.postValue(requestStateMediator);
 
         FirebaseFirestore.getInstance()
@@ -371,18 +371,18 @@ public class ProfileRepository {
                                     Log.d(TAG, "readAllUsersData: profilepic: " + valueOf(docSnap.getString("profileImageUrl")));
                                 }
 
-                                requestStateMediator.set(allUsersItem, Status.SUCCESS, "Got All Users Info!", "ALL USERS");
+                                requestStateMediator.set(allUsersItem, UiState.SUCCESS, "Got All Users Info!", "ALL USERS");
                                 allUsersLiveData.postValue(requestStateMediator);
                             }
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
                     } else {
-                        requestStateMediator.set(null, Status.EMPTY, "Nothing!", null);
+                        requestStateMediator.set(null, UiState.EMPTY, "Nothing!", null);
                         allUsersLiveData.postValue(requestStateMediator);
                     }
                 })
                 .addOnFailureListener(e -> {
-                    requestStateMediator.set(null, Status.ERROR, e.getMessage(), null);
+                    requestStateMediator.set(null, UiState.ERROR, e.getMessage(), null);
                     allUsersLiveData.postValue(requestStateMediator);
                 });
         return allUsersLiveData;
@@ -393,7 +393,7 @@ public class ProfileRepository {
         final MutableLiveData<RequestStateMediator> basicInfoLiveData = new MutableLiveData<>();
         final RequestStateMediator requestStateMediator = new RequestStateMediator();
 
-        requestStateMediator.set(null, Status.LOADING, "Please wait...", null);
+        requestStateMediator.set(null, UiState.LOADING, "Please wait...", null);
         basicInfoLiveData.postValue(requestStateMediator);
 
         FirebaseFirestore.getInstance()
@@ -441,18 +441,18 @@ public class ProfileRepository {
                                     Log.d(TAG, "readBasicData: hkmJoiningDate: " + valueOf(docSnap.getString("hkmJoiningDate")));
                                 }
 
-                                requestStateMediator.set(authUserItem, Status.SUCCESS, "Got Basic Info!", "BASIC INFO");
+                                requestStateMediator.set(authUserItem, UiState.SUCCESS, "Got Basic Info!", "BASIC INFO");
                                 basicInfoLiveData.postValue(requestStateMediator);
                             }
                             Log.d(TAG, "firedoc id: " + docSnap.getId());
                         }
                     } else {
-                        requestStateMediator.set(null, Status.EMPTY, "Nothing!", null);
+                        requestStateMediator.set(null, UiState.EMPTY, "Nothing!", null);
                         basicInfoLiveData.postValue(requestStateMediator);
                     }
                 })
                 .addOnFailureListener(e -> {
-                    requestStateMediator.set(null, Status.ERROR, e.getMessage(), null);
+                    requestStateMediator.set(null, UiState.ERROR, e.getMessage(), null);
                     basicInfoLiveData.postValue(requestStateMediator);
                 });
         return basicInfoLiveData;

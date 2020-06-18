@@ -9,8 +9,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -45,7 +43,7 @@ import com.singularitycoder.folkdatabase.helper.RequestStateMediator;
 import com.singularitycoder.folkdatabase.helper.FrescoImageViewer;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
-import com.singularitycoder.folkdatabase.helper.Status;
+import com.singularitycoder.folkdatabase.helper.UiState;
 import com.singularitycoder.folkdatabase.profile.viewmodel.ProfileViewModel;
 
 import java.util.ArrayList;
@@ -56,9 +54,6 @@ import java.util.concurrent.Callable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.ObservableSource;
 
 import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
 import static java.lang.String.valueOf;
@@ -542,7 +537,7 @@ public class ProfileActivity extends AppCompatActivity {
         if (hasInternet()) {
             observer = requestStateMediator -> {
 
-                if (Status.LOADING == requestStateMediator.getStatus()) {
+                if (UiState.LOADING == requestStateMediator.getStatus()) {
                     runOnUiThread(() -> {
                         loadingBar.setMessage(valueOf(requestStateMediator.getMessage()));
                         loadingBar.setCanceledOnTouchOutside(false);
@@ -550,7 +545,7 @@ public class ProfileActivity extends AppCompatActivity {
                     });
                 }
 
-                if (Status.SUCCESS == requestStateMediator.getStatus()) {
+                if (UiState.SUCCESS == requestStateMediator.getStatus()) {
                     runOnUiThread(() -> {
                         if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
 
@@ -588,14 +583,14 @@ public class ProfileActivity extends AppCompatActivity {
                     });
                 }
 
-                if (Status.EMPTY == requestStateMediator.getStatus()) {
+                if (UiState.EMPTY == requestStateMediator.getStatus()) {
                     runOnUiThread(() -> {
                         if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
                         Toast.makeText(ProfileActivity.this, valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
                     });
                 }
 
-                if (Status.ERROR == requestStateMediator.getStatus()) {
+                if (UiState.ERROR == requestStateMediator.getStatus()) {
                     runOnUiThread(() -> {
                         if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
                         Toast.makeText(ProfileActivity.this, valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();

@@ -2,7 +2,6 @@ package com.singularitycoder.folkdatabase.auth.view;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -33,11 +32,10 @@ import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.model.AuthUserItem;
 import com.singularitycoder.folkdatabase.auth.viewmodel.AuthViewModel;
 import com.singularitycoder.folkdatabase.helper.CustomEditText;
-import com.singularitycoder.folkdatabase.helper.HelperConstants;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 import com.singularitycoder.folkdatabase.helper.HelperSharedPreference;
 import com.singularitycoder.folkdatabase.helper.RequestStateMediator;
-import com.singularitycoder.folkdatabase.helper.Status;
+import com.singularitycoder.folkdatabase.helper.UiState;
 import com.singularitycoder.folkdatabase.home.view.HomeActivity;
 
 import java.util.List;
@@ -165,7 +163,7 @@ public class LoginFragment extends Fragment {
         if (hasInternet()) {
             observer = requestStateMediator -> {
 
-                if (Status.LOADING == requestStateMediator.getStatus()) {
+                if (UiState.LOADING == requestStateMediator.getStatus()) {
                     if (null != getActivity()) {
                         getActivity().runOnUiThread(() -> {
                             loadingBar.setMessage(valueOf(requestStateMediator.getMessage()));
@@ -176,7 +174,7 @@ public class LoginFragment extends Fragment {
                     }
                 }
 
-                if (Status.SUCCESS == requestStateMediator.getStatus()) {
+                if (UiState.SUCCESS == requestStateMediator.getStatus()) {
 
                     if (("RESET PASSWORD").equals(requestStateMediator.getKey())) {
                         if (null != getActivity()) {
@@ -240,7 +238,7 @@ public class LoginFragment extends Fragment {
                     }
                 }
 
-                if (Status.EMPTY == requestStateMediator.getStatus()) {
+                if (UiState.EMPTY == requestStateMediator.getStatus()) {
                     if (null != getActivity()) {
                         getActivity().runOnUiThread(() -> {
                             if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
@@ -249,7 +247,7 @@ public class LoginFragment extends Fragment {
                     }
                 }
 
-                if (Status.ERROR == requestStateMediator.getStatus()) {
+                if (UiState.ERROR == requestStateMediator.getStatus()) {
                     if (null != getActivity()) {
                         getActivity().runOnUiThread(() -> {
                             if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
@@ -348,31 +346,4 @@ public class LoginFragment extends Fragment {
         super.onDestroyView();
         unbinder.unbind();
     }
-
-//    private void dialogForgotPassword(Activity activity) {
-//        final Dialog dialog = new Dialog(activity);
-//        helperObject.dialogCustomBuild(activity, R.layout.dialog_fragment_forgot_password, dialog, false);
-//
-//        ImageView imgClose = dialog.findViewById(R.id.img_close);
-//        CustomEditText etResetEmail = dialog.findViewById(R.id.et_reset_email);
-//        Button btnReset = dialog.findViewById(R.id.btn_reset_password);
-//
-//        imgClose.setOnClickListener(view -> dialog.dismiss());
-//
-//        btnReset.setOnClickListener(view -> {
-//            Log.d(TAG, "dialogForgotPassword: email: " + valueOf(etResetEmail.getText()).trim());
-//            if (valueOf(etResetEmail.getText()).trim().equals("")) {
-//                etResetEmail.setError("Email cannot be empty!");
-//                etResetEmail.requestFocus();
-//            } else if (!helperObject.hasValidEmail(valueOf(etResetEmail.getText()).trim())) {
-//                etResetEmail.setError("Invalid Email!");
-//                etResetEmail.requestFocus();
-//            } else {
-//                authViewModel.resetPasswordFromRepository(valueOf(etResetEmail.getText()).trim()).observe(getViewLifecycleOwner(), liveDataObserver(valueOf(etResetEmail.getText()).trim()));
-//                dialog.dismiss();
-//            }
-//        });
-//
-//        dialog.show();
-//    }
 }

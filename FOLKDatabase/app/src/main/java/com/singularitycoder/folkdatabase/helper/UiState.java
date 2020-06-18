@@ -1,6 +1,6 @@
 package com.singularitycoder.folkdatabase.helper;
 
-public enum Status {
+public enum UiState {
     LOADING,
     SUCCESS,
     EMPTY,

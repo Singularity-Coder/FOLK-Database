@@ -17,7 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.model.AuthUserItem;
 import com.singularitycoder.folkdatabase.helper.RequestStateMediator;
-import com.singularitycoder.folkdatabase.helper.Status;
+import com.singularitycoder.folkdatabase.helper.UiState;
 import com.singularitycoder.folkdatabase.profile.viewmodel.ProfileViewModel;
 
 import org.jetbrains.annotations.NotNull;
@@ -92,7 +92,7 @@ public class BasicInfoFragment extends Fragment {
         if (hasInternet()) {
             final Observer<RequestStateMediator> observer = requestStateMediator -> {
 
-                if (Status.LOADING == requestStateMediator.getStatus()) {
+                if (UiState.LOADING == requestStateMediator.getStatus()) {
                     getActivity().runOnUiThread(() -> {
                         loadingBar.setMessage(valueOf(requestStateMediator.getMessage()));
                         loadingBar.setCanceledOnTouchOutside(false);
@@ -100,7 +100,7 @@ public class BasicInfoFragment extends Fragment {
                     });
                 }
 
-                if (Status.SUCCESS == requestStateMediator.getStatus()) {
+                if (UiState.SUCCESS == requestStateMediator.getStatus()) {
                     getActivity().runOnUiThread(() -> {
                         if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
                         Toast.makeText(getContext(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
@@ -115,14 +115,14 @@ public class BasicInfoFragment extends Fragment {
                     });
                 }
 
-                if (Status.EMPTY == requestStateMediator.getStatus()) {
+                if (UiState.EMPTY == requestStateMediator.getStatus()) {
                     getActivity().runOnUiThread(() -> {
                         if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
                         Toast.makeText(getContext(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
                     });
                 }
 
-                if (Status.ERROR == requestStateMediator.getStatus()) {
+                if (UiState.ERROR == requestStateMediator.getStatus()) {
                     getActivity().runOnUiThread(() -> {
                         if (null != loadingBar && loadingBar.isShowing()) loadingBar.dismiss();
                         Toast.makeText(getContext(), valueOf(requestStateMediator.getMessage()), Toast.LENGTH_SHORT).show();
