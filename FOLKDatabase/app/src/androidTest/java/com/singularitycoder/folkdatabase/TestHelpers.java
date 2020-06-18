@@ -1,4 +1,4 @@
-package com.singularitycoder.folkdatabase.helpers;
+package com.singularitycoder.folkdatabase;
 
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;

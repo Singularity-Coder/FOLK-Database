@@ -1,4 +1,4 @@
-package com.singularitycoder.folkdatabase.helpers;
+package com.singularitycoder.folkdatabase;
 
 import java.util.concurrent.Callable;
 

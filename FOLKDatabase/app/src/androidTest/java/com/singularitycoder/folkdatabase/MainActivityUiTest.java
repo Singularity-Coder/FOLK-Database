@@ -1,4 +1,4 @@
-package com.singularitycoder.folkdatabase.auth.view;
+package com.singularitycoder.folkdatabase;
 
 import android.content.Context;
 import android.view.Window;
@@ -19,6 +19,7 @@ import androidx.test.rule.ActivityTestRule;
 import androidx.test.uiautomator.UiDevice;
 
 import com.singularitycoder.folkdatabase.R;
+import com.singularitycoder.folkdatabase.auth.view.MainActivity;
 import com.singularitycoder.folkdatabase.auth.viewmodel.AuthViewModel;
 import com.singularitycoder.folkdatabase.helper.RequestStateMediator;
 import com.singularitycoder.folkdatabase.helper.UiState;
