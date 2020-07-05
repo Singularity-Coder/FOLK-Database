@@ -4,7 +4,6 @@ import com.google.firebase.firestore.Exclude;
 
 public class AuthUserItem {
 
-    @Exclude
     private String docId;
 
     // Make sure u use the same names as u provided in the Firebase. Same obj names
@@ -51,6 +50,7 @@ public class AuthUserItem {
         this.epochTimeStamp = epochTimeStamp;
     }
 
+    @Exclude
     public String getDocId() {
         return docId;
     }

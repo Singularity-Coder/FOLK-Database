@@ -11,6 +11,7 @@ public class EmailValidator implements TextWatcher {
             "^[\\w-\\+]+(\\.[\\w]+)*@[\\w-]+(\\.[\\w]+)*(\\.[a-z]{2,})$"
     );
     private boolean mIsValid = false;
+
     public boolean isValid() {
         return mIsValid;
     }
@@ -18,12 +19,17 @@ public class EmailValidator implements TextWatcher {
     public static boolean isValidEmail(CharSequence email) {
         return email != null && EMAIL_PATTERN.matcher(email).matches();
     }
+
     @Override
     final public void afterTextChanged(Editable editableText) {
         mIsValid = isValidEmail(editableText);
     }
+
     @Override
-    final public void beforeTextChanged(CharSequence s, int start, int count, int after) {/*No-op*/}
+    final public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
+
     @Override
-    final public void onTextChanged(CharSequence s, int start, int before, int count) {/*No-op*/}
+    final public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
 }

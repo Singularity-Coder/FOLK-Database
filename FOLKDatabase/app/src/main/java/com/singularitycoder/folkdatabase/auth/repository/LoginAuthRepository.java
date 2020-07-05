@@ -18,7 +18,7 @@ public class LoginAuthRepository {
         // Initialize Firebase if necessary
     }
 
-    public static LoginAuthRepository getInstance() {
+    public static synchronized LoginAuthRepository getInstance() {
         if (_instance == null) {
             _instance = new LoginAuthRepository();
         }
