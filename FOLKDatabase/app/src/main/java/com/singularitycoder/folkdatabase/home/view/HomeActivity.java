@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
+import static com.singularitycoder.folkdatabase.BaseApplication.hasInternet;
 import static java.lang.String.valueOf;
 
 public class HomeActivity extends AppCompatActivity {
@@ -100,7 +100,7 @@ public class HomeActivity extends AppCompatActivity {
     @AddTrace(name = "onCreateTrace", enabled = true)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        helperObject.setStatuBarColor(this, R.color.colorPrimaryDark);
+        helperObject.setStatusBarColor(this, R.color.colorPrimaryDark);
         setContentView(R.layout.activity_home);
         init();
         authCheck();

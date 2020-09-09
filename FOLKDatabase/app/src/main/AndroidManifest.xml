@@ -23,7 +23,7 @@
         android:required="false" />
 
     <application
-        android:name=".helper.FolkDatabaseApp"
+        android:name=".BaseApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -40,7 +40,7 @@
             android:value="true" />
 
         <activity
-            android:name=".SplashActivity"
+            android:name=".splash.SplashActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity">

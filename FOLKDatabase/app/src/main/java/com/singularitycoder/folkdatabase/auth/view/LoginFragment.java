@@ -46,7 +46,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 import static com.singularitycoder.folkdatabase.auth.view.MainActivity.authTabLayout;
-import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
+import static com.singularitycoder.folkdatabase.BaseApplication.hasInternet;
 import static java.lang.String.valueOf;
 
 public class LoginFragment extends Fragment {

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
     android:id="@+id/con_lay_splash"
-    tools:context=".SplashActivity">
+    tools:context=".splash.SplashActivity">
 
     <View
         android:id="@+id/bg_splash_view_bg"

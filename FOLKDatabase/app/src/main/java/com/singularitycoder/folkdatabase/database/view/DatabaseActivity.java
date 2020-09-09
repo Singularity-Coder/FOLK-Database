@@ -34,7 +34,7 @@ public class DatabaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        helperObject.setStatuBarColor(this, R.color.colorPrimaryDark);
+        helperObject.setStatusBarColor(this, R.color.colorPrimaryDark);
         setContentView(R.layout.activity_database);
         inits();
         initToolBar();
@@ -49,6 +49,7 @@ public class DatabaseActivity extends AppCompatActivity {
         fab1 = findViewById(R.id.floating_button);
         viewPager = findViewById(R.id.viewpager_home);
         tabLayout = findViewById(R.id.tabs_home);
+
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
     }
 
@@ -174,7 +175,6 @@ public class DatabaseActivity extends AppCompatActivity {
         }
 
     }
-
 
     private void setupViewPager(ViewPager viewPager) {
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());

@@ -55,7 +55,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
+import static com.singularitycoder.folkdatabase.BaseApplication.hasInternet;
 import static java.lang.String.valueOf;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -105,7 +105,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        helperObject.setStatuBarColor(this, R.color.colorPrimaryDark);
+        helperObject.setStatusBarColor(this, R.color.colorPrimaryDark);
         setContentView(R.layout.activity_profile);
         ButterKnife.bind(this);
         unbinder = ButterKnife.bind(this);

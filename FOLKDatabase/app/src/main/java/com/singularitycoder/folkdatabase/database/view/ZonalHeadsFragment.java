@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
+import static com.singularitycoder.folkdatabase.BaseApplication.hasInternet;
 
 public class ZonalHeadsFragment extends Fragment {
 

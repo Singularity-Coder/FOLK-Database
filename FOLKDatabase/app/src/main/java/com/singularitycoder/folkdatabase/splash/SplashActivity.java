@@ -1,4 +1,4 @@
-package com.singularitycoder.folkdatabase;
+package com.singularitycoder.folkdatabase.splash;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.singularitycoder.folkdatabase.R;
 import com.singularitycoder.folkdatabase.auth.view.MainActivity;
 
 // Contents
@@ -32,7 +33,6 @@ public class SplashActivity extends AppCompatActivity {
     private ImageView appIcon;
     private ConstraintLayout mConstraintLayout;
     private AnimationDrawable mAnimationDrawable;
-    private final int SHOW_SPLASH_FOR = 2000;   // milli seconds
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +73,7 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void delaySplashFor2Sec() {
+        int SHOW_SPLASH_FOR = 2000; // milli seconds
         new Handler().postDelayed(() -> {
             Intent mainIntent = new Intent(SplashActivity.this, MainActivity.class);
             SplashActivity.this.startActivity(mainIntent);

@@ -23,7 +23,7 @@ import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 import com.singularitycoder.folkdatabase.R;
 
-//  change the java inheritance from AppCompatActivity to Activity to make activity translucency to work
+//  change the java inheritance from AppCompatActivity to Activity for the activity translucency to work
 public class FrescoImageViewer extends Activity implements View.OnTouchListener {
 
     private static final String TAG = "HelperFrescoImageViewer";
@@ -51,7 +51,7 @@ public class FrescoImageViewer extends Activity implements View.OnTouchListener 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        new HelperGeneral().setStatuBarColor(this, R.color.colorPureBlack);
+        new HelperGeneral().setStatusBarColor(this, R.color.colorPureBlack);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_helper_fresco_image_viewer);
         init();

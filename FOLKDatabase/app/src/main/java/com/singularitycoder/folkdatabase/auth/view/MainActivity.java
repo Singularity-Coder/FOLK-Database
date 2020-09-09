@@ -23,8 +23,6 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.tabs.TabLayout;
 import com.singularitycoder.folkdatabase.R;
-import com.singularitycoder.folkdatabase.auth.view.LoginFragment;
-import com.singularitycoder.folkdatabase.auth.view.SignUpFragment;
 import com.singularitycoder.folkdatabase.helper.HelperGeneral;
 
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        helperObject.setStatuBarColor(this, R.color.colorPrimaryDark);
+        helperObject.setStatusBarColor(this, R.color.colorPrimaryDark);
         setContentView(R.layout.activity_main);
         inits();
         setUpViewPager();

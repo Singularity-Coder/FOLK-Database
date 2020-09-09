@@ -1,46 +1,34 @@
-package com.singularitycoder.folkdatabase.helper;
+package com.singularitycoder.folkdatabase;
 
 import android.app.Application;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import com.evernote.android.job.JobRequest;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.squareup.leakcanary.LeakCanary;
 
-import org.acra.ACRA;
 import org.acra.BuildConfig;
 import org.acra.annotation.AcraCore;
-import org.acra.config.CoreConfigurationBuilder;
-import org.acra.config.HttpSenderConfigurationBuilder;
-import org.acra.config.LimiterConfigurationBuilder;
-import org.acra.config.SchedulerConfigurationBuilder;
-import org.acra.data.StringFormat;
-import org.acra.sender.HttpSender;
 
 @AcraCore(buildConfigClass = BuildConfig.class)
-public class FolkDatabaseApp extends Application {
+public class BaseApplication extends Application {
 
     private static final String TAG = "FolkDatabaseApp";
 
-    private static FolkDatabaseApp instance;
+    private static BaseApplication instance;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        if(instance == null) {
-            instance = this;
-        }
+        if (null == instance) instance = this;
 
         // Initializing Fresco
         Fresco.initialize(this);
 
         // Initializing Leaky Canary
-        if (LeakCanary.isInAnalyzerProcess(this)) {
-            return;
-        }
+        if (LeakCanary.isInAnalyzerProcess(this)) return;
         LeakCanary.install(this);
     }
 
@@ -68,7 +56,7 @@ public class FolkDatabaseApp extends Application {
 //        ACRA.init(this);
     }
 
-    public static FolkDatabaseApp getInstance() {
+    public static synchronized BaseApplication getInstance() {
         return instance;
     }
 

@@ -119,7 +119,7 @@ public class HelperGeneral extends AppCompatActivity {
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
-    public void setStatuBarColor(Activity activity, int statusBarColor) {
+    public void setStatusBarColor(Activity activity, int statusBarColor) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = activity.getWindow();
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -163,7 +163,7 @@ public class HelperGeneral extends AppCompatActivity {
     public void showSettingsDialog(Context context) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Give Permissions!");
-        builder.setMessage("We need you to grant the permissions for the camera feature to work!");
+        builder.setMessage("We need you to grant the permissions for the feature to work!");
         builder.setPositiveButton("OK", (dialog, which) -> {
             dialog.cancel();
             openSettings(context);
@@ -504,7 +504,7 @@ public class HelperGeneral extends AppCompatActivity {
     public String currentDateTime() {
         String dateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
-        // split date and time for event created date
+        // split date and time for created date
         String[] arrOfStr = dateTime.split(" ", 2);
         ArrayList<String> dateAndTime = new ArrayList<>(Arrays.asList(arrOfStr));
 
@@ -560,14 +560,14 @@ public class HelperGeneral extends AppCompatActivity {
 //    android.R.style.Theme_DeviceDefault_Light_Dialog_Alert
 //    android.R.style.Theme_Material_Light_Dialog_Alert
 //    android.R.style.Theme_Material_Dialog_Alert
-    public void showDatePickerOldStyle(final TextView datefield, Context context) {
+    public void showDatePickerOldStyle(@NonNull final TextView tvDate, @NonNull final Context context) {
 // Get Current Date
         final Calendar c = Calendar.getInstance();
-        int mYear = c.get(Calendar.YEAR);
-        int mMonth = c.get(Calendar.MONTH);
-        int mDay = c.get(Calendar.DAY_OF_MONTH);
+        final int mYear = c.get(Calendar.YEAR);
+        final int mMonth = c.get(Calendar.MONTH);
+        final int mDay = c.get(Calendar.DAY_OF_MONTH);
 
-        DatePickerDialog dialog = new DatePickerDialog(
+        final DatePickerDialog dialog = new DatePickerDialog(
                 context,
                 android.R.style.Theme_Holo_Light_Dialog_MinWidth,
                 (view, year, monthOfYear, dayOfMonth) -> {
@@ -576,13 +576,39 @@ public class HelperGeneral extends AppCompatActivity {
                     c.set(Calendar.MONTH, monthOfYear);
                     c.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-                    String myFormat = "dd/MM/yy";
-                    SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
-                    datefield.setText(sdf.format(c.getTime()));
+                    final String myFormat = "dd/MM/yy";
+                    final SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+                    tvDate.setText(sdf.format(c.getTime()));
                 },
                 mYear,
                 mMonth,
                 mDay);
+
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+    }
+
+    public void showTimePickerOldStyle(@NonNull final TextView tvTime, @NonNull final Context context) {
+        // Get Current Time
+        final Calendar c = Calendar.getInstance();
+        final int mHour = c.get(Calendar.HOUR_OF_DAY);
+        final int mMinute = c.get(Calendar.MINUTE);
+
+        // Launch Time Picker Dialog
+        final TimePickerDialog dialog = new TimePickerDialog(
+                context,
+                android.R.style.Theme_Holo_Light_Dialog_MinWidth,
+                (view, hourOfDay, minute) -> {
+                    c.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                    c.set(Calendar.MINUTE, minute);
+
+                    final String myFormat = "hh:mm aa";
+                    final SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+                    tvTime.setText(sdf.format(c.getTime()));
+                },
+                mHour,
+                mMinute,
+                false);
 
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();

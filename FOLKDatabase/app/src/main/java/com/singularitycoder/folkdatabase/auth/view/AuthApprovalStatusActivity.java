@@ -71,7 +71,7 @@ public class AuthApprovalStatusActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        helperObject.setStatuBarColor(this, R.color.bg_light);
+        helperObject.setStatusBarColor(this, R.color.bg_light);
         setContentView(R.layout.activity_approval_status);
         inits();
         authCheck();

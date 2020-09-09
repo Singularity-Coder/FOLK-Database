@@ -34,7 +34,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
-import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
+import static com.singularitycoder.folkdatabase.BaseApplication.hasInternet;
 import static java.lang.String.valueOf;
 
 public class ForgotPasswordDialogFragment extends DialogFragment {

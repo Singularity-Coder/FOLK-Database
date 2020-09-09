@@ -67,7 +67,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.app.Activity.RESULT_CANCELED;
-import static com.singularitycoder.folkdatabase.helper.FolkDatabaseApp.hasInternet;
+import static com.singularitycoder.folkdatabase.BaseApplication.hasInternet;
 import static java.lang.String.valueOf;
 
 public class SignUpFragment extends Fragment {
@@ -136,7 +136,7 @@ public class SignUpFragment extends Fragment {
     private final ArrayList<String> imageFilePathsStringArray = new ArrayList<>();
 
     private String adminKey;
-    private String lastFourDigits;
+    private String lastFourLetters;
     private String newImagePath = null;
     private String profileImageDirectory;
     private String[] zones;
@@ -1419,13 +1419,13 @@ public class SignUpFragment extends Fragment {
             }
 
             File file = null;
-            lastFourDigits = "";
+            lastFourLetters = "";
             int fileSize = 0;
             String imageName = null;
 
             // Check if img total length is > 4 including extension n dot
             if (newImagePath.length() > 4) {
-                lastFourDigits = newImagePath.substring(newImagePath.length() - 3);
+                lastFourLetters = newImagePath.substring(newImagePath.length() - 3);
             }
 
             // Get Image Name
@@ -1468,10 +1468,10 @@ public class SignUpFragment extends Fragment {
                 ContactItem contactItem = new ContactItem();
                 contactItem.setIvProfileImage(bitmapUri);
                 contactItem.setImageName(imageName);
-                contactItem.setImageExtension(lastFourDigits);
+                contactItem.setImageExtension(lastFourLetters);
 
                 imageUriArray.add(contactItem);
-                imageExtensionStringArray.add(lastFourDigits);
+                imageExtensionStringArray.add(lastFourLetters);
                 imageNameStringArray.add(imageName);
 
                 ivSetProfileImage.setImageURI(bitmapUri);
@@ -1489,7 +1489,7 @@ public class SignUpFragment extends Fragment {
             }
 
             Log.d(TAG, "onActivityResult: Image name: " + newImagePath);
-            Log.d(TAG, "onActivityResult: Last 4 digits: " + lastFourDigits);
+            Log.d(TAG, "onActivityResult: Last 4 digits: " + lastFourLetters);
             Log.d(TAG, "onActivityResult: img path nnn: " + newImagePath);
             Log.d(TAG, "onActivityResult: Image Name: " + imageName);
             Log.d(TAG, "onActivityResult: file info: " + file);
